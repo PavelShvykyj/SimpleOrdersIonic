@@ -1,0 +1,7 @@
+{
+  "name": "SimpleOrders",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
