@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthCanActivateGuard } from '../authtorisation/auth-can-activate.guard';
 import { HomePage } from './home.page';
 
 const routes: Routes = [
@@ -9,11 +10,14 @@ const routes: Routes = [
     children: [
       {
         path: 'halls',
-        loadChildren: () => import('../halls/halls.module').then( m => m.HallsPageModule)
+        canActivate : [AuthCanActivateGuard],
+        loadChildren: () => import('./halls/halls.module').then( m => m.HallsPageModule)
+        
       },
       {
         path: 'reports',
-        loadChildren: () => import('../reports/reports.module').then( m => m.ReportsPageModule)
+        canActivate : [AuthCanActivateGuard],
+        loadChildren: () => import('./reports/reports.module').then( m => m.ReportsPageModule)
       },
       
       {

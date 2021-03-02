@@ -4,19 +4,19 @@
   <ion-tabs >
     <ion-tab-bar slot="bottom" color="primary">
       <ion-tab-button tab="halls">
-        <!-- <ion-icon name=""></ion-icon> -->
+        <ion-icon  [name]="!(isLoggedin$ | async) ? 'lock-closed-outline' : 'apps-outline' "></ion-icon>
         <ion-label>halls</ion-label>
-        
       </ion-tab-button>
   
       <ion-tab-button tab="reports">
-        <!-- <ion-icon name=""></ion-icon> -->
+        <ion-icon  [name]="!(isLoggedin$ | async) ? 'lock-closed-outline' : 'bar-chart-outline' "></ion-icon>
         <ion-label>reports</ion-label>
       </ion-tab-button>
   
       <ion-tab-button tab="block-app">
-        <!-- <ion-icon name=""></ion-icon> -->
-        <ion-label>block</ion-label>
+        <ion-icon  [name]="!(isLoggedin$ | async) ? 'lock-closed-outline' : 'lock-open-outline' "></ion-icon>
+        
+        <ion-label>block app</ion-label>
       </ion-tab-button>
   
      
