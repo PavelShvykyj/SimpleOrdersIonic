@@ -11,6 +11,18 @@ const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full'
   },
+  {
+    path: 'authtorisation',
+    loadChildren: () => import('./authtorisation/authtorisation.module').then( m => m.AuthtorisationPageModule)
+  },
+  {
+    path: 'settings',
+    loadChildren: () => import('./settings/settings.module').then( m => m.SettingsPageModule)
+  },
+  {
+    path: 'addons',
+    loadChildren: () => import('./addons/addons.module').then( m => m.AddonsPageModule)
+  }
 ];
 
 @NgModule({
