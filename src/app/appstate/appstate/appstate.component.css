@@ -1,0 +1,9 @@
+ion-label {
+    margin-top: 2px;
+    margin-bottom: 2px;
+} 
+
+ion-item {
+    --min-height: 30px;
+}
+

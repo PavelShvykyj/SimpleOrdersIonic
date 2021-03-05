@@ -1,0 +1,10 @@
+<ng-container *ngIf="stateData$ | async as stateData">
+    <ion-grid class="ion-no-padding">
+        <ion-row  class="ion-no-padding" >
+            <ion-col class="ion-no-padding"> <ion-item [color]="(stateData.isConnected && stateData.isNetworkCorrect) ?  'primary' : 'danger'"><ion-label> user : {{ stateData.userName }} </ion-label></ion-item> </ion-col>
+            <ion-col class="ion-no-padding"> <ion-item [color]="(stateData.isConnected && stateData.isNetworkCorrect) ?  'primary' : 'danger'"><ion-label> net : {{ stateData.netName }} </ion-label></ion-item> </ion-col>
+            <ion-col class="ion-no-padding"> <ion-item [color]="(stateData.isConnected && stateData.isNetworkCorrect) ?  'primary' : 'danger'"><ion-label> {{ stateData.queueCount }} in queue</ion-label></ion-item></ion-col>
+        </ion-row>
+    </ion-grid>
+</ng-container>    
+

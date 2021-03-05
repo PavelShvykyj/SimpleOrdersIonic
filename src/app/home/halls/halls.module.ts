@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { HallsPageRoutingModule } from './halls-routing.module';
 
 import { HallsPage } from './halls.page';
+import { AppstateModule } from 'src/app/appstate/appstate.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    HallsPageRoutingModule
+    HallsPageRoutingModule,
+    AppstateModule
   ],
   declarations: [HallsPage]
 })

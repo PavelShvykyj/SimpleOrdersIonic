@@ -1,4 +1,5 @@
 <ion-header [translucent]="true" >
+  
   <ion-toolbar>
     <ion-title>
       Block
@@ -6,10 +7,14 @@
     <ion-buttons slot="start">
       <ion-menu-button menu='mainSide' autoHide=true></ion-menu-button>
     </ion-buttons>
+    
   </ion-toolbar>
+  <app-state></app-state>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  
   <ion-item ><ion-label color="danger">App is blocked</ion-label> </ion-item>
   <ion-item routerLink="/authtorisation"><ion-button color="primary">Go to login</ion-button> </ion-item>
+  
 </ion-content>

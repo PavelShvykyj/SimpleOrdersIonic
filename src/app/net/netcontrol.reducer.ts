@@ -1,0 +1,37 @@
+import { isLoggedIn } from './../authtorisation/auth.selectors';
+import { Action, createReducer, on } from '@ngrx/store';
+import * as NetcontrolActions from './netcontrol.actions';
+
+export const netcontrolFeatureKey = 'netcontrol';
+
+export interface NetState {
+  netType : string,
+  IP : string,
+  isConnected : boolean,
+  NetworkCorrect : boolean,
+}
+
+export const initialState: NetState = {
+  netType : 'hz',
+  IP : '127.0.0.1',
+  isConnected : false,
+  NetworkCorrect : true
+};
+
+function SetNetCorrect(state : NetState ,onecip : string) : NetState {
+  const subNet = state.IP.split(".")[2];
+  const subNetOnec = onecip.split(".")[2];
+
+  return {...state,  NetworkCorrect: (subNet === subNetOnec)}
+}
+
+export const NetReducer = createReducer(
+  initialState,
+  on(NetcontrolActions.loadNetcontrols, (state,action) => {return {...state,  netType: action.netType, isConnected: action.isConnected }}),
+  on(NetcontrolActions.setIP, (state,action) => {return {...state, IP:action.IP}}),
+  on(NetcontrolActions.setNetCorrect,  (state,action) => SetNetCorrect(state,action.onecip))
+);
+
+export function netreducer(state: NetState | undefined, action: Action) {
+  return NetReducer(state, action);
+}
