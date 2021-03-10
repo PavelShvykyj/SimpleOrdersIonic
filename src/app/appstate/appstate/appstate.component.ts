@@ -40,7 +40,7 @@ export class AppstateComponent implements OnInit , OnDestroy {
         isNetworkCorrect:res[3],
         queueCount:res[4]}}));
 
-    this.refreshersubs = this.stateData$.pipe(debounceTime(10)).subscribe((res)=>{console.log(res); this.detector.detectChanges(); } );    
+    this.refreshersubs = this.stateData$.pipe(debounceTime(10)).subscribe((res)=>{ this.detector.detectChanges(); } );    
 
   }
 

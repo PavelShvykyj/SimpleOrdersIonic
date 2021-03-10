@@ -13,6 +13,8 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { AuthtorisationPageModule } from './authtorisation/authtorisation.module';
 import { NetModule } from './net/net.module';
+import { AppsettingsModule } from './appsettings/appsettings.module';
+import { DatabaseModule } from './database/database.module';
 
 
 
@@ -25,7 +27,9 @@ import { NetModule } from './net/net.module';
             EffectsModule.forRoot([]),
             StoreModule.forRoot(reducers, { metaReducers }), !environment.production ? StoreDevtoolsModule.instrument() : [], StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
             AuthtorisationPageModule,
-            NetModule
+            NetModule,
+            AppsettingsModule,
+            DatabaseModule
             
           ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],

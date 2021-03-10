@@ -10,6 +10,7 @@ import { SettingsPage } from './settings.page';
 
 @NgModule({
   imports: [
+
     ReactiveFormsModule,
     CommonModule,
     FormsModule,

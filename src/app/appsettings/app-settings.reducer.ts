@@ -1,4 +1,4 @@
-import { Action, createReducer, on, Store } from '@ngrx/store';
+import { Action, createReducer, on, State, Store } from '@ngrx/store';
 import * as AppSettingsActions from './app-settings.actions';
 
 export const appSettingsFeatureKey = 'appSettings';
@@ -18,9 +18,9 @@ export const initialState: SettingsState = {
 
 export const reducer = createReducer(
   initialState,
-
-  on(AppSettingsActions.loadAppSettingss, state => state),
-  on(AppSettingsActions.loadAppSettingssSuccess, (state, action) => state),
+  on(AppSettingsActions.onAppSettingsSet, (state, action) => {return {onecIP:action.onecIP, onecBase: action.onecBase}}),
+  on(AppSettingsActions.loadAppSettings, state => state),
+  on(AppSettingsActions.loadAppSettingssSuccess, (state, action) =>  {return {onecIP:action.onecIP, onecBase: action.onecBase}}),
   on(AppSettingsActions.loadAppSettingssFailure, (state, action) => state),
 
 );

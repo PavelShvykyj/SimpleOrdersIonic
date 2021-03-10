@@ -32,7 +32,6 @@ export class NetcontrolService implements OnDestroy {
   }
 
   GetIP() : Observable<string> {
-    alert('GetIP');
     return from( this.netIP.getWiFiIPAddress());
   }
   

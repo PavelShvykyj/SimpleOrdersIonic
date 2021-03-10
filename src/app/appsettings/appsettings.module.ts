@@ -4,12 +4,13 @@ import { EffectsModule } from '@ngrx/effects';
 import { AppSettingsEffects } from './app-settings.effects';
 import { StoreModule } from '@ngrx/store';
 import { appSettingsFeatureKey, settingsreducer } from './app-settings.reducer';
-
+import { ToastController } from '@ionic/angular';
 
 
 
 @NgModule({
   declarations: [],
+  providers: [ToastController],
   imports: [
     CommonModule,
     EffectsModule.forFeature([AppSettingsEffects]),

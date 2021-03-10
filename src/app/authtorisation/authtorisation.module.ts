@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -10,11 +10,14 @@ import { AuthtorisationPage } from './authtorisation.page';
 import { StoreModule } from '@ngrx/store';
 import * as fromAuthtorisation from './reducers';
 import { authreducer } from './reducers';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @NgModule({
+  providers: [BarcodeScanner],
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     IonicModule,
     AuthtorisationPageRoutingModule,
     StoreModule.forFeature(fromAuthtorisation.authtorisationFeatureKey, authreducer, { metaReducers: fromAuthtorisation.metaReducers })

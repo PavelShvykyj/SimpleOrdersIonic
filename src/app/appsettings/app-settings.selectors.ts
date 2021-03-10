@@ -5,6 +5,11 @@ export const selectAppSettingsState = createFeatureSelector<fromAppSettings.Sett
   fromAppSettings.appSettingsFeatureKey
 );
 
+export const selectAppSettings = createSelector(
+  selectAppSettingsState,
+  state => {return {...state}}
+)
+
 export const selectOnecIP = createSelector(
   selectAppSettingsState,
   state => state.onecIP
