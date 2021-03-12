@@ -6,6 +6,7 @@ import { EMPTY, of } from 'rxjs';
 import * as AppSettingsActions from './app-settings.actions';
 import { DatabaseService } from '../database/database.service';
 import { ToastController } from '@ionic/angular';
+import { SettingsState } from './app-settings.reducer';
 
 
 @Injectable()
@@ -17,7 +18,7 @@ export class AppSettingsEffects {
       ofType(AppSettingsActions.loadAppSettings),
       concatMap(() =>
         /** An EMPTY observable only emits completion. Replace with your own observable API request */
-        this.db_service.GetData('appsettings').pipe(
+        this.db_service.GetData<SettingsState>('appsettings').pipe(
           map(data => AppSettingsActions.loadAppSettingssSuccess(data)),
           catchError(error => of(AppSettingsActions.loadAppSettingssFailure({ error }))))
       )
@@ -31,7 +32,7 @@ export class AppSettingsEffects {
         
         mergeMap(action =>
           
-          this.db_service.SaveData(action.key, action.data).pipe(
+          this.db_service.SaveData<SettingsState>(action.key, action.data).pipe(
             map((action) =>{
               
               this.ShowToast('Saved','primary',400);

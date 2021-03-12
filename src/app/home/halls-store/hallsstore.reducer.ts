@@ -20,8 +20,7 @@ export const initialState: HallsStore = adapter.getInitialState();
 export const reducer = createReducer(
   initialState,
 
-  on(HallsstoreActions.loadHallsstores, state => state),
-  on(HallsstoreActions.loadHallsstoresSuccess, (state, action) => state),
+  on(HallsstoreActions.loadHallsstoresSuccess, (state, action) => {return adapter.setAll(action.data,state)}),
   on(HallsstoreActions.loadHallsstoresFailure, (state, action) => state),
 
 );

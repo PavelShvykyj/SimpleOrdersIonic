@@ -7,16 +7,28 @@ const routes: Routes = [
   {
     path: '',
     component: HallsPage
-  },
-  {
-    path: 'hall-state/:id',
-    loadChildren: () => import('./hall-state/hall-state.module').then( m => m.HallStatePageModule)
-  },
-  {
-    path: 'order',
-    loadChildren: () => import('./order/order.module').then( m => m.OrderPageModule)
-  }
-];
+  },  
+    
+      {
+        path: 'hallstate/:id',
+        loadChildren: () => import('./hall-state/hall-state.module').then( m => m.HallStatePageModule)
+      },
+      {
+        path: 'order',
+        loadChildren: () => import('./order/order.module').then( m => m.OrderPageModule)
+      },
+      {
+        path: '',
+        redirectTo: 'block-app',
+        pathMatch: 'full'
+      }
+    ];
+
+
+
+  
+
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

@@ -1,3 +1,4 @@
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +12,7 @@ import { HallStatePage } from './hall-state.page';
 @NgModule({
   imports: [
     CommonModule,
+    
     FormsModule,
     IonicModule,
     HallStatePageRoutingModule

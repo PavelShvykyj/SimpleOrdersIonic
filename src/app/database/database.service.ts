@@ -12,15 +12,18 @@ export class DatabaseService {
     
   }
 
-  SaveData(key:string,data:SettingsState) : Observable<SettingsState> {
+  SaveData<T>(key:string,data:T) : Observable<T> {
     
-    return from(this.db.setItem(key,data));
+    return from(this.db.setItem(key,data) as Promise<T>);
   }
 
-  GetData(key: string) : Observable<SettingsState> {
+  // GetData(key: string) : Observable<SettingsState> {
     
-    return from(this.db.getItem(key))
-  }
+  //   return from(this.db.getItem(key))
+  // }
   
+  GetData<T>(key: string) : Observable<T> {
+    return from(this.db.getItem(key) as Promise<T>)
+  }
 
 }

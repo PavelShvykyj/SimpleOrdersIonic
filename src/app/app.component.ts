@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { NetcontrolService } from './net/netcontrol.service';
 import { State } from './reducers';
+import { loadHallsstores } from './home/halls-store/hallsstore.actions';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.netservise.isOnline("");
     this.store.dispatch(loadAppSettings());
-
+    this.store.dispatch(loadHallsstores());
   }
 
 }

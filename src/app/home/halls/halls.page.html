@@ -6,9 +6,19 @@
     <ion-buttons slot="start">
       <ion-menu-button menu='mainSide' autoHide=true></ion-menu-button>
     </ion-buttons>
+    <ion-buttons slot="end"><ion-button (click)="Refresh()"><ion-icon slot="icon-only" name="refresh-outline"></ion-icon></ion-button> </ion-buttons>
   </ion-toolbar>
   <app-state></app-state>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ng-container *ngIf="halls$ | async as halls">
+    <ion-list>
+      <ion-item *ngFor="let hall of halls" detail button [routerLink]="['hallstate',hall.id]">
+        <ion-label> {{ hall.name }} </ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-container>
 </ion-content>
+
+

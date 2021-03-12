@@ -12,7 +12,7 @@ export const selectAllHallEntities = createSelector(
 
 export const selectHallByid = createSelector(
   selectAllHallEntities,
-  (entities,id) => {return entities[id]}
+  (entities,id:string) => {return entities[id]}
 )
 
 export const selectAllHalls = createSelector(
