@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {  Store } from '@ngrx/store';
 import { State } from '../reducers';
-import { loggIn } from './auth.actions';
+import { loggIn, loggOut } from './auth.actions';
 import { BarcodeScanner, BarcodeScanResult, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
 import { ToastController } from '@ionic/angular';
 
@@ -58,6 +58,7 @@ export class AuthtorisationPage implements OnInit {
         this.Loggin(); 
       } else {
         alert('cancelled');
+        this.store.dispatch(loggOut());
         this.password.patchValue(null);
       }
     })
