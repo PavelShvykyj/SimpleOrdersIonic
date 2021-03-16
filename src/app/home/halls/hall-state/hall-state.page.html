@@ -10,5 +10,47 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-grid>
+    <ion-virtual-scroll [items]="items" approxItemHeight="150px">
+      <ion-row *virtualItem="let item">
+
+        <ion-col *ngFor="let itemcol of [1,2,3]" size="4">
+          <ion-slides>
+          <ion-slide>
+          <ion-card  button type="button" class="ion-no-padding ion-no-margin slidecontent">
+            <ion-card-header>
+              <ion-card-title class="ion-text-center">table 1</ion-card-title>
+              <ion-card-subtitle class="ion-text-center ion-no-margin">200 grn</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content class="ion-text-center">
+              <p>Arnold agutin</p>
+              <p>5 items</p>
+              <p><small>13:00:23</small></p>
+            </ion-card-content>
+          </ion-card>
+          </ion-slide>
+          
+          <ion-slide>
+            <ion-card button type="button" color="light" class="ion-no-padding ion-no-margin slidecontent">
+              <ion-card-header>
+                <ion-card-title class="ion-text-center">table 1</ion-card-title>
+                <ion-card-subtitle class="ion-text-center ion-no-margin">content</ion-card-subtitle>
+              </ion-card-header>
+              <ion-card-content class="ion-text-center">
+                <p>cofee 1</p>
+                <p>alco coctail 4</p>
+                <p>stake fghj 1</p>
+                <p><small>total 17 rows</small></p>
+              </ion-card-content>
+            </ion-card>
+          </ion-slide>
+  
+          </ion-slides>
+        </ion-col>
+
+      </ion-row>
+    </ion-virtual-scroll>
+  </ion-grid>
+
 
 </ion-content>

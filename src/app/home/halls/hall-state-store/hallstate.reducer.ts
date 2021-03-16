@@ -7,8 +7,9 @@ export const hallstateFeatureKey = 'hallstate';
 export interface TableHeader {
   waitername: string,
   summ: number,
+  modified: Date,
   status: string,
-  rowshash: string
+  rowshash: Array<string>
 }
 
 export interface Table {

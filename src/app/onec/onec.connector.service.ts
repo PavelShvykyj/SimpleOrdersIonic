@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
 import { State } from '../reducers';
 
 
+
 const FAKE_HALLS : Array<Hall> = [
   {
     id:"1",
@@ -51,18 +52,23 @@ export class OnecConnectorService implements OnInit {
   baseName : string;
 
   constructor(private hclient : HttpClient, 
-    private store : Store<State>) { }
+    private store : Store<State>) { 
+      
+      this.store.pipe(select(selectAppSettings)).subscribe(data=>{
+        this.serverIP = data.onecIP;
+        this.baseName = data.onecBase;
+        
+      });
+  
+
+    }
 
   ngOnInit() {
-    this.store.pipe(select(selectAppSettings)).subscribe(data=>{
-      this.serverIP = data.onecIP;
-      this.baseName = data.onecBase;
-    });
   }  
 
   GetHalls() : Observable<Array<Hall>> {
     
-    const URL : string = "http://192.168.1.112/Base/hs/Worksheets/halls";
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/halls`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
     
    

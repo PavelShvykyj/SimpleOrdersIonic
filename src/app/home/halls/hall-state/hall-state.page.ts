@@ -16,8 +16,17 @@ export class HallStatePage implements OnInit {
 
   hall$ : Observable<Hall>
   hallid : string
-
-  constructor(private rout : ActivatedRoute, private store: Store<State> ) { }
+  items:Array<any> = [];
+  
+  constructor(private rout : ActivatedRoute, private store: Store<State> ) {
+    this.items = [];
+        for (let i = 1; i < 200; i++) {
+            this.items.push({
+               title: 'Title ' + i,
+               
+            });
+        }        
+   }
 
 
   ngOnInit() {

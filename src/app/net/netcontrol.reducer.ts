@@ -19,10 +19,18 @@ export const initialState: NetState = {
 };
 
 function SetNetCorrect(state : NetState ,onecip : string) : NetState {
-  const subNet = state.IP.split(".")[2];
-  const subNetOnec = onecip.split(".")[2];
+  return {...state, NetworkCorrect: true}
 
-  return {...state,  NetworkCorrect: (subNet === subNetOnec)}
+  try {
+    const subNet = state.IP.split(".")[2];
+    const subNetOnec = onecip.split(".")[2];
+  
+    return {...state,  NetworkCorrect: (subNet === subNetOnec)}    
+  } catch (error) {
+    
+    return {...state,  NetworkCorrect: false}    
+  }
+
 }
 
 export const NetReducer = createReducer(

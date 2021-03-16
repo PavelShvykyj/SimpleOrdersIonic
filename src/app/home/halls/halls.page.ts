@@ -25,6 +25,7 @@ export class HallsPage implements OnInit {
   }
 
   Refresh() {
+    console.log("Refresh");
     this.store.dispatch(refreshHallsstores())
   }
 

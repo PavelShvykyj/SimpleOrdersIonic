@@ -20,7 +20,7 @@ export class NetchangetEffects {
      concatMap(() =>
         /** An EMPTY observable only emits completion. Replace with your own observable API request */
         this.netservice.GetIP().pipe(
-          map(data => NetActions.setIP({ IP: data })),
+          map(data =>{  return NetActions.setIP({ IP: data } )}),
           catchError(error => of(NetActions.setIP({ IP: "127.0.0.1" }))))
       )
     );

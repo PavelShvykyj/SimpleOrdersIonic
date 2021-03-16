@@ -3,9 +3,9 @@ import { Network } from '@ionic-native/network/ngx';
 import { NetworkInterface } from '@ionic-native/network-interface/ngx';
 import { Store } from '@ngrx/store';
 import { Subscription, Observable, of, from } from 'rxjs';
-import { debounceTime, mergeMap, map, tap } from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 import { State } from '../reducers';
-import { loadNetcontrols, setIP, setNetCorrect } from './netcontrol.actions';
+import { loadNetcontrols } from './netcontrol.actions';
 
 
 

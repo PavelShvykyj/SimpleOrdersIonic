@@ -10,8 +10,8 @@ export interface SettingsState {
 }
 
 export const initialState: SettingsState = {
-  onecIP: '127.0.0.1',
-  onecBase : 'fakebase'
+  onecIP: '192.168.1.112',
+  onecBase : 'Base'
 
 };
 
