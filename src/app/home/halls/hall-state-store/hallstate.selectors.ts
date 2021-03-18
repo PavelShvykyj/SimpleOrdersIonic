@@ -1,3 +1,4 @@
+
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as fromHallstate from './hallstate.reducer';
 
@@ -77,14 +78,9 @@ export const selectItemsInOrdersEntyties = createSelector(
     selectItemsByID,
     (OrdersOnTable, ItemsInOrders, Items, hall ) => {
       let hallstate = {... hall};
-      hallstate.tables.map(id => (OrdersOnTable[id] ? undefined : {} , OrdersOnTable[id])
-        .orders.map(id=> ItemsInOrders[id].rowides.map(id => Items[id])
-        /// учесть возможность неопределенности  
-          
-          )
-        );
+      hallstate.tables.map(id => OrdersOnTable[id] === undefined ?  {hallid : hallstate.id, tableid: id , orders: []} : OrdersOnTable[id])
+        .orders.map(id=> ItemsInOrders[id].rowides.map(id => Items[id]));
+       
       return hallstate;})
         
 
-
-     

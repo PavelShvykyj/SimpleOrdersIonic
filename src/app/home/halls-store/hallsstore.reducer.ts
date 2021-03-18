@@ -6,7 +6,8 @@ export const hallstoreFeatureKey = 'hallstore';
 
 export interface Hall {
   id: string,
-  name : string
+  name : string,
+  tables : Array<string>
 };
 
 export interface HallsStore extends EntityState<Hall> {
