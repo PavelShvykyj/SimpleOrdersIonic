@@ -1,6 +1,6 @@
 import { selectAppSettings } from './../appsettings/app-settings.selectors';
 import { Store, select } from '@ngrx/store';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Injectable, OnInit } from '@angular/core';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -12,32 +12,38 @@ import { State } from '../reducers';
 const FAKE_HALLS : Array<Hall> = [
   {
     id:"1",
-    name: "Main"
+    name: "Main",
+    tables: ["1","2","3"]
   },
 
   {
     id:"2",
-    name: "Курилка"
+    name: "Курилка",
+    tables: ["1","2","3"]
   },
 
   {
     id:"3",
-    name: "2 этаж"
+    name: "2 этаж",
+    tables: ["1","2","3"]
   },
 
   {
     id:"4",
-    name: "Камчатка"
+    name: "Камчатка",
+    tables: ["1","2","3"]
   },
 
   {
     id:"5",
-    name: "Второй этаж"
+    name: "Второй этаж",
+    tables: ["1","2","3"]
   },
 
   {
     id:"6",
-    name: "Терраса"
+    name: "Терраса",
+    tables: ["1","2","3"]
   },
 
 ]

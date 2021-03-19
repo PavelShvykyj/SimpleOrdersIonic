@@ -1,3 +1,4 @@
+import { concatMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import {  ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
@@ -6,6 +7,7 @@ import { State } from 'src/app/reducers';
 
 import { Hall } from '../../halls-store/hallsstore.reducer';
 import { selectHallByid } from '../../halls-store/hallsstore.selectors';
+import { selectHallStateData } from '../hall-state-store/hallstate.selectors';
 
 @Component({
   selector: 'app-hall-state',
@@ -14,18 +16,19 @@ import { selectHallByid } from '../../halls-store/hallsstore.selectors';
 })
 export class HallStatePage implements OnInit {
 
-  hall$ : Observable<Hall>
-  hallid : string
+  hall$ : Observable<Hall>;
+  hallstate$ : Observable<any>;
+  hallid : string;
   items:Array<any> = [];
   
   constructor(private rout : ActivatedRoute, private store: Store<State> ) {
-    this.items = [];
-        for (let i = 1; i < 200; i++) {
-            this.items.push({
-               title: 'Title ' + i,
+    // this.items = [];
+    //     for (let i = 1; i < 200; i++) {
+    //         this.items.push({
+    //            title: 'Title ' + i,
                
-            });
-        }        
+    //         });
+    //     }        
    }
 
 
@@ -33,7 +36,10 @@ export class HallStatePage implements OnInit {
     this.rout.paramMap.subscribe(snap=>{
       this.hallid = snap.get('id');
       this.hall$ = this.store.pipe(select(selectHallByid,this.hallid));
-    })
-  }
+      this.hallstate$ = this.hall$.pipe((concatMap(
+        hall=>  this.store.select(selectHallStateData,hall)
+      )));
+  });
+}
 
 }

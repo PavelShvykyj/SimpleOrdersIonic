@@ -1,6 +1,26 @@
 
+
+
+import { Dictionary } from '@ngrx/entity';
 import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { Hall } from '../../halls-store/hallsstore.reducer';
 import * as fromHallstate from './hallstate.reducer';
+
+function CalculateHeader(order ) 
+{
+  order.orderheader = {
+    waitername: order.rowides[0].waitername,
+    summ: 0,
+    quantity: order.rowides.ength,
+    modified: order.rowides[0].modified,
+    status: "",
+  }
+  order.rowides.forEach(element => {
+    order.orderheader.summ = order.orderheader.summ + (element.summ - element.discountsumm)
+  });
+  return order;
+}
+
 
 export const selectHallstateState = createFeatureSelector<fromHallstate.HallsState>(
   fromHallstate.hallstateFeatureKey
@@ -57,6 +77,12 @@ export const selectItemsInOrdersEntyties = createSelector(
   // на выходе массив Array<ItemsInOrders> 
   // {
   //   orderid : string,
+  //   orderheader : OrderHeader {
+  //   waitername: string,
+  //   summ: number,
+  //   modified: Date,
+  //   status: string,
+// // }
   //   rowides : Array<string>
   // }
   // для каждого берем rowides и вызываем selectItemsByID
@@ -73,14 +99,16 @@ export const selectItemsInOrdersEntyties = createSelector(
 
   /// и теперь все вместе 
   export const selectHallStateData = createSelector(
-    selectOrdersOnTableBuId,
-    selectItemsInOrdersByID,
-    selectItemsByID,
-    (OrdersOnTable, ItemsInOrders, Items, hall ) => {
+    selectOrdersOnTableEntyties,
+    selectItemsInOrdersEntyties,
+    selectItemsEntyties,
+    (OrdersOnTable : Dictionary<fromHallstate.OrdersOnTable>, ItemsInOrders : Dictionary<fromHallstate.ItemsInOrders> , Items : Dictionary<fromHallstate.Orderitem>, hall: Hall ) => {
       let hallstate = {... hall};
-      hallstate.tables.map(id => OrdersOnTable[id] === undefined ?  {hallid : hallstate.id, tableid: id , orders: []} : OrdersOnTable[id])
-        .orders.map(id=> ItemsInOrders[id].rowides.map(id => Items[id]));
-       
-      return hallstate;})
+      const newhallstate = {...hallstate, tables:  hallstate.tables.map(id => OrdersOnTable[hall.id+" "+id] === undefined ?  {hallid : hallstate.id, tableid: id , orders: []} : 
+      OrdersOnTable[id].orders
+      .map(id=> ItemsInOrders[id].rowides.map(id => Items[id]))
+      )};
+      /// переписать  так как map возвращает новый объект
+      return newhallstate;})
         
 

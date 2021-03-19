@@ -6,12 +6,12 @@ import * as HallstateActions from './hallstate.actions';
 
 export const hallstateFeatureKey = 'hallstate';
 
-export interface TableHeader {
+export interface OrderHeader {
   waitername: string,
   summ: number,
+  quantity : number,
   modified: Date,
   status: string,
-  rowshash: Array<string>
 }
 
 export interface Table {
@@ -19,7 +19,7 @@ export interface Table {
   ownerid: string,
   name : string,
   orderid: string,
-  header: TableHeader
+  header: OrderHeader
 }
 
 export interface OrdersOnTable {
@@ -30,6 +30,7 @@ export interface OrdersOnTable {
 
 export interface ItemsInOrders {
   orderid : string,
+  orderheader? : OrderHeader,
   rowides : Array<string>
 }
 
@@ -48,19 +49,30 @@ export interface Orderitem {
   comment : string,
   waitername : string,
   dicountname : string,
-  dicountid : string
+  dicountid : string,
+  modified : Date
 }
 
 export interface OrderitemState extends EntityState<Orderitem> {}
-export const OrderitemAdapter: EntityAdapter<Orderitem> = createEntityAdapter<Orderitem>();
+export const OrderitemAdapter: EntityAdapter<Orderitem> = createEntityAdapter<Orderitem>({
+  selectId: (item) => item.rowid
+});
 export const initialOrderitemState: OrderitemState = OrderitemAdapter.getInitialState();
 
 export interface ItemsInOrdersState extends EntityState<ItemsInOrders> {}
-export const ItemsInOrdersAdapter: EntityAdapter<ItemsInOrders> = createEntityAdapter<ItemsInOrders>();
+export const ItemsInOrdersAdapter: EntityAdapter<ItemsInOrders> = createEntityAdapter<ItemsInOrders>(
+  {
+    selectId: (item) => item.orderid,
+  }
+);
 export const initialItemsInOrdersState: ItemsInOrdersState = ItemsInOrdersAdapter.getInitialState();
 
 export interface OrdersOnTableState extends EntityState<OrdersOnTable> {}
-export const OrdersOnTableAdapter: EntityAdapter<OrdersOnTable> = createEntityAdapter<OrdersOnTable>();
+export const OrdersOnTableAdapter: EntityAdapter<OrdersOnTable> = createEntityAdapter<OrdersOnTable>(
+  {
+    selectId: (item) => item.hallid+" "+item.tableid,
+  }
+);
 export const initialOrdersOnTableState: OrdersOnTableState = OrdersOnTableAdapter.getInitialState();
 
 
