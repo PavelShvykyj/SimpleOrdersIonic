@@ -17,11 +17,14 @@ export class DatabaseService {
     return from(this.db.setItem(key,data) as Promise<T>);
   }
 
-  // GetData(key: string) : Observable<SettingsState> {
-    
-  //   return from(this.db.getItem(key))
-  // }
-  
+  GetKeys() : Observable<Array<string>> {
+    return from(this.db.keys());
+  }
+ 
+  DellItem(key: string) {
+    return from(this.db.remove(key));
+  }
+
   GetData<T>(key: string) : Observable<T> {
     return from(this.db.getItem(key) as Promise<T>)
   }

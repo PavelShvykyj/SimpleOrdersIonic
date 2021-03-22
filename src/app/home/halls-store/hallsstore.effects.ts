@@ -37,39 +37,39 @@ export class HallsstoreEffects {
       }))});
 
 
-
-  loadHallsstores$ = createEffect(() => {
-    return this.actions$.pipe( 
-      /// фильтруем событие
-      ofType(HallsstoreActions.loadHallsstores),
-      /// создаем елемент спиннера
-      concatMap(()=> { return from(this.loadingController.create({message: "Loading hals",keyboardClose:true,spinner: "lines"}))}),
-      /// обращемся к локальному хранилищу
-      concatMap((el) => {
-        this.loadIndicator = el;
-        this.loadIndicator.present();
-        return this.localdb.GetData<Array<Hall>>('halls').pipe(
-          catchError(error =>  of([])  )
-      )}),
-      /// если локальное хранилище вернуло путототу или ошибка обращаемся к 1с 
-      concatMap((halls,el)=>{
-        if (halls.length===0) {
-          return this.webdb.GetHalls().pipe(
-            /// положили полученное в харнилище
-            tap((updhall)=> {this.localdb.SaveData<Array<Hall>>('halls',updhall)}),
-            ///продолжили поток акшенов
-            map((updhall)=> {this.loadIndicator.dismiss();  return HallsstoreActions.loadHallsstoresSuccess({data:updhall})}),
-            catchError(error => {this.loadIndicator.dismiss(); return of(HallsstoreActions.loadHallsstoresFailure({error: ''}))})
-          )
-        } else {
-          this.loadIndicator.dismiss();
-          return  of(HallsstoreActions.loadHallsstoresSuccess({data:halls}))
-        }
-      })
-    );
-  });
-
-
+      loadHallsstores$ = createEffect(() => {
+        return this.actions$.pipe( 
+          /// фильтруем событие
+          ofType(HallsstoreActions.loadHallsstores),
+          /// создаем елемент спиннера
+          concatMap(()=> { return from(this.loadingController.create({message: "Loading hals",keyboardClose:true,spinner: "lines"}))}),
+          /// обращемся к локальному хранилищу
+          concatMap((el) => {
+            this.loadIndicator = el;
+            this.loadIndicator.present();
+            return this.localdb.GetData<Array<Hall>>('halls').pipe(
+              catchError(error =>  of([])  )
+          )}),
+          /// если локальное хранилище вернуло путототу или ошибка обращаемся к 1с 
+          concatMap((halls,el)=>{
+            if (halls.length===0) {
+              return this.webdb.GetHalls().pipe(
+                /// положили полученное в харнилище
+                tap((updhall)=> {this.localdb.SaveData<Array<Hall>>('halls',updhall)}),
+                ///продолжили поток акшенов
+                map((updhall)=> {this.loadIndicator.dismiss();  return HallsstoreActions.loadHallsstoresSuccess({data:updhall})}),
+                catchError(error => {this.loadIndicator.dismiss(); return of(HallsstoreActions.loadHallsstoresFailure({error: ''}))})
+              )
+            } else {
+              this.loadIndicator.dismiss();
+              return  of(HallsstoreActions.loadHallsstoresSuccess({data:halls}))
+            }
+          })
+        );
+      });
+    
+    
+ 
 
   constructor(private actions$: Actions,
               private localdb : DatabaseService,

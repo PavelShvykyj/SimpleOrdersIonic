@@ -3,12 +3,26 @@ ion-row {
 }
 
 ion-card {
+   
     --min-height: 135px;
+    height: 135px;
 }
 
-ion-card-content {
-    padding: 5px !important;
+ion-slides {
+    --min-height: 140px;
+    height: 140px;
 }
+
+ion-slide {
+    --min-height: 140px;
+    height: 140px;
+    
+
+}
+
+// ion-card-content {
+//     padding: 5px !important;
+// }
 
 ion-card-header {
     padding: 0px !important;
@@ -17,4 +31,5 @@ ion-card-header {
 
 .slidecontent {
     width: 95% !important;
+   
 }

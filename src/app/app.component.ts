@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { NetcontrolService } from './net/netcontrol.service';
 import { State } from './reducers';
 import { loadHallsstores } from './home/halls-store/hallsstore.actions';
+import { loadHallstates } from './home/halls/hall-state-store/hallstate.actions';
 
 @Component({
   selector: 'app-root',

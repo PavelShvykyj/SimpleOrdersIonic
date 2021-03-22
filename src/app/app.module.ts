@@ -17,7 +17,7 @@ import { AppsettingsModule } from './appsettings/appsettings.module';
 import { DatabaseModule } from './database/database.module';
 import { HallsStoreModule } from './home/halls-store/halls-store.module';
 import { HttpClientModule } from '@angular/common/http';
-//import { HallStateStoreModule } from './home/halls/hall-state-store/hall-state-store.module';
+import { HallStateStoreModule } from './home/halls/hall-state-store/hall-state-store.module';
 
 
 
@@ -34,7 +34,7 @@ import { HttpClientModule } from '@angular/common/http';
             NetModule,
             AppsettingsModule,
             HallsStoreModule,
-            //HallStateStoreModule,
+            HallStateStoreModule,
 
             DatabaseModule
             

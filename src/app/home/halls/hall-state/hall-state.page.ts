@@ -1,4 +1,4 @@
-import { concatMap } from 'rxjs/operators';
+import { concatMap, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import {  ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
@@ -8,6 +8,10 @@ import { State } from 'src/app/reducers';
 import { Hall } from '../../halls-store/hallsstore.reducer';
 import { selectHallByid } from '../../halls-store/hallsstore.selectors';
 import { selectHallStateData } from '../hall-state-store/hallstate.selectors';
+import { OrdersOnTableData } from '../hall-state-store/hallstate.reducer';
+import { loadHallstates } from '../hall-state-store/hallstate.actions';
+
+const GRID_COLUMS_QUONTITY : number = 4;
 
 @Component({
   selector: 'app-hall-state',
@@ -17,9 +21,11 @@ import { selectHallStateData } from '../hall-state-store/hallstate.selectors';
 export class HallStatePage implements OnInit {
 
   hall$ : Observable<Hall>;
-  hallstate$ : Observable<any>;
+  hallstate$ : Observable<Array<Array<OrdersOnTableData>>>;
   hallid : string;
   items:Array<any> = [];
+  
+
   
   constructor(private rout : ActivatedRoute, private store: Store<State> ) {
     // this.items = [];
@@ -31,15 +37,49 @@ export class HallStatePage implements OnInit {
     //     }        
    }
 
+   ionViewWillEnter() {
+    //this.store.dispatch(loadHallstates());
+   }
+
 
   ngOnInit() {
+    
     this.rout.paramMap.subscribe(snap=>{
       this.hallid = snap.get('id');
       this.hall$ = this.store.pipe(select(selectHallByid,this.hallid));
-      this.hallstate$ = this.hall$.pipe((concatMap(
-        hall=>  this.store.select(selectHallStateData,hall)
-      )));
+      this.hallstate$ = this.hall$.pipe(
+        concatMap(hall =>  this.store.select(selectHallStateData,hall)),
+        map(hallstate => {
+          let rows = []
+          if (hallstate.tables.length === 0) {
+            return rows;
+          }
+          const bloc : number = GRID_COLUMS_QUONTITY-1;
+          let end = hallstate.tables.length-1;
+          let sliceStart = 0; 
+          let sliceEnd = Math.min(bloc,end);
+          
+          
+
+          do {
+            console.log('sliceEnd',sliceEnd);
+            let ItemBloc = hallstate.tables.slice(sliceStart,sliceEnd);
+            rows.push(ItemBloc.map(item => (item as OrdersOnTableData)));
+            sliceStart = sliceStart + bloc;
+            sliceEnd   = sliceEnd+bloc; 
+          } while (sliceEnd<=end)
+          
+          if (sliceEnd>end) {
+            let ItemBloc = hallstate.tables.slice(sliceStart);
+            rows.push(ItemBloc.map(item => (item as OrdersOnTableData)));
+
+            
+          }
+          return rows;
+      })
+      );
   });
 }
+
 
 }

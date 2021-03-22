@@ -6,6 +6,7 @@ import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { State } from '../reducers';
+import { HallsState } from '../home/halls/hall-state-store/hallstate.reducer';
 
 
 
@@ -88,5 +89,18 @@ export class OnecConnectorService implements OnInit {
     //return of(FAKE_HALLS);
   }
 
+  GetHallState() : Observable<any> {
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/hallstate`;
+    let headers = new HttpHeaders().append('Content-Type','text/json');
+    
+   
+    return this.hclient.get(URL,{headers:headers,
+      observe: 'body',
+      withCredentials:false,
+      reportProgress:false,
+      responseType:'text'}).pipe(map(res => JSON.parse(res)));
+
+
+  }
 
 }

@@ -1,5 +1,6 @@
 
 
+
 import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
 import { Action, createReducer, on } from '@ngrx/store';
 import * as HallstateActions from './hallstate.actions';
@@ -28,10 +29,22 @@ export interface OrdersOnTable {
   orders: Array<string>
 }
 
+export interface OrdersOnTableData {
+  hallid : string,
+  tableid : string,
+  orders: Array<ItemsInOrdersData | string>
+}
+
 export interface ItemsInOrders {
   orderid : string,
   orderheader? : OrderHeader,
   rowides : Array<string>
+}
+
+export interface ItemsInOrdersData {
+  orderid : string,
+  orderheader? : OrderHeader,
+  rowides : Array<Orderitem | string>
 }
 
 export interface Orderitem {
@@ -52,6 +65,13 @@ export interface Orderitem {
   dicountid : string,
   modified : Date
 }
+
+export interface HallStateData {
+  id: string,
+  name : string,
+  tables : Array<OrdersOnTableData | string>
+}
+
 
 export interface OrderitemState extends EntityState<Orderitem> {}
 export const OrderitemAdapter: EntityAdapter<Orderitem> = createEntityAdapter<Orderitem>({
@@ -91,12 +111,17 @@ export const initialState: HallsState = {
   OrdersOnTable : initialOrdersOnTableState 
 }
 
+function LoadState(state:HallsState, action) {
+  return {...state,
+          OrdersOnTable: OrdersOnTableAdapter.setAll(action.data.OrdersOnTable,state.OrdersOnTable),
+          ItemsInOrder: ItemsInOrdersAdapter.setAll(action.data.ItemsInOrder,state.ItemsInOrder), 
+          Orderitems: OrderitemAdapter.setAll(action.data.Orderitems, state.Orderitems)
+        }
+}
 
 export const reducer = createReducer(
   initialState,
-
-  on(HallstateActions.loadHallstates, state => state),
-  on(HallstateActions.loadHallstatesSuccess, (state, action) => state),
+  on(HallstateActions.loadHallstatesSuccess, (state, action) => LoadState(state, action)),
   on(HallstateActions.loadHallstatesFailure, (state, action) => state),
 
 );

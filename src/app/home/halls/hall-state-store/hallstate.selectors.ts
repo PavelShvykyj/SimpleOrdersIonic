@@ -6,20 +6,56 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { Hall } from '../../halls-store/hallsstore.reducer';
 import * as fromHallstate from './hallstate.reducer';
 
-function CalculateHeader(order ) 
-{
-  order.orderheader = {
-    waitername: order.rowides[0].waitername,
-    summ: 0,
-    quantity: order.rowides.ength,
-    modified: order.rowides[0].modified,
-    status: "",
-  }
-  order.rowides.forEach(element => {
-    order.orderheader.summ = order.orderheader.summ + (element.summ - element.discountsumm)
-  });
-  return order;
+interface anydata {
+  [key: string]: any
 }
+
+const orderontable: fromHallstate.OrdersOnTableData = {
+  hallid: "", tableid: "", orders: []
+};
+
+
+function EmptyTableData(hallid: string, id: string): fromHallstate.OrdersOnTableData {
+  return {...orderontable,hallid:hallid, tableid : id}
+}
+
+function TableData(
+
+  OrdersOnTable: Dictionary<fromHallstate.OrdersOnTable>,
+  ItemsInOrders: Dictionary<fromHallstate.ItemsInOrders>,
+  Items: Dictionary<fromHallstate.Orderitem>,
+  id: string): fromHallstate.OrdersOnTableData {
+
+  const EmtyHeader : fromHallstate.OrderHeader = {
+    waitername: "",
+    summ: 0,
+    quantity: 0,
+    modified: new Date(),
+    status: ""
+  };;  
+
+  let OrderOnTable: fromHallstate.OrdersOnTableData = OrdersOnTable[id];
+  OrderOnTable.orders = OrderOnTable.orders.map(orderid => {
+    let order: fromHallstate.ItemsInOrdersData = ItemsInOrders[orderid as string];
+    order.orderheader = EmtyHeader;
+
+    order.rowides = order.rowides.map(rowid => {
+      let rowitem = Items[rowid as string];
+      order.orderheader.waitername = rowitem.waitername;
+      order.orderheader.summ = order.orderheader.summ + rowitem.summ;
+      order.orderheader.quantity = order.orderheader.quantity + 1;
+      order.orderheader.modified = rowitem.modified;
+      order.orderheader.status = "";
+      return rowitem;
+    })
+    return order
+  })
+  return OrderOnTable
+
+
+
+}
+
 
 
 export const selectHallstateState = createFeatureSelector<fromHallstate.HallsState>(
@@ -48,67 +84,91 @@ export const selectItemsInOrdersState = createSelector(
 
 export const selectItemsInOrdersEntyties = createSelector(
   selectItemsInOrdersState,
-    fromHallstate.selectItemsInOrdersEntities // встроеный в адаптер селектор мы его експортировали в файле reducers/index 
-  )
+  fromHallstate.selectItemsInOrdersEntities // встроеный в адаптер селектор мы его експортировали в файле reducers/index 
+)
 
-  
 
-  export const selectOrdersOnTableState = createSelector(
-    selectHallstateState,
-    state => state.OrdersOnTable)
-  
-  export const selectOrdersOnTableEntyties = createSelector(
-    selectOrdersOnTableState,
-    fromHallstate.selectOrdersOnTableEntities // встроеный в адаптер селектор мы его експортировали в файле reducers/index 
-  )
-  
 
-  // на выходе массив Array<OrdersOnTable> 
-  // {
-  // hallid : string,
-  // tableid : string,
-  // orders: Array<string>
-  // } для каждого берем orders и вызываем selectItemsInOrdersByID
-  export const selectOrdersOnTableBuId = createSelector(
-    selectOrdersOnTableEntyties,
-    (entities, props) => props.ids.map(id => entities[id]))
+export const selectOrdersOnTableState = createSelector(
+  selectHallstateState,
+  state => { return state.OrdersOnTable } )
 
-  
-  // на выходе массив Array<ItemsInOrders> 
-  // {
-  //   orderid : string,
-  //   orderheader : OrderHeader {
-  //   waitername: string,
-  //   summ: number,
-  //   modified: Date,
-  //   status: string,
+export const selectOrdersOnTableEntyties = createSelector(
+  selectOrdersOnTableState,
+  fromHallstate.selectOrdersOnTableEntities // встроеный в адаптер селектор мы его експортировали в файле reducers/index 
+)
+
+
+// на выходе массив Array<OrdersOnTable> 
+// {
+// hallid : string,
+// tableid : string,
+// orders: Array<string>
+// } для каждого берем orders и вызываем selectItemsInOrdersByID
+export const selectOrdersOnTableBuId = createSelector(
+  selectOrdersOnTableEntyties,
+  (entities, props) => props.ids.map(id => entities[id]))
+
+
+// на выходе массив Array<ItemsInOrders> 
+// {
+//   orderid : string,
+//   orderheader : OrderHeader {
+//   waitername: string,
+//   summ: number,
+//   modified: Date,
+//   status: string,
 // // }
-  //   rowides : Array<string>
-  // }
-  // для каждого берем rowides и вызываем selectItemsByID
-    export const selectItemsInOrdersByID = createSelector(
-      selectItemsInOrdersEntyties,
-      (entities, props) => props.ids.map(id => entities[id])
-    );
+//   rowides : Array<string>
+// }
+// для каждого берем rowides и вызываем selectItemsByID
+export const selectItemsInOrdersByID = createSelector(
+  selectItemsInOrdersEntyties,
+  (entities, props) => props.ids.map(id => entities[id])
+);
 
 
-   // на выходе массив Array<Orderitem>  
-    export const selectItemsByID  = createSelector(
-      selectItemsEntyties, 
-      (entities, props) => props.ids.map(id => entities[id]))
+// на выходе массив Array<Orderitem>  
+export const selectItemsByID = createSelector(
+  selectItemsEntyties,
+  (entities, props) => props.ids.map(id => entities[id]))
 
-  /// и теперь все вместе 
-  export const selectHallStateData = createSelector(
-    selectOrdersOnTableEntyties,
-    selectItemsInOrdersEntyties,
-    selectItemsEntyties,
-    (OrdersOnTable : Dictionary<fromHallstate.OrdersOnTable>, ItemsInOrders : Dictionary<fromHallstate.ItemsInOrders> , Items : Dictionary<fromHallstate.Orderitem>, hall: Hall ) => {
-      let hallstate = {... hall};
-      const newhallstate = {...hallstate, tables:  hallstate.tables.map(id => OrdersOnTable[hall.id+" "+id] === undefined ?  {hallid : hallstate.id, tableid: id , orders: []} : 
-      OrdersOnTable[id].orders
-      .map(id=> ItemsInOrders[id].rowides.map(id => Items[id]))
-      )};
-      /// переписать  так как map возвращает новый объект
-      return newhallstate;})
-        
+// /// и теперь все вместе 
+// export const selectHallStateData_ = createSelector(
+//   selectOrdersOnTableEntyties,
+//   selectItemsInOrdersEntyties,
+//   selectItemsEntyties,
+//   (OrdersOnTable: Dictionary<fromHallstate.OrdersOnTable>, ItemsInOrders: Dictionary<fromHallstate.ItemsInOrders>, Items: Dictionary<fromHallstate.Orderitem>, hall: Hall) => {
+//     let hallstate:   = { ...hall };
+//     const newhallstate = {
+//       ...hallstate, tables: hallstate.tables.map(id => OrdersOnTable[hall.id + " " + id] === undefined ? { hallid: hallstate.id, tableid: id, orders: [] } :
+//         OrdersOnTable[id].orders
+//           .map(id => ItemsInOrders[id].rowides.map(id => Items[id]))
+//       )
+//     };
+//     /// переписать  так как map возвращает новый объект
+//     return newhallstate;
+//   })
+
+export const selectHallStateData = createSelector(
+  selectOrdersOnTableEntyties,
+  selectItemsInOrdersEntyties,
+  selectItemsEntyties,
+  (OrdersOnTable: Dictionary<fromHallstate.OrdersOnTable>,
+    ItemsInOrders: Dictionary<fromHallstate.ItemsInOrders>,
+    Items: Dictionary<fromHallstate.Orderitem>,
+    hall: Hall) => {
+
+    let newhallstate: fromHallstate.HallStateData = { ...hall };
+    newhallstate.tables = hall.tables.map(id => {
+      
+
+      return (OrdersOnTable[hall.id + " " + id] === undefined) ?
+        EmptyTableData(hall.id, id) : TableData(OrdersOnTable, ItemsInOrders, Items, id)
+    });
+
+    console.log('newhallstate',newhallstate);
+    return newhallstate;
+  })
+
 

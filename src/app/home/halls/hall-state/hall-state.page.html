@@ -11,45 +11,48 @@
 
 <ion-content [fullscreen]="true">
   <ion-grid>
-    <ion-virtual-scroll [items]="items" approxItemHeight="150px">
-      <ion-row *virtualItem="let item">
+    <ng-container *ngIf="hallstate$ | async as items">
+      <ion-virtual-scroll [items]="items" approxItemHeight="150px">
+        <ion-row *virtualItem="let item">
 
-        <ion-col *ngFor="let itemcol of [1,2,3]" size="4">
-          <ion-slides>
-          <ion-slide>
-          <ion-card  button type="button" class="ion-no-padding ion-no-margin slidecontent">
-            <ion-card-header>
-              <ion-card-title class="ion-text-center">table 1</ion-card-title>
-              <ion-card-subtitle class="ion-text-center ion-no-margin">200 grn</ion-card-subtitle>
-            </ion-card-header>
-            <ion-card-content class="ion-text-center">
-              <p>Arnold agutin</p>
-              <p>5 items</p>
-              <p><small>13:00:23</small></p>
-            </ion-card-content>
-          </ion-card>
-          </ion-slide>
-          
-          <ion-slide>
-            <ion-card button type="button" color="light" class="ion-no-padding ion-no-margin slidecontent">
-              <ion-card-header>
-                <ion-card-title class="ion-text-center">table 1</ion-card-title>
-                <ion-card-subtitle class="ion-text-center ion-no-margin">content</ion-card-subtitle>
-              </ion-card-header>
-              <ion-card-content class="ion-text-center">
-                <p>cofee 1</p>
-                <p>alco coctail 4</p>
-                <p>stake fghj 1</p>
-                <p><small>total 17 rows</small></p>
-              </ion-card-content>
-            </ion-card>
-          </ion-slide>
-  
-          </ion-slides>
-        </ion-col>
+          <ion-col *ngFor="let orderontable of item" [size]="GRID_COLUMS_QUONTITY">
+            <ion-slides>
+              <ion-slide  *ngFor="let order of orderontable.orders">
+                <ion-card  button type="button" class="ion-no-padding ion-no-margin slidecontent">
+                  <ion-card-header>
+                    <ion-card-title class="ion-text-center">order {{order.orderid}}</ion-card-title>
+                    <ion-card-subtitle class="ion-text-center ion-no-margin">{{order.orderheader.summ }}
+                    </ion-card-subtitle>
+                  </ion-card-header>
+                  <ion-card-content class="ion-text-center">
+                    <p>{{ order.orderheader.waitername }}}</p>
+                    <p>{{ order.orderheader.quantity }}} items</p>
+                    <p><small>{{ order.orderheader.modified }}} </small></p>
+                    <p><small>{{ order.orderheader.status }}} </small></p>
+                  </ion-card-content>
+                </ion-card>
+              </ion-slide>
+              
+              <ion-slide >
+                <ion-card button type="button" class="ion-no-padding ion-no-margin slidecontent">
+                  <ion-card-header>
+                    <ion-card-title class="ion-text-center">table {{orderontable.tableid}}</ion-card-title>
+                    <ion-card-subtitle class="ion-text-center ion-no-margin"> ---
+                    </ion-card-subtitle>
+                  </ion-card-header>
+                  <ion-card-content class="ion-text-center">
+                    <p> new order </p>
+                  </ion-card-content>
+                </ion-card>
+              </ion-slide>
 
-      </ion-row>
-    </ion-virtual-scroll>
+
+            </ion-slides>
+          </ion-col>
+
+        </ion-row>
+      </ion-virtual-scroll>
+    </ng-container>
   </ion-grid>
 
 
