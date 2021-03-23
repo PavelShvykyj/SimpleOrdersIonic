@@ -6,6 +6,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
+    <ion-buttons slot="end"><ion-button (click)="Refresh()"><ion-icon slot="icon-only" name="refresh-outline"></ion-icon></ion-button> </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -15,26 +16,12 @@
       <ion-virtual-scroll [items]="items" approxItemHeight="150px">
         <ion-row *virtualItem="let item">
 
-          <ion-col *ngFor="let orderontable of item" [size]="GRID_COLUMS_QUONTITY">
-            <ion-slides>
-              <ion-slide  *ngFor="let order of orderontable.orders">
-                <ion-card  button type="button" class="ion-no-padding ion-no-margin slidecontent">
-                  <ion-card-header>
-                    <ion-card-title class="ion-text-center">order {{order.orderid}}</ion-card-title>
-                    <ion-card-subtitle class="ion-text-center ion-no-margin">{{order.orderheader.summ }}
-                    </ion-card-subtitle>
-                  </ion-card-header>
-                  <ion-card-content class="ion-text-center">
-                    <p>{{ order.orderheader.waitername }}}</p>
-                    <p>{{ order.orderheader.quantity }}} items</p>
-                    <p><small>{{ order.orderheader.modified }}} </small></p>
-                    <p><small>{{ order.orderheader.status }}} </small></p>
-                  </ion-card-content>
-                </ion-card>
-              </ion-slide>
-              
-              <ion-slide >
-                <ion-card button type="button" class="ion-no-padding ion-no-margin slidecontent">
+          <ion-col *ngFor="let orderontable of item" size=4>
+
+
+            <!-- <ion-slides *ngIf="orderontable.orders.length == 0">
+              <ion-slide *ngFor="let item of [1,2, 3]"> -->
+                <ion-card *ngIf="orderontable.orders.length == 0" button type="button" class="ion-no-padding ion-no-margin ">
                   <ion-card-header>
                     <ion-card-title class="ion-text-center">table {{orderontable.tableid}}</ion-card-title>
                     <ion-card-subtitle class="ion-text-center ion-no-margin"> ---
@@ -44,9 +31,24 @@
                     <p> new order </p>
                   </ion-card-content>
                 </ion-card>
+              <!-- </ion-slide>
+            </ion-slides> -->
+
+            <ion-slides #slider *ngIf="orderontable.orders.length != 0">
+              <ion-slide *ngFor="let order of orderontable.orders">
+                <ion-card button type="button" class="ion-no-padding ion-no-margin slidecontent">
+                  <ion-card-header>
+                    <ion-card-title class="ion-text-center">order {{orderontable.orders.indexOf(order)+1 }} / {{orderontable.orders.length}} </ion-card-title>
+                    <ion-card-subtitle class="ion-text-center ion-no-margin">summ {{order.orderheader.summ }} </ion-card-subtitle>
+                  </ion-card-header>
+                  <ion-card-content class="ion-text-center">
+                    <p>{{ order.orderheader.waitername }}</p>
+                    <p> items {{ order.orderheader.quantity }}</p>
+                    <p><small>{{ order.orderheader.modified }} </small></p>
+                    <p><small>{{ order.orderheader.status }} </small></p>
+                  </ion-card-content>
+                </ion-card>
               </ion-slide>
-
-
             </ion-slides>
           </ion-col>
 

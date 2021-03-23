@@ -24,7 +24,8 @@ function TableData(
   OrdersOnTable: Dictionary<fromHallstate.OrdersOnTable>,
   ItemsInOrders: Dictionary<fromHallstate.ItemsInOrders>,
   Items: Dictionary<fromHallstate.Orderitem>,
-  id: string): fromHallstate.OrdersOnTableData {
+  id: string,
+  hallid: string,): fromHallstate.OrdersOnTableData {
 
   const EmtyHeader : fromHallstate.OrderHeader = {
     waitername: "",
@@ -34,13 +35,13 @@ function TableData(
     status: ""
   };;  
 
-  let OrderOnTable: fromHallstate.OrdersOnTableData = OrdersOnTable[id];
+  let OrderOnTable: fromHallstate.OrdersOnTableData = {...OrdersOnTable[""+hallid+" "+id]};
   OrderOnTable.orders = OrderOnTable.orders.map(orderid => {
-    let order: fromHallstate.ItemsInOrdersData = ItemsInOrders[orderid as string];
-    order.orderheader = EmtyHeader;
+    let order: fromHallstate.ItemsInOrdersData = {...ItemsInOrders[orderid as string],orderheader : {...EmtyHeader} };
+    
 
     order.rowides = order.rowides.map(rowid => {
-      let rowitem = Items[rowid as string];
+      let rowitem = {...Items[rowid as string]};
       order.orderheader.waitername = rowitem.waitername;
       order.orderheader.summ = order.orderheader.summ + rowitem.summ;
       order.orderheader.quantity = order.orderheader.quantity + 1;
@@ -51,12 +52,7 @@ function TableData(
     return order
   })
   return OrderOnTable
-
-
-
 }
-
-
 
 export const selectHallstateState = createFeatureSelector<fromHallstate.HallsState>(
   fromHallstate.hallstateFeatureKey
@@ -77,7 +73,6 @@ export const selectItemsEntyties = createSelector(
   fromHallstate.selectItemEntities // встроеный в адаптер селектор мы его експортировали в файле reducers/index 
 )
 
-
 export const selectItemsInOrdersState = createSelector(
   selectHallstateState,
   state => state.ItemsInOrder)
@@ -86,8 +81,6 @@ export const selectItemsInOrdersEntyties = createSelector(
   selectItemsInOrdersState,
   fromHallstate.selectItemsInOrdersEntities // встроеный в адаптер селектор мы его експортировали в файле reducers/index 
 )
-
-
 
 export const selectOrdersOnTableState = createSelector(
   selectHallstateState,
@@ -98,7 +91,6 @@ export const selectOrdersOnTableEntyties = createSelector(
   fromHallstate.selectOrdersOnTableEntities // встроеный в адаптер селектор мы его експортировали в файле reducers/index 
 )
 
-
 // на выходе массив Array<OrdersOnTable> 
 // {
 // hallid : string,
@@ -108,7 +100,6 @@ export const selectOrdersOnTableEntyties = createSelector(
 export const selectOrdersOnTableBuId = createSelector(
   selectOrdersOnTableEntyties,
   (entities, props) => props.ids.map(id => entities[id]))
-
 
 // на выходе массив Array<ItemsInOrders> 
 // {
@@ -158,16 +149,13 @@ export const selectHallStateData = createSelector(
     ItemsInOrders: Dictionary<fromHallstate.ItemsInOrders>,
     Items: Dictionary<fromHallstate.Orderitem>,
     hall: Hall) => {
-
     let newhallstate: fromHallstate.HallStateData = { ...hall };
-    newhallstate.tables = hall.tables.map(id => {
-      
-
+    newhallstate.tables = newhallstate.tables.map(id => {
       return (OrdersOnTable[hall.id + " " + id] === undefined) ?
-        EmptyTableData(hall.id, id) : TableData(OrdersOnTable, ItemsInOrders, Items, id)
+        EmptyTableData(hall.id, id as string) : TableData(OrdersOnTable, ItemsInOrders, Items, id as string, hall.id)
     });
 
-    console.log('newhallstate',newhallstate);
+    
     return newhallstate;
   })
 

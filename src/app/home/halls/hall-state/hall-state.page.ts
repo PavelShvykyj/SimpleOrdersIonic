@@ -1,6 +1,6 @@
 import { concatMap, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-import {  ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
+import { from, Observable } from 'rxjs';
+import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import { State } from 'src/app/reducers';
@@ -11,7 +11,7 @@ import { selectHallStateData } from '../hall-state-store/hallstate.selectors';
 import { OrdersOnTableData } from '../hall-state-store/hallstate.reducer';
 import { loadHallstates } from '../hall-state-store/hallstate.actions';
 
-const GRID_COLUMS_QUONTITY : number = 4;
+const GRID_COLUMS_QUONTITY: number = 4;
 
 @Component({
   selector: 'app-hall-state',
@@ -20,66 +20,65 @@ const GRID_COLUMS_QUONTITY : number = 4;
 })
 export class HallStatePage implements OnInit {
 
-  hall$ : Observable<Hall>;
-  hallstate$ : Observable<Array<Array<OrdersOnTableData>>>;
-  hallid : string;
-  items:Array<any> = [];
-  
+  hall$: Observable<Hall>;
+  hallstate$: Observable<Array<Array<OrdersOnTableData>>>;
+  hallid: string;
+  items: Array<any> = [];
 
-  
-  constructor(private rout : ActivatedRoute, private store: Store<State> ) {
+
+
+  constructor(private rout: ActivatedRoute, private store: Store<State>) {
     // this.items = [];
     //     for (let i = 1; i < 200; i++) {
     //         this.items.push({
     //            title: 'Title ' + i,
-               
+
     //         });
     //     }        
-   }
+  }
 
-   ionViewWillEnter() {
-    //this.store.dispatch(loadHallstates());
-   }
+  ionViewWillEnter() {
+    this.store.dispatch(loadHallstates());
+  }
 
+  Refresh() {
+    this.store.dispatch(loadHallstates());
+  }
 
   ngOnInit() {
-    
-    this.rout.paramMap.subscribe(snap=>{
+
+    this.rout.paramMap.subscribe(snap => {
       this.hallid = snap.get('id');
-      this.hall$ = this.store.pipe(select(selectHallByid,this.hallid));
+      this.hall$ = this.store.pipe(select(selectHallByid, this.hallid));
       this.hallstate$ = this.hall$.pipe(
-        concatMap(hall =>  this.store.select(selectHallStateData,hall)),
+        concatMap(hall => this.store.select(selectHallStateData, hall)),
         map(hallstate => {
           let rows = []
           if (hallstate.tables.length === 0) {
             return rows;
           }
-          const bloc : number = GRID_COLUMS_QUONTITY-1;
-          let end = hallstate.tables.length-1;
-          let sliceStart = 0; 
-          let sliceEnd = Math.min(bloc,end);
-          
-          
+          const bloc: number = GRID_COLUMS_QUONTITY - 1;
+          let end = hallstate.tables.length - 1;
+          let sliceStart = 0;
+          let sliceEnd = Math.min(bloc, end);
 
           do {
-            console.log('sliceEnd',sliceEnd);
-            let ItemBloc = hallstate.tables.slice(sliceStart,sliceEnd);
+            
+            let ItemBloc = hallstate.tables.slice(sliceStart, sliceEnd);
             rows.push(ItemBloc.map(item => (item as OrdersOnTableData)));
             sliceStart = sliceStart + bloc;
-            sliceEnd   = sliceEnd+bloc; 
-          } while (sliceEnd<=end)
-          
-          if (sliceEnd>end) {
+            sliceEnd = sliceEnd + bloc;
+          } while (sliceEnd <= end)
+          if (sliceEnd > end) {
             let ItemBloc = hallstate.tables.slice(sliceStart);
             rows.push(ItemBloc.map(item => (item as OrdersOnTableData)));
-
-            
           }
           return rows;
-      })
+        })
       );
-  });
-}
+    });
+  }
 
+  
 
 }

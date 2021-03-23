@@ -24,8 +24,8 @@ export class AddonsPage implements OnInit {
   }
 
   Wiev(key: string) {
-    this.db.GetData(key).pipe(take(1)).subscribe(
-      data => {console.log(data)}
+    this.db.GetData<any>(key).pipe(take(1)).subscribe(data => 
+      alert(JSON.stringify(data))
     )
   }
 }
