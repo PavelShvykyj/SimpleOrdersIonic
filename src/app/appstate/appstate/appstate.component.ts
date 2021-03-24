@@ -3,7 +3,7 @@ import { select, Store } from '@ngrx/store';
 import { combineLatest, Observable, of, Subscription } from 'rxjs';
 import { map, tap, debounceTime } from 'rxjs/operators';
 import { SelectUserName } from 'src/app/authtorisation/auth.selectors';
-import { isConnected, isNetworkCorrect, selectnettype } from 'src/app/net/netcontrol.selectors';
+import { isConnected, isNetworkCorrect, PingStatus, selectnettype } from 'src/app/net/netcontrol.selectors';
 import { State } from 'src/app/reducers';
 
 @Component({
@@ -26,19 +26,24 @@ export class AppstateComponent implements OnInit , OnDestroy {
     const isConnected$    = this.store.pipe(select(isConnected),tap(()=>this.detector.detectChanges()));
     const isNetworkCorrect$ = this.store.pipe(select(isNetworkCorrect),tap(()=>this.detector.detectChanges()));
     const queueCount$  = of(5); 
+    const PingStatus$  = this.store.pipe(select(PingStatus),tap(()=>this.detector.detectChanges()));
 
     this.stateData$ = combineLatest([
       userName$, 
       netName$,
       isConnected$,
       isNetworkCorrect$,
-      queueCount$]
+      queueCount$,
+      PingStatus$
+    ]
       ).pipe(map((res)=>{return {
         userName:res[0],
         netName:res[1],
         isConnected:res[2],
         isNetworkCorrect:res[3],
-        queueCount:res[4]}}));
+        queueCount:res[4],
+        PingStatus:res[5],
+      }}));
 
     this.refreshersubs = this.stateData$.pipe(debounceTime(10)).subscribe((res)=>{ this.detector.detectChanges(); } );    
 

@@ -112,11 +112,20 @@ export const initialState: HallsState = {
 }
 
 function LoadState(state:HallsState, action) {
-  return {...state,
-          OrdersOnTable: OrdersOnTableAdapter.setAll(action.data.OrdersOnTable,state.OrdersOnTable),
-          ItemsInOrder: ItemsInOrdersAdapter.setAll(action.data.ItemsInOrder,state.ItemsInOrder), 
-          Orderitems: OrderitemAdapter.setAll(action.data.Orderitems, state.Orderitems)
-        }
+  
+  try {
+    return action.data
+    
+    // {...state,
+    //   OrdersOnTable: OrdersOnTableAdapter.setAll(action.data.OrdersOnTable,state.OrdersOnTable),
+    //   ItemsInOrder: ItemsInOrdersAdapter.setAll(action.data.ItemsInOrder,state.ItemsInOrder), 
+    //   Orderitems: OrderitemAdapter.setAll(action.data.Orderitems, state.Orderitems)
+    // }
+} catch (error) {
+    alert('error');
+    return state
+
+  }
 }
 
 export const reducer = createReducer(

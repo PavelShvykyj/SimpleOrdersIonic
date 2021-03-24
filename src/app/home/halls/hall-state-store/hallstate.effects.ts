@@ -30,39 +30,51 @@ export class HallstateEffects {
       }))
   });
 
-
-
-
-
-  loadHallsstores$ = createEffect(() => {
+  loadHallstates$ = createEffect(() => {
     return this.actions$.pipe(
       /// фильтруем событие
       ofType(HallstateActions.loadHallstates),
-      /// создаем елемент спиннера
-      concatMap(() => { return from(this.loadingController.create({ message: "Loading halstate", keyboardClose: true, spinner: "lines" })) }),
-      /// обращемся к локальному хранилищу
+      concatMap(() => { return from(this.loadingController.create({ message: "load halstate", keyboardClose: true, spinner: "lines" })) }),
       concatMap((el) => {
-        this.loadIndicator = el;
-        this.loadIndicator.present();
-        return this.localdb.GetData<HallsState>('hallstate').pipe(
-          catchError(error => of(undefined))
+        el.present();
+        return this.localdb.GetData<HallsState>('hallstateSnap').pipe(
+          map((hallstate) => { el.dismiss(); return HallstateActions.loadHallstatesSuccess({ data: hallstate }) }),
+          catchError(error => { el.dismiss(); return of(HallstateActions.loadHallstatesFailure({ error: '' })) })
         )
-      }),
-      /// если локальное хранилище вернуло путототу или ошибка обращаемся к 1с 
-      concatMap((hallstate, el) => {
-        if (hallstate === undefined) {
-          return this.webdb.GetHallState().pipe(
-            ///продолжили поток акшенов
-            map((updhallstate) => { this.loadIndicator.dismiss(); return HallstateActions.loadHallstatesSuccess({ data: updhallstate }) }),
-            catchError(error => { this.loadIndicator.dismiss(); return of(HallstateActions.loadHallstatesFailure({ error: '' })) })
-          )
-        } else {
-          this.loadIndicator.dismiss();
-          return of(HallstateActions.loadHallstatesSuccess({ data: hallstate }))
-        }
-      })
-    );
+      }))
   });
+
+
+ 
+  // loadHallstates$ = createEffect(() => {
+  //   return this.actions$.pipe(
+  //     /// фильтруем событие
+  //     ofType(HallstateActions.loadHallstates),
+  //     /// создаем елемент спиннера
+  //     concatMap(() => { return from(this.loadingController.create({ message: "Loading halstate", keyboardClose: true, spinner: "lines" })) }),
+  //     /// обращемся к локальному хранилищу
+  //     concatMap((el) => {
+  //       this.loadIndicator = el;
+  //       this.loadIndicator.present();
+  //       return this.localdb.GetData<HallsState>('hallstate').pipe(
+  //         catchError(error => of(undefined))
+  //       )
+  //     }),
+  //     /// если локальное хранилище вернуло путототу или ошибка обращаемся к 1с 
+  //     concatMap((hallstate, el) => {
+  //       if (hallstate === undefined) {
+  //         return this.webdb.GetHallState().pipe(
+  //           ///продолжили поток акшенов
+  //           map((updhallstate) => { this.loadIndicator.dismiss(); return HallstateActions.loadHallstatesSuccess({ data: updhallstate }) }),
+  //           catchError(error => { this.loadIndicator.dismiss(); return of(HallstateActions.loadHallstatesFailure({ error: '' })) })
+  //         )
+  //       } else {
+  //         this.loadIndicator.dismiss();
+  //         return of(HallstateActions.loadHallstatesSuccess({ data: hallstate }))
+  //       }
+  //     })
+  //   );
+  // });
 
 
 

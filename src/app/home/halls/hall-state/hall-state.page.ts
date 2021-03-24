@@ -1,4 +1,4 @@
-import { concatMap, map } from 'rxjs/operators';
+import { concatMap, map, take } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
@@ -9,7 +9,8 @@ import { Hall } from '../../halls-store/hallsstore.reducer';
 import { selectHallByid } from '../../halls-store/hallsstore.selectors';
 import { selectHallStateData } from '../hall-state-store/hallstate.selectors';
 import { OrdersOnTableData } from '../hall-state-store/hallstate.reducer';
-import { loadHallstates } from '../hall-state-store/hallstate.actions';
+import { loadHallstates, refreshHallstates } from '../hall-state-store/hallstate.actions';
+import { PingStatus } from 'src/app/net/netcontrol.selectors';
 
 const GRID_COLUMS_QUONTITY: number = 4;
 
@@ -38,11 +39,17 @@ export class HallStatePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.store.dispatch(loadHallstates());
+    this.store.pipe(select(PingStatus),take(1)).subscribe(
+      status => {
+        if (status) {
+          this.store.dispatch(refreshHallstates());      
+        }
+      }
+    )
   }
 
   Refresh() {
-    this.store.dispatch(loadHallstates());
+    this.store.dispatch(refreshHallstates());
   }
 
   ngOnInit() {

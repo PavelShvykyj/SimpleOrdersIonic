@@ -11,6 +11,13 @@ export const setIP = createAction(
 
   );  
 
+  export const setPing = createAction(
+    '[onec service] set ping status',
+    props<{  status  : boolean  }>()
+    );  
+  
+
+
   export const setNetCorrect = createAction(
     '[Netcontrol service] set is net correct on net change',
     props<{  onecip : string  }>()

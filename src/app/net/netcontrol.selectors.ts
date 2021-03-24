@@ -20,6 +20,11 @@ export const appIP = createSelector(
   state => state.IP
 ) 
 
+export const PingStatus = createSelector(
+  selectNetcontrolState,
+  state => state.ServerPingStatus
+) 
+
 
 export const isNetworkCorrect = createSelector(
   selectNetcontrolState,

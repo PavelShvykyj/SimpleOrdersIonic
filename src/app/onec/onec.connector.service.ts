@@ -1,12 +1,13 @@
 import { selectAppSettings } from './../appsettings/app-settings.selectors';
 import { Store, select } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Injectable, OnInit } from '@angular/core';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { map, timeout, catchError, tap } from 'rxjs/operators';
 import { State } from '../reducers';
 import { HallsState } from '../home/halls/hall-state-store/hallstate.reducer';
+import { setPing } from '../net/netcontrol.actions';
 
 
 
@@ -55,8 +56,8 @@ const FAKE_HALLS : Array<Hall> = [
 })
 export class OnecConnectorService implements OnInit {
 
-  serverIP : string;
-  baseName : string;
+  serverIP : string = "127.0.0.1";
+  baseName : string = "nobasename";
 
   constructor(private hclient : HttpClient, 
     private store : Store<State>) { 
@@ -66,12 +67,44 @@ export class OnecConnectorService implements OnInit {
         this.baseName = data.onecBase;
         
       });
-  
+      console.log("servise ctor");
+      setTimeout(this.Ping.bind(this),1000); 
+      
 
     }
 
   ngOnInit() {
   }  
+
+  Ping() {
+    console.log("PING");
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/ping`;
+    let headers = new HttpHeaders().append('Content-Type','text/json');
+    this.hclient.get(URL,{headers:headers,
+      observe: 'body',
+      withCredentials:false,
+      reportProgress:false,
+      responseType:'text'}).pipe(
+        timeout(5000),
+        map(res => {
+          console.log('ping', res);
+          if (res = "ping good") {
+            this.store.dispatch(setPing({status:true}))
+          } else {
+            this.store.dispatch(setPing({status:false}))
+          }
+         }),
+        catchError(err=>{
+          console.log('ping bad');
+          this.store.dispatch(setPing({status:false}));
+          return of(err)
+        }
+          ),
+        ).subscribe(
+          ()=>setTimeout( this.Ping.bind(this), 4000),
+          err=> setTimeout( this.Ping.bind(this), 4000)
+        )
+  }
 
   GetHalls() : Observable<Array<Hall>> {
     
@@ -83,7 +116,9 @@ export class OnecConnectorService implements OnInit {
       observe: 'body',
       withCredentials:false,
       reportProgress:false,
-      responseType:'text'}).pipe(map(res => JSON.parse(res)));
+      responseType:'text'}).pipe(
+        timeout(5000),  
+        map(res => JSON.parse(res)));
 
     
     //return of(FAKE_HALLS);
@@ -98,7 +133,10 @@ export class OnecConnectorService implements OnInit {
       observe: 'body',
       withCredentials:false,
       reportProgress:false,
-      responseType:'text'}).pipe(map(res => JSON.parse(res)));
+      responseType:'text'}).pipe(
+        timeout(5000),  
+        map(res => JSON.parse(res))
+        );
 
 
   }
