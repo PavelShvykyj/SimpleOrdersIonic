@@ -8,6 +8,7 @@ import { map, timeout, catchError, tap } from 'rxjs/operators';
 import { State } from '../reducers';
 import { HallsState } from '../home/halls/hall-state-store/hallstate.reducer';
 import { setPing } from '../net/netcontrol.actions';
+import { Menu } from '../menu-store/menu-store.reducer';
 
 
 
@@ -58,6 +59,7 @@ export class OnecConnectorService implements OnInit {
 
   serverIP : string = "127.0.0.1";
   baseName : string = "nobasename";
+  currentStatus : boolean;
 
   constructor(private hclient : HttpClient, 
     private store : Store<State>) { 
@@ -76,6 +78,13 @@ export class OnecConnectorService implements OnInit {
   ngOnInit() {
   }  
 
+  ChangeStatus(newStatus: boolean) {
+    if (newStatus != this.currentStatus) {
+      this.store.dispatch(setPing({status:newStatus}));
+      this.currentStatus = newStatus;
+    }
+  }
+
   Ping() {
     console.log("PING");
     const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/ping`;
@@ -89,14 +98,15 @@ export class OnecConnectorService implements OnInit {
         map(res => {
           console.log('ping', res);
           if (res = "ping good") {
-            this.store.dispatch(setPing({status:true}))
+            this.ChangeStatus(true)
           } else {
-            this.store.dispatch(setPing({status:false}))
+            this.ChangeStatus(false)           
           }
          }),
         catchError(err=>{
           console.log('ping bad');
-          this.store.dispatch(setPing({status:false}));
+          
+          this.ChangeStatus(false);        
           return of(err)
         }
           ),
@@ -105,6 +115,25 @@ export class OnecConnectorService implements OnInit {
           err=> setTimeout( this.Ping.bind(this), 4000)
         )
   }
+
+
+  GetMenu() : Observable<Array<Menu>> {
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/menu`;
+    let headers = new HttpHeaders().append('Content-Type','text/json');
+    
+   
+    return this.hclient.get(URL,{headers:headers,
+      observe: 'body',
+      withCredentials:false,
+      reportProgress:false,
+      responseType:'text'}).pipe(
+        timeout(5000),  
+        map(res => JSON.parse(res)));
+
+    
+    //return of(FAKE_HALLS);
+  }
+
 
   GetHalls() : Observable<Array<Hall>> {
     

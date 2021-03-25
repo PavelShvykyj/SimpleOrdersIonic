@@ -128,10 +128,28 @@ function LoadState(state:HallsState, action) {
   }
 }
 
+function RefresState(state:HallsState, action) {
+  
+  try {
+    return {...state,
+      OrdersOnTable: OrdersOnTableAdapter.setAll(action.data.OrdersOnTable,state.OrdersOnTable),
+      ItemsInOrder: ItemsInOrdersAdapter.setAll(action.data.ItemsInOrder,state.ItemsInOrder), 
+      Orderitems: OrderitemAdapter.setAll(action.data.Orderitems, state.Orderitems)
+    }
+} catch (error) {
+    alert('error');
+    return state
+
+  }
+}
+
+
 export const reducer = createReducer(
   initialState,
   on(HallstateActions.loadHallstatesSuccess, (state, action) => LoadState(state, action)),
+  on(HallstateActions.refreshHallstatesSuccess, (state, action) => RefresState(state, action)),
   on(HallstateActions.loadHallstatesFailure, (state, action) => state),
+  on(HallstateActions.refreshHallstatesFailure, (state, action) => state),
 
 );
 

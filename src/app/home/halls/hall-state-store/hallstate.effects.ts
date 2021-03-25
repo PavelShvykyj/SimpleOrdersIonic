@@ -24,8 +24,8 @@ export class HallstateEffects {
       concatMap((el) => {
         el.present();
         return this.webdb.GetHallState().pipe(
-          map((hallstate) => { el.dismiss(); return HallstateActions.loadHallstatesSuccess({ data: hallstate }) }),
-          catchError(error => { el.dismiss(); return of(HallstateActions.loadHallstatesFailure({ error: '' })) })
+          map((hallstate) => { el.dismiss(); return HallstateActions.refreshHallstatesSuccess({ data: hallstate }) }),
+          catchError(error => { el.dismiss(); return of(HallstateActions.refreshHallstatesFailure({ error: '' })) })
         )
       }))
   });
@@ -38,7 +38,7 @@ export class HallstateEffects {
       concatMap((el) => {
         el.present();
         return this.localdb.GetData<HallsState>('hallstateSnap').pipe(
-          map((hallstate) => { el.dismiss(); return HallstateActions.loadHallstatesSuccess({ data: hallstate }) }),
+          map((hallstate) => { el.dismiss(); console.log("loadHallstates", hallstate); return HallstateActions.loadHallstatesSuccess({ data: hallstate }) }),
           catchError(error => { el.dismiss(); return of(HallstateActions.loadHallstatesFailure({ error: '' })) })
         )
       }))

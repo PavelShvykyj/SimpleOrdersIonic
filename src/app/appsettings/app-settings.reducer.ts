@@ -5,22 +5,24 @@ export const appSettingsFeatureKey = 'appSettings';
 
 export interface SettingsState {
   onecIP: string,
-  onecBase : string
+  onecBase : string,
+  isDevMode:boolean
 
 }
 
 export const initialState: SettingsState = {
   onecIP: '192.168.1.112',
-  onecBase : 'SimplePUB'
+  onecBase: 'SimplePUB',
+  isDevMode: true
 
 };
 
 
 export const reducer = createReducer(
   initialState,
-  on(AppSettingsActions.onAppSettingsSet, (state, action) => {return {onecIP:action.onecIP, onecBase: action.onecBase}}),
+  on(AppSettingsActions.onAppSettingsSet, (state, action) => {return {onecIP:action.onecIP, onecBase: action.onecBase, isDevMode:action.isDevMode}}),
   on(AppSettingsActions.loadAppSettings, state => state),
-  on(AppSettingsActions.loadAppSettingssSuccess, (state, action) =>  {return {onecIP:action.onecIP, onecBase: action.onecBase}}),
+  on(AppSettingsActions.loadAppSettingssSuccess, (state, action) =>  {return {onecIP:action.onecIP, onecBase: action.onecBase, isDevMode:action.isDevMode}}),
   on(AppSettingsActions.loadAppSettingssFailure, (state, action) => state),
 
 );

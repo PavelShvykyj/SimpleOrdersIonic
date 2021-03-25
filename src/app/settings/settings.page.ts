@@ -24,7 +24,8 @@ export class SettingsPage implements OnInit {
   ngOnInit() {
     this.form = new FormGroup({
       ServerIP: new FormControl(null,Validators.required),
-      BaseName: new FormControl(null,Validators.required)
+      BaseName: new FormControl(null,Validators.required),
+      isDevMode: new FormControl(true),
     });
 
     this.loadingController.create({message:"loading"}).then(
@@ -36,7 +37,7 @@ export class SettingsPage implements OnInit {
   InitForm(loadElement: HTMLIonLoadingElement) {
     loadElement.present();
     this.store.pipe(select(selectAppSettings),take(1)).subscribe(res=>{
-      this.form.setValue({ServerIP: res.onecIP, BaseName: res.onecBase});
+      this.form.setValue({ServerIP: res.onecIP, BaseName: res.onecBase, isDevMode: res.isDevMode});
       setTimeout(() => {
         loadElement.dismiss();
       }, 200); 
@@ -52,7 +53,8 @@ export class SettingsPage implements OnInit {
     }
     this.store.dispatch(setAppSettings({key:'appsettings',data: {
       onecIP: this.form.get('ServerIP').value,
-      onecBase: this.form.get('BaseName').value
+      onecBase: this.form.get('BaseName').value,
+      isDevMode: this.form.get('isDevMode').value
   }}))
   }
 

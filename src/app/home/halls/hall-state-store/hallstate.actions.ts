@@ -14,6 +14,18 @@ export const loadHallstatesSuccess = createAction(
   props<{ data: HallsState }>()
 );
 
+export const refreshHallstatesSuccess = createAction(
+  '[Hallstate] refresh Hallstates Success',
+  props<{ data: HallsState }>()
+);
+
+export const refreshHallstatesFailure = createAction(
+  '[Hallstate] refresh Hallstates Failure',
+  props<{ error: any }>()
+);
+
+
+
 export const loadHallstatesFailure = createAction(
   '[Hallstate] Load Hallstates Failure',
   props<{ error: any }>()

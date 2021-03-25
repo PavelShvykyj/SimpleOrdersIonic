@@ -149,7 +149,8 @@ export const selectHallStateData = createSelector(
     ItemsInOrders: Dictionary<fromHallstate.ItemsInOrders>,
     Items: Dictionary<fromHallstate.Orderitem>,
     hall: Hall) => {
-    let newhallstate: fromHallstate.HallStateData = { ...hall };
+    console.log("OrdersOnTable",OrdersOnTable);
+      let newhallstate: fromHallstate.HallStateData = { ...hall };
     newhallstate.tables = newhallstate.tables.map(id => {
       return (OrdersOnTable[hall.id + " " + id] === undefined) ?
         EmptyTableData(hall.id, id as string) : TableData(OrdersOnTable, ItemsInOrders, Items, id as string, hall.id)

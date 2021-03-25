@@ -37,7 +37,7 @@ export class AppSettingsEffects {
               
               this.ShowToast('Saved','primary',400);
               return AppSettingsActions.onAppSettingsSet(
-              { onecIP: action.onecIP, onecBase: action.onecBase })}),
+              { onecIP: action.onecIP, onecBase: action.onecBase, isDevMode: action.isDevMode})}),
             catchError(error =>{
               
               this.ShowToast('not saved','danger',1500);

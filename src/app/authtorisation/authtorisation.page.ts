@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {  Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { State } from '../reducers';
 import { loggIn, loggOut } from './auth.actions';
 import { BarcodeScanner, BarcodeScanResult, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
 import { ToastController } from '@ionic/angular';
+import { selectisDevMode } from '../appsettings/app-settings.selectors';
+import { map, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-authtorisation',
@@ -36,10 +38,24 @@ export class AuthtorisationPage implements OnInit {
     return
     }
     
-    this.store.dispatch(loggIn({UserName: this.password.value, UserToken : "TokenDemo" }));
-    setTimeout(() => {
-      this.router.navigateByUrl('home/halls');
-    }, 10);
+    this.store.pipe(
+      select(selectisDevMode),
+      take(1),
+      map(isDevMode=>{
+        if (isDevMode) {
+          this.store.dispatch(loggIn({UserName: this.password.value, UserToken : "TokenDemo" }));
+          setTimeout(() => {
+            this.router.navigateByUrl('home/halls');
+          }, 10);
+        } else {
+          this.toastController.create({message: 'авторизиция доступна в режиме разработки.',
+          duration:500,
+          color: 'danger'}).then(el=>el.present());
+        }
+
+        
+      })).subscribe()
+
   }
   
   

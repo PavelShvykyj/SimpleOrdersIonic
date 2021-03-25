@@ -14,3 +14,7 @@ export const selectOnecIP = createSelector(
   selectAppSettingsState,
   state => state.onecIP
 )
+export const selectisDevMode = createSelector(
+  selectAppSettingsState,
+  state => state.isDevMode
+)

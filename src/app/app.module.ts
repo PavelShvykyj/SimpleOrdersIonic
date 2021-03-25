@@ -18,6 +18,7 @@ import { DatabaseModule } from './database/database.module';
 import { HallsStoreModule } from './home/halls-store/halls-store.module';
 import { HttpClientModule } from '@angular/common/http';
 import { HallStateStoreModule } from './home/halls/hall-state-store/hall-state-store.module';
+import { MenuStoreModule } from './menu-store/menu-store.module';
 
 
 
@@ -35,7 +36,7 @@ import { HallStateStoreModule } from './home/halls/hall-state-store/hall-state-s
             AppsettingsModule,
             HallsStoreModule,
             HallStateStoreModule,
-
+            MenuStoreModule,
             DatabaseModule
             
           ],
