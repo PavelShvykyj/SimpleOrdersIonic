@@ -19,9 +19,16 @@
         <ion-item lines="none" ><ion-label class="ion-text-center" color="danger">App is blocked</ion-label> </ion-item>
       </ion-col>
     </ion-row>
+
     <ion-row class="spaser">
       <ion-col size-sm="6" offset-sm="3">
         <ion-button fill='solid' expand='block' color='primary' routerLink="/authtorisation"> Login to unblock </ion-button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="spaser">
+      <ion-col size-sm="6" offset-sm="3">
+        <ion-button fill='solid' expand='block' color='medium' (click)='PrepareToExit()'> Close app </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>

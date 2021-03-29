@@ -55,14 +55,17 @@ export class AppComponent implements OnInit {
       
       processNextHandler();
       
-      if (!this.ion_outlet.canGoBack()) {
+      if (!this.ion_outlet.canGoBack() && this.ion_outlet.getLastUrl().search("block-app") != -1) {
+        
         
         
         this.toastController.create({
-          header: 'Are you want to exit ?',
+          header: 'Do you want to exit ?',
           position: 'middle',
+          color: "medium",
           buttons: [
             {
+              
               side: 'end',
               text: 'yes',
               role: 'confirm',
@@ -76,12 +79,7 @@ export class AppComponent implements OnInit {
           ]
         }).then(cntr=>{
           cntr.present();
-
-
         })
-        
-        
-        
       }
     });
   }

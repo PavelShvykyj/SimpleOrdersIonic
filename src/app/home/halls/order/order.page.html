@@ -1,9 +1,103 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Order</ion-title>
+    <ion-title> {{ (hall$ | async).name }} / {{ table }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="home"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [fullscreen]="true"> 
+  <ion-slides>
+    <ion-slide>
+      <ion-content  [fullscreen]="true"> 
+      <ion-toolbar>
+        <ion-title>Order</ion-title>
+      </ion-toolbar>
 
-</ion-content>
+      <ion-list *ngIf="items$ | async as items">
+        <ion-list-header lines="full">
+          <ion-label>items</ion-label>
+        </ion-list-header>
+
+        <ion-item *ngFor="let item of items">
+          <ion-checkbox slot="start"></ion-checkbox>
+          <ion-label> {{item.goodname}} </ion-label>
+          
+          <ion-label> {{item.price}} </ion-label>
+        </ion-item>
+      </ion-list>
+
+      
+
+      <ion-footer>
+        
+        
+            <ion-button fill='solid' expand='block' color='primary' (click)="ShowActions()"> Actions</ion-button>
+        
+        
+      </ion-footer>
+      </ion-content> 
+    </ion-slide>
+
+
+    <ion-slide>
+      <ion-content [fullscreen]="true">
+        <ion-toolbar>
+          <ion-title>Menu</ion-title>
+        </ion-toolbar>  
+        <ion-searchbar showCancelButton="focus"></ion-searchbar>
+        
+ 
+      
+      
+      </ion-content>
+      
+    </ion-slide>
+
+    <ion-slide>
+      <ion-content [fullscreen]="true">
+        <ion-toolbar>
+          <ion-title>Anketa</ion-title>
+        </ion-toolbar>      
+      
+        <form [formGroup]="form">
+          <ion-grid>
+            <ion-row>
+              <ion-col size-sm="6" offset-sm="3">
+                <ion-item>
+                  <ion-label position="stacked"> Guests Quontity </ion-label>
+                  <ion-input formControlName="GuestsQuontity" clear-input=true inputmode="decimal" ></ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+      
+            <ion-row>
+              <ion-col size-sm="6" offset-sm="3">
+                <ion-item>
+                  <ion-label position="stacked">Feed back  </ion-label>
+                  <ion-input formControlName="FeedBack" clear-input=true inputmode="text" ></ion-input>
+                </ion-item>
+              </ion-col> 
+            </ion-row>
+      
+      
+      
+      
+            <ion-row>  
+              <ion-col size-sm="6" offset-sm="3">
+                <ion-button fill='solid' expand='block' color='primary'  > Save</ion-button>
+                
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </form>
+    
+      
+      
+      </ion-content>
+      
+    </ion-slide>
+  </ion-slides>
+
+ </ion-content> 

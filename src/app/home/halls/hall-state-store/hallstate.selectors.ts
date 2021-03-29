@@ -105,11 +105,11 @@ export const selectOrdersOnTableBuId = createSelector(
 // {
 //   orderid : string,
 //   orderheader : OrderHeader {
-//   waitername: string,
-//   summ: number,
-//   modified: Date,
-//   status: string,
-// // }
+//    waitername: string,
+//    summ: number,
+//    modified: Date,
+//    status: string,
+// //}
 //   rowides : Array<string>
 // }
 // для каждого берем rowides и вызываем selectItemsByID
