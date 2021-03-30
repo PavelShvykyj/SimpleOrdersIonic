@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title> {{ (hall$ | async).name }} / {{ table }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button  color="primary"><ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon> </ion-button>
+      <ion-button  color="primary">new</ion-button>
+      <ion-button  color="primary"><ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon></ion-button>
+  
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-slides>
+    <ion-slide>
+      <!-- <ion-content  [fullscreen]="true">  -->
+      <ion-toolbar>
+        <ion-title>Order totals</ion-title>
+      </ion-toolbar>
+      <ion-list *ngIf="items$ | async as items">
+        <!-- <ion-list-header lines="full">
+          <ion-label>items</ion-label>
+        </ion-list-header> -->
+        <ion-item *ngFor="let item of items">
+          <ion-checkbox slot="start"></ion-checkbox>
+          <ion-label> {{item.goodname}} </ion-label>
+          <ion-note slot="end" color="primary">{{item.price}}</ion-note>
+          <ion-note slot="end" color="tertiary">{{item.quantity}}</ion-note>
+        </ion-item>
+      </ion-list>
+      <!-- </ion-content>  -->
+    </ion-slide>
+
+    <ion-slide>
+      <!-- <ion-content [fullscreen]="true"> -->
+      <ion-toolbar>
+        <ion-title>Menu</ion-title>
+      </ion-toolbar>
+      <ion-searchbar showCancelButton="focus"></ion-searchbar>
+      <!-- </ion-content> -->
+    </ion-slide>
+
+    <ion-slide>
+      <!-- <ion-content [fullscreen]="true"> -->
+      <ion-toolbar>
+        <ion-title>Anketa</ion-title>
+      </ion-toolbar>
+      <form [formGroup]="form">
+        <ion-grid>
+          <ion-row>
+            <ion-col size-sm="6" offset-sm="3">
+              <ion-item>
+                <ion-label position="stacked"> Guests Quontity </ion-label>
+                <ion-input formControlName="GuestsQuontity" clear-input=true inputmode="decimal"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size-sm="6" offset-sm="3">
+              <ion-item>
+                <ion-label position="stacked">Feed back </ion-label>
+                <ion-input formControlName="FeedBack" clear-input=true inputmode="text"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size-sm="6" offset-sm="3">
+              <ion-button fill='solid' expand='block' color='primary'> Save</ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </form>
+      <!-- </ion-content> -->
+    </ion-slide>
+  </ion-slides>
+
+
+</ion-content>
+<ion-footer>
+  <ion-button fill='solid' expand='block' color='primary' (click)="ShowActions()"> Actions</ion-button>
+</ion-footer>

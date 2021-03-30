@@ -14,10 +14,6 @@ const routes: Routes = [
         loadChildren: () => import('./hall-state/hall-state.module').then( m => m.HallStatePageModule)
       },
       {
-        path: 'order',
-        loadChildren: () => import('./order/order.module').then( m => m.OrderPageModule)
-      },
-      {
         path: '',
         redirectTo: 'block-app',
         pathMatch: 'full'

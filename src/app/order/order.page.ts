@@ -4,10 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/reducers';
 import { of, Observable } from 'rxjs';
-import { selectItemsByID, selectItemsInOrdersByID } from '../hall-state-store/hallstate.selectors';
-import { Orderitem } from '../hall-state-store/hallstate.reducer';
-import { Hall } from '../../halls-store/hallsstore.reducer';
-import { selectHallByid } from '../../halls-store/hallsstore.selectors';
+import { selectItemsByID, selectItemsInOrdersByID } from '../home/halls/hall-state-store/hallstate.selectors';
+import { Orderitem } from '../home/halls//hall-state-store/hallstate.reducer';
+import { Hall } from '../home/halls-store/hallsstore.reducer';
+import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
 import { ActionSheetController } from '@ionic/angular';
 import { FormControl, FormGroup } from '@angular/forms';
 

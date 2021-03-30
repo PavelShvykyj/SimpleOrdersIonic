@@ -21,6 +21,12 @@ const routes: Routes = [
     loadChildren: () => import('./addons/addons.module').then( m => m.AddonsPageModule)
   },
   {
+    path: 'order',
+    loadChildren: () => import('./order/order.module').then( m => m.OrderPageModule)
+  },
+
+  
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full'
