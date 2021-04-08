@@ -1,0 +1,27 @@
+
+  <ion-searchbar (ionInput)=OnNameFilterInput($event) showCancelButton="focus" animated placeholder="search by name">
+  </ion-searchbar>
+  <cub-toolbar (OnElementClicked)="OnLentaElementClicked($event)"
+    (OnToolbarCommandClicked)="OnToolbarCommandClicked($event)">
+  </cub-toolbar>
+
+
+<!-- menu  -->
+<!-- <ion-grid>
+<ion-row> 
+<ion-col> -->
+<ion-list class="py-0" *ngIf="menuitems$ | async as menuitems">
+  <ion-item [color]="menuitem.isFolder ? 'primary' : ''" button *ngFor="let menuitem of menuitems"
+    (click)="ElementClicked(menuitem)">
+    <ion-label>{{ menuitem.name }}</ion-label>
+    <ion-note *ngIf="!menuitem.isFolder" color="danger"> {{ menuitem.price }}</ion-note>
+  </ion-item>
+</ion-list>
+<!-- </ion-col>       
+</ion-row>
+</ion-grid> -->
+
+
+
+
+<!-- search results -->

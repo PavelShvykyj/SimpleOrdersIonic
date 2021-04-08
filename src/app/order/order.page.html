@@ -17,31 +17,36 @@
 <ion-content [fullscreen]="true">
   <ion-slides>
     <ion-slide>
-      <!-- <ion-content  [fullscreen]="true">  -->
       <ion-toolbar>
         <ion-title>Order totals</ion-title>
       </ion-toolbar>
       <ion-list *ngIf="items$ | async as items">
-        <!-- <ion-list-header lines="full">
-          <ion-label>items</ion-label>
-        </ion-list-header> -->
         <ion-item *ngFor="let item of items">
           <ion-checkbox slot="start"></ion-checkbox>
-          <ion-label> {{item.goodname}} </ion-label>
-          <ion-note slot="end" color="primary">{{item.price}}</ion-note>
-          <ion-note slot="end" color="tertiary">{{item.quantity}}</ion-note>
+          <ion-label> 
+             <p>{{item.goodname}} </p> 
+             <p *ngIf="item.comment"><small > {{item.comment}}  </small></p>
+          </ion-label>
+          <ion-note class="ml" slot="end" color="tertiary">
+            <p>{{item.quantity}}</p>
+            <p> {{item.quantityprint}}</p>
+          </ion-note>
+          
+          <ion-note class="ml" slot="end" color="primary">
+            <p>{{item.price}}</p>
+            <p>{{item.summ}}</p>
+          </ion-note>
         </ion-item>
       </ion-list>
-      <!-- </ion-content>  -->
     </ion-slide>
 
     <ion-slide>
-      <!-- <ion-content [fullscreen]="true"> -->
+      
       <ion-toolbar>
         <ion-title>Menu</ion-title>
       </ion-toolbar>
-      <ion-searchbar showCancelButton="focus"></ion-searchbar>
-      <!-- </ion-content> -->
+      
+      <menu-list style="height: 100%;"></menu-list>
     </ion-slide>
 
     <ion-slide>

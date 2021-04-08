@@ -1,3 +1,4 @@
+import { map } from 'rxjs/operators';
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as fromMenuStore from './menu-store.reducer';
 
@@ -15,7 +16,24 @@ export const selectMemuByid = createSelector(
   (entities,id) => {return entities[id]}
 )
 
+
+
 export const selectAllMenu = createSelector(
   selectMenuStoreState,
   fromMenuStore.selectAll
 )
+
+export const selectMemuByParent = createSelector(
+  selectAllMenu,
+  (elements: fromMenuStore.Menu[]  ,id:string) => {return elements.filter(el => el.parentid === id)}
+)
+
+export const selectMemuByName = createSelector(  selectAllMenu,
+  (goods: fromMenuStore.Menu[]  ,props) => {
+    
+    return goods = goods.filter(element => {return ((!element.isFolder || props.onlyfolders) && element.name.toUpperCase().search(props.filter)!=-1)})
+  
+  
+  }
+)
+

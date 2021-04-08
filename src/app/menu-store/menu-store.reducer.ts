@@ -14,9 +14,21 @@ export interface Menu {
   unitName: string
   }
 
+  function sortByNameFoldersFirst(a:Menu,b:Menu) : number {
+    const folrerSort = (a.isFolder === b.isFolder)? 0 : a.isFolder? -1 : 1;
+    if (folrerSort != 0) {
+      return folrerSort
+    }
+    
+    const nameSort = (a.name.toUpperCase()).localeCompare(b.name.toUpperCase());
+    return nameSort;
+  } 
+
   export interface MenuStore extends EntityState<Menu> {}  
 
-export const adapter: EntityAdapter<Menu> = createEntityAdapter<Menu>();
+export const adapter: EntityAdapter<Menu> = createEntityAdapter<Menu>({
+  sortComparer: sortByNameFoldersFirst,
+});
 
 export const initialState = adapter.getInitialState();
 
@@ -29,7 +41,7 @@ export const reducer = createReducer(
   initialState,
 
   on(MenuStoreActions.loadMenuStores, state => state),
-  on(MenuStoreActions.loadMenuStoresSuccess, (state, action) => state),
+  on(MenuStoreActions.loadMenuStoresSuccess, (state, action) => adapter.setAll(action.data,state)),
   on(MenuStoreActions.loadMenuStoresFailure, (state, action) => state),
 
 );

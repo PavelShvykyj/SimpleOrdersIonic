@@ -19,6 +19,7 @@ import { HallsStoreModule } from './home/halls-store/halls-store.module';
 import { HttpClientModule } from '@angular/common/http';
 import { HallStateStoreModule } from './home/halls/hall-state-store/hall-state-store.module';
 import { MenuStoreModule } from './menu-store/menu-store.module';
+import { BaseElementsModule } from './base-elements/base-elements.module';
 
 
 
@@ -37,7 +38,8 @@ import { MenuStoreModule } from './menu-store/menu-store.module';
             HallsStoreModule,
             HallStateStoreModule,
             MenuStoreModule,
-            DatabaseModule
+            DatabaseModule,
+            BaseElementsModule
             
           ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],

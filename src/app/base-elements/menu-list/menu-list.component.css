@@ -1,0 +1,12 @@
+ion-grid,
+ion-row, 
+ion-col  {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+
+.py-0 {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}

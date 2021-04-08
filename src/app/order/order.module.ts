@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { OrderPageRoutingModule } from './order-routing.module';
 
 import { OrderPage } from './order.page';
+import { BaseElementsModule } from '../base-elements/base-elements.module';
 
 @NgModule({
   imports: [
@@ -14,7 +15,8 @@ import { OrderPage } from './order.page';
     FormsModule,
     IonicModule,
     ReactiveFormsModule,
-    OrderPageRoutingModule
+    OrderPageRoutingModule,
+    BaseElementsModule
   ],
   declarations: [OrderPage]
 })

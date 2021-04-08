@@ -1,0 +1,19 @@
+  <!-- toolbar -->
+  <div *ngIf="toolbarcommands.length > 0">
+        <ion-segment (ionChange)="segmentChanged($event)">
+            <ion-segment-button *ngFor="let command of toolbarcommands" [value]="command.commandName"
+            (click)="ToolbarCommandClicked(command.commandName)">
+              <ion-icon slot="stat" [name]="command.iconeName"></ion-icon>
+            </ion-segment-button>
+        </ion-segment>
+  </div>
+  
+  <ion-toolbar>
+    <ion-buttons >
+      <ion-button color='tertiary' (click)="ElementClicked(undefined)"><ion-icon slot="icon-only" name="home-outline"></ion-icon></ion-button>
+      <ion-button *ngFor="let item of lenta" color='tertiary' (click)="ElementClicked(undefined)"> {{item.name }} </ion-button>
+    </ion-buttons>
+  </ion-toolbar>  
+  
+  
+
