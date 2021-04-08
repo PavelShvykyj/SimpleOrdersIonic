@@ -1,7 +1,7 @@
 
-  <ion-searchbar (ionInput)=OnNameFilterInput($event) showCancelButton="focus" animated placeholder="search by name">
+  <ion-searchbar (ionInput)=OnNameFilterInput($event.target.value) showCancelButton="focus" animated placeholder="search by name">
   </ion-searchbar>
-  <cub-toolbar (OnElementClicked)="OnLentaElementClicked($event)"
+  <cub-toolbar class="w-100" (OnElementClicked)="OnLentaElementClicked($event)"
     (OnToolbarCommandClicked)="OnToolbarCommandClicked($event)">
   </cub-toolbar>
 
@@ -10,11 +10,11 @@
 <!-- <ion-grid>
 <ion-row> 
 <ion-col> -->
-<ion-list class="py-0" *ngIf="menuitems$ | async as menuitems">
-  <ion-item [color]="menuitem.isFolder ? 'primary' : ''" button *ngFor="let menuitem of menuitems"
+<ion-list class="w-100 pl-4 py-0" *ngIf="menuitems$ | async as menuitems">
+  <ion-item class="w-100" slot="start" [color]="menuitem.isFolder ? 'primary' : ''" button *ngFor="let menuitem of menuitems"
     (click)="ElementClicked(menuitem)">
-    <ion-label>{{ menuitem.name }}</ion-label>
-    <ion-note *ngIf="!menuitem.isFolder" color="danger"> {{ menuitem.price }}</ion-note>
+    <ion-label class="ion-text-wrap"> <ion-text>{{ menuitem.name }}</ion-text> </ion-label>
+    <ion-note slot="end" *ngIf="!menuitem.isFolder" color="danger" class="ml"><ion-text>{{ menuitem.price }}</ion-text> </ion-note>
   </ion-item>
 </ion-list>
 <!-- </ion-col>       

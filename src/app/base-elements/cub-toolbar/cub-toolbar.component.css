@@ -1,4 +1,15 @@
-ion-buttons {
+/* ion-buttons {
     height: 100%;
+    width: 100vw;
+    max-width: 100vw;
     overflow-x: auto;
+} */
+
+.pl-4 {
+    padding-left: 4px;
 }
+.w-100 {
+    width: 100%;
+    max-width: 100%;
+}
+

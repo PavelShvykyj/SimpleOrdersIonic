@@ -5,8 +5,26 @@ ion-col  {
     padding-bottom: 0px;
 }
 
+ion-list {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
 
 .py-0 {
     padding-top: 0px;
     padding-bottom: 0px;
+}
+
+.ml {
+    margin-left: 8px;
+  }
+
+.pl-4 {
+    padding-left: 4px;
+} 
+
+.w-100 {
+    width: 100%;
+    max-width: 100%;
 }

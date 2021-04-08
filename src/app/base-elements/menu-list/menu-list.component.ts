@@ -33,6 +33,8 @@ export class MenuListComponent implements OnInit {
   }
 
   OnNameFilterInput(event) {
+    console.log(event);
+    
     if (event.length == 0) {
       
       this.menuitems$ = this.store.pipe(select(selectMemuByParent,  this.GetCurrentParentID() ));
