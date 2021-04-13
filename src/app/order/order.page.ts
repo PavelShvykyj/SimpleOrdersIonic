@@ -36,35 +36,29 @@ export class OrderPage implements OnInit {
     header: 'order actions',
 
     buttons: [{
-      text: 'save',
-      handler: () => {
+      text: 'СОХРАНИТЬ',
+      handler:
+      () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+      
 
-      }
     }, {
-      text: 'print',
+      text: 'ПЕЧАТЬ',
 
-      handler: () => {
-
-      }
+      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
     }, {
-      text: 'remove',
-
-      handler: () => {
-
-      }
+      text: 'ОТМЕНА ПОЗИЦИЙ',
+      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+      
     }, {
-      text: 'precheck',
-
-      handler: () => {
-
-      }
+      text: 'ПРЕЧЕК',
+      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+      
     }, {
-      text: 'Cancel',
-
-
-      handler: () => {
-
-      }
+      text: 'ДИСКОНТ',
+      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+    }, {
+      text: 'ОПЛАТА',
+      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
     }]
   }
 
@@ -73,7 +67,7 @@ export class OrderPage implements OnInit {
     private store: Store<State>,
     public actionSheetController: ActionSheetController,
     public modalController: ModalController
-  ) {}
+  ) { }
 
   init() {
     this.hall$ = this.route.queryParamMap.pipe(
@@ -164,24 +158,24 @@ export class OrderPage implements OnInit {
     }
 
     let kaskad = {
-      orderid : "",
-      rowid   : "",
-      hallid : this.hallid,
-      tableid : this.table
+      orderid: "",
+      rowid: "",
+      hallid: this.hallid,
+      tableid: this.table
     }
 
 
     if (this.orderid === undefined || this.orderid === "") {
       this.orderid = uuidv4();
       kaskad.orderid = this.orderid
-      
+
     }
-    
+
     if (editingRow === undefined) {
       const rowid = uuidv4() as string;
       kaskad.rowid = rowid;
-      
-      
+
+
       const new_row: Orderitem = {
         orderid: this.orderid,
         rowid: rowid,
@@ -202,8 +196,8 @@ export class OrderPage implements OnInit {
         isChanged: true,
         isSelected: true
       }
-      
-      this.store.dispatch(AddRow({ data: new_row, kaskad:  kaskad}));
+
+      this.store.dispatch(AddRow({ data: new_row, kaskad: kaskad }));
     }
     else {
       const changes: Update<Orderitem> = {
@@ -215,13 +209,13 @@ export class OrderPage implements OnInit {
           summ: data.data.quantity * data.data.price
         }
       };
-      this.store.dispatch(ModifyOrderItem({ data: changes, kaskad:  kaskad}));
+      this.store.dispatch(ModifyOrderItem({ data: changes, kaskad: kaskad }));
     }
 
-    
-    this.OnOrderidChages(); 
-    
-    
+
+    this.OnOrderidChages();
+
+
 
     // this.store.dispatch(AddOrderOntable({ hallid: this.hallid, orderid: this.orderid, tableid: this.table }));
     // this.store.dispatch(AddRowInOrder({ orderid: this.orderid, rowid: rowid }));
@@ -231,7 +225,7 @@ export class OrderPage implements OnInit {
 
   OnMenuElementSelect(event) {
     // search row
-    
+
     this.GetOrderRowByMenuItem(event)
       .subscribe(editingRow => {
         this.CallEditRowDialog(editingRow, event)
@@ -243,5 +237,18 @@ export class OrderPage implements OnInit {
     this.store.dispatch(SelectItem({ data: { id: item.rowid, changes: { isSelected: checked } } }))
   }
 
+  OnOrderActionClick(action: orderactions) {
+    switch (action) {
+      case orderactions.SAVE:
+      case orderactions.PRINT:
+      case orderactions.PRECHECK:
+      case orderactions.PAY:
+      case orderactions.DISCOUNT:
+      case orderactions.CANCEL_ROW:  
+      default:
+        break;
+    }
+
+  }
 
 }
