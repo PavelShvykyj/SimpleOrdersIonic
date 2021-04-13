@@ -13,6 +13,7 @@ import { DatabaseService } from './database/database.service';
 import { HallsState } from './home/halls/hall-state-store/hallstate.reducer';
 import { Observable } from 'rxjs';
 import { loadMenuStores } from './menu-store/menu-store.actions';
+import { loadQueueStores } from './queue/queue-store.actions';
 
 const { App } = Plugins;
 
@@ -44,6 +45,7 @@ export class AppComponent implements OnInit {
     this.store.dispatch(loadHallsstores());
     this.store.dispatch(loadHallstates());
     this.store.dispatch(loadMenuStores());
+    this.store.dispatch(loadQueueStores());
     this.PrepareToExit();
     
   }

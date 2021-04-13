@@ -1,3 +1,4 @@
+import { QueueModule } from './queue/queue.module';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
@@ -39,7 +40,8 @@ import { BaseElementsModule } from './base-elements/base-elements.module';
             HallStateStoreModule,
             MenuStoreModule,
             DatabaseModule,
-            BaseElementsModule
+            BaseElementsModule,
+            QueueModule
             
           ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],

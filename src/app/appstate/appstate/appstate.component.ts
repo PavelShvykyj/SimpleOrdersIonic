@@ -4,6 +4,7 @@ import { combineLatest, Observable, of, Subscription } from 'rxjs';
 import { map, tap, debounceTime } from 'rxjs/operators';
 import { SelectUserName } from 'src/app/authtorisation/auth.selectors';
 import { isConnected, isNetworkCorrect, PingStatus, selectnettype } from 'src/app/net/netcontrol.selectors';
+import { selectQueueLenth } from 'src/app/queue/queue-store.selectors';
 import { State } from 'src/app/reducers';
 
 @Component({
@@ -25,9 +26,10 @@ export class AppstateComponent implements OnInit , OnDestroy {
     const netName$   = this.store.pipe(select(selectnettype),tap(()=>this.detector.detectChanges()));
     const isConnected$    = this.store.pipe(select(isConnected),tap(()=>this.detector.detectChanges()));
     const isNetworkCorrect$ = this.store.pipe(select(isNetworkCorrect),tap(()=>this.detector.detectChanges()));
-    const queueCount$  = of(5); 
+    const queueCount$  = this.store.pipe(select(selectQueueLenth),tap(()=>this.detector.detectChanges()));
     const PingStatus$  = this.store.pipe(select(PingStatus),tap(()=>this.detector.detectChanges()));
 
+    
     this.stateData$ = combineLatest([
       userName$, 
       netName$,

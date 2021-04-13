@@ -36,7 +36,6 @@ export class MenuListComponent implements OnInit {
   }
 
   OnNameFilterInput(event) {
-    console.log(event);
     
     if (event.length == 0) {
       
@@ -65,7 +64,7 @@ export class MenuListComponent implements OnInit {
       this.menuitems$ = this.store.pipe(select(selectMemuByParent,item.id))
       this.toolbar.AddElement(item);
       
-    } else {
+    } else {     
       this.MenuElementSelect.emit(item);
     }
 

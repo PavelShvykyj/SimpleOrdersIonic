@@ -33,7 +33,7 @@ export const SelectItem = createAction(
 /// прежде чем сохранить данные нужно где то  помнить изменения
 export const ModifyOrderItem = createAction(
   '[Hallsstore] Modify item in order page',
-  props<{ data : Update<Orderitem>}>()
+  props<{ data : Update<Orderitem>, kaskad: {rowid: string , orderid: string, hallid: string, tableid: string}}>()
 );  
 
 export const AddOrderOntable = createAction(
@@ -48,7 +48,7 @@ export const AddRowInOrder = createAction(
 
 export const AddRow = createAction(
   '[Hallsstore] Add row  in order page', 
-   props<{data : Orderitem}>()
+   props<{data : Orderitem, kaskad: {rowid: string , orderid: string , hallid: string, tableid: string}}>()
 );
 
 

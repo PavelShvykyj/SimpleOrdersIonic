@@ -146,51 +146,101 @@ function RefresState(state:HallsState, action) {
 }
 
 function AddOrderOntable(state: HallsState, action) {
-  console.log('function AddOrderOntable')  
+  
   const itemid = action.hallid + " " + action.tableid;
-    console.log('itemid',itemid)
+    
     if ((<Array<string>>state.OrdersOnTable.ids).indexOf(itemid) === -1) {
       let new_ordersontable = {hallid:action.hallid , tableid :action.tableid , orders: [action.orderid]  };
-      console.log('new_ordersontable',new_ordersontable);
-      return {...state,  ordersontable : OrdersOnTableAdapter.addOne(new_ordersontable,state.OrdersOnTable)};
+      
+      return {...state,  OrdersOnTable : OrdersOnTableAdapter.addOne(new_ordersontable,state.OrdersOnTable)};
     } 
     else {
       const ordersontable = state.OrdersOnTable.entities[itemid];
       let new_ordersontable = {...ordersontable  };
-      new_ordersontable.orders.push(action.orderid);
-      return {...state,  ordersontable : OrdersOnTableAdapter.upsertOne(new_ordersontable,state.OrdersOnTable)};
+      
+      let newids = new_ordersontable.orders.map(el=> el);
+      newids.push(action.orderid);
+      new_ordersontable.orders = newids;
+      //new_ordersontable.orders.push(action.orderid);
+      return {...state,  OrdersOnTable : OrdersOnTableAdapter.upsertOne(new_ordersontable,state.OrdersOnTable)};
     }
 }
 
 function AddRowInOrder(state : HallsState, action) {
-  if ((<Array<string>>state.ItemsInOrder.ids).indexOf(action.rowid) === -1) {
+  console.log('AddRowInOrder',action);
+  if ((<Array<string>>state.ItemsInOrder.ids).indexOf(action.data.orderid) === -1) {
     const new_iteminorder = {
-      orderid : action.orderid,
-      rowides : [action.rowid]
+      orderid : action.data.orderid,
+      rowides : [action.data.rowid]
     }
     return {...state,  ItemsInOrder : ItemsInOrdersAdapter.addOne(new_iteminorder,state.ItemsInOrder)};
   } else {
-    const iteminorder = state.ItemsInOrder.entities[action.orderid];
+    
+    const iteminorder = state.ItemsInOrder.entities[action.data.orderid];
+    
     let new_iteminorder = {...iteminorder  };
-    new_iteminorder.rowides.push(action.rowid);
-    return {...state,  ItemsInOrder : ItemsInOrdersAdapter.upsertOne(new_iteminorder,state.ItemsInOrder)};
+    let newids = new_iteminorder.rowides.map(el=> el);
+    newids.push(action.data.rowid);
+    new_iteminorder.rowides = newids;
+    let nextState  = {...state,  ItemsInOrder : ItemsInOrdersAdapter.upsertOne(new_iteminorder,state.ItemsInOrder)};
+    return nextState
   }
 
   
 }
 
+function AddRow(state : HallsState, action) {
+  console.log('AddRow',action)
+  let nextState = {...state, Orderitems: OrderitemAdapter.addOne(action.data,state.Orderitems) };
+  
+  if (action.kaskad.orderid) {
+    nextState = {...AddOrderOntable(nextState,action.kaskad)};
+  }
+
+  if (action.kaskad.rowid) {
+
+    
+    nextState = {...AddRowInOrder(nextState,action)} ;
+  }
+
+  console.log('nextState',nextState.ItemsInOrder)
+  return nextState;
+}  
+
+function ModifyRow(state : HallsState, action ) {
+  let nextState = {...state, Orderitems: OrderitemAdapter.updateOne(action.data,state.Orderitems) };
+  
+  if (action.kaskad.rowid) {
+    nextState = AddRowInOrder(nextState,action);
+  }
+
+  if (action.kaskad.orderid) {
+    nextState = AddOrderOntable(nextState,action);
+  }
+
+  
+  return nextState;
+}  
+
+
 
 export const reducer = createReducer(
   initialState,
-  on(HallstateActions.SelectItem, (state, action) => {return {...state, Orderitems: OrderitemAdapter.updateOne(action.data,state.Orderitems) }}),
-  on(HallstateActions.ModifyOrderItem, (state, action) => {return {...state, Orderitems: OrderitemAdapter.updateOne(action.data,state.Orderitems) }}),
+  
+  
   on(HallstateActions.loadHallstatesSuccess, (state, action) => LoadState(state, action)),
   on(HallstateActions.refreshHallstatesSuccess, (state, action) => RefresState(state, action)),
   on(HallstateActions.loadHallstatesFailure, (state, action) => state),
   on(HallstateActions.refreshHallstatesFailure, (state, action) => state),
+   
+
+  ////                                     EDIT ORDER
   on(HallstateActions.AddOrderOntable, (state, action) => AddOrderOntable(state, action)),
   on(HallstateActions.AddRowInOrder, (state, action) => AddRowInOrder(state, action)),
-  on(HallstateActions.AddRow, (state, action) => {return {...state, Orderitems: OrderitemAdapter.addOne(action.data,state.Orderitems) }}),
+  
+  on(HallstateActions.ModifyOrderItem, (state, action) => ModifyRow(state, action)),
+  on(HallstateActions.AddRow, (state, action) => AddRow(state, action)),
+  on(HallstateActions.SelectItem, (state, action) => {return {...state, Orderitems: OrderitemAdapter.updateOne(action.data,state.Orderitems) }}),
 );
 
 export const {selectAll : selectAllItems , selectEntities : selectItemEntities, selectIds : selectItemIds }  = OrderitemAdapter.getSelectors();

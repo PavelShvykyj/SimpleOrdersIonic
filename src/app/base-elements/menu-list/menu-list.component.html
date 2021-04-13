@@ -1,5 +1,10 @@
 
-  <ion-searchbar animated='true' show-clear-button='always' (ionInput)=OnNameFilterInput($event.target.value) showCancelButton="focus" animated placeholder="search by name">
+  <ion-searchbar  show-clear-button='always'
+    debounce="10"
+    showCancelButton="focus"
+    placeholder="search by name"
+    (ionInput)=OnNameFilterInput($event.target.value)
+    >
   </ion-searchbar>
   <cub-toolbar class="w-100" (OnElementClicked)="OnLentaElementClicked($event)"
     (OnToolbarCommandClicked)="OnToolbarCommandClicked($event)">
@@ -12,7 +17,7 @@
 <ion-col> -->
 <ion-list class="w-100 pl-4 pr-4 py-0" *ngIf="menuitems$ | async as menuitems">
   <ion-item class="w-100" slot="start" [color]="menuitem.isFolder ? 'medium' : ''" button *ngFor="let menuitem of menuitems"
-    (click)="ElementClicked(menuitem)">
+    (click)="ElementClicked(menuitem)" [disabled]="menuitem.isBlocked">
     <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap"> <ion-text>{{ menuitem.name }}</ion-text> </ion-label>
     <ion-note slot="end" *ngIf="!menuitem.isFolder" color="danger" class="ml"><ion-text>{{ menuitem.price }}</ion-text> </ion-note>
   </ion-item>
