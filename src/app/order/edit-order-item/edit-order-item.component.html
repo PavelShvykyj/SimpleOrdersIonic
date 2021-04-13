@@ -1,0 +1,39 @@
+<ion-content>
+<ion-toolbar color='primary'>
+    <ion-title slot="start">  {{ item.goodname }} {{item.price}}   </ion-title>
+</ion-toolbar>
+<ion-grid>
+    <!-- <ion-row>
+        <ion-col>
+            
+        </ion-col>
+    </ion-row> -->
+    <ion-row>
+        <ion-col >
+            <form [formGroup]="form">
+                <ion-list>
+                    <ion-item>
+                        <ion-label position="stacked"> input quantity </ion-label>
+                        <ion-input type="number"  formControlName="quantity" clear-input=true inputmode="decimal" ></ion-input>
+                    </ion-item>
+                </ion-list>
+
+                <ion-list>
+                    <ion-item>
+                        <ion-label position="stacked"> input comment </ion-label>
+                        <ion-input type="text"  formControlName="comment" clear-input=true inputmode="text" ></ion-input>
+                    </ion-item>
+                </ion-list>
+            </form>
+        </ion-col>
+    </ion-row>
+
+    <ion-row>
+        <ion-col >
+            <ion-button fill='solid' expand='block' color='primary'  (click)="Save()"> Save </ion-button>
+            <ion-button fill='solid' expand='block' color='primary' (click)="Cancel()"> Cancel</ion-button>
+        </ion-col>
+    </ion-row>        
+
+</ion-grid>
+</ion-content>

@@ -1,11 +1,12 @@
 import { tap } from 'rxjs/operators';
 import { Menu } from './../../menu-store/menu-store.reducer';
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { selectMemuByName, selectMemuByParent } from 'src/app/menu-store/menu-store.selectors';
 import { State } from 'src/app/reducers';
 import { Observable } from 'rxjs';
 import { CubToolbarComponent } from '../cub-toolbar/cub-toolbar.component';
+
 
 @Component({
   selector: 'menu-list',
@@ -19,6 +20,8 @@ export class MenuListComponent implements OnInit {
   @ViewChild(CubToolbarComponent, { static: false })
   toolbar: CubToolbarComponent;
 
+  @Output('MenuElementSelect')
+  MenuElementSelect = new EventEmitter();
 
 
   constructor(private store: Store<State>, private detector : ChangeDetectorRef) { }
@@ -63,7 +66,7 @@ export class MenuListComponent implements OnInit {
       this.toolbar.AddElement(item);
       
     } else {
-      //// add item to order (open dialog first)
+      this.MenuElementSelect.emit(item);
     }
 
   }

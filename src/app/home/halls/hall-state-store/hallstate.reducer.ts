@@ -1,7 +1,7 @@
 
 
 
-import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
+import { EntityState, EntityAdapter, createEntityAdapter, Update } from '@ngrx/entity';
 import { Action, createReducer, on } from '@ngrx/store';
 import * as HallstateActions from './hallstate.actions';
 
@@ -63,7 +63,9 @@ export interface Orderitem {
   waitername : string,
   dicountname : string,
   dicountid : string,
-  modified : Date
+  modified : Date,
+  isChanged?  : boolean,
+  isSelected? : boolean
 }
 
 export interface HallStateData {
@@ -143,14 +145,52 @@ function RefresState(state:HallsState, action) {
   }
 }
 
+function AddOrderOntable(state: HallsState, action) {
+  console.log('function AddOrderOntable')  
+  const itemid = action.hallid + " " + action.tableid;
+    console.log('itemid',itemid)
+    if ((<Array<string>>state.OrdersOnTable.ids).indexOf(itemid) === -1) {
+      let new_ordersontable = {hallid:action.hallid , tableid :action.tableid , orders: [action.orderid]  };
+      console.log('new_ordersontable',new_ordersontable);
+      return {...state,  ordersontable : OrdersOnTableAdapter.addOne(new_ordersontable,state.OrdersOnTable)};
+    } 
+    else {
+      const ordersontable = state.OrdersOnTable.entities[itemid];
+      let new_ordersontable = {...ordersontable  };
+      new_ordersontable.orders.push(action.orderid);
+      return {...state,  ordersontable : OrdersOnTableAdapter.upsertOne(new_ordersontable,state.OrdersOnTable)};
+    }
+}
+
+function AddRowInOrder(state : HallsState, action) {
+  if ((<Array<string>>state.ItemsInOrder.ids).indexOf(action.rowid) === -1) {
+    const new_iteminorder = {
+      orderid : action.orderid,
+      rowides : [action.rowid]
+    }
+    return {...state,  ItemsInOrder : ItemsInOrdersAdapter.addOne(new_iteminorder,state.ItemsInOrder)};
+  } else {
+    const iteminorder = state.ItemsInOrder.entities[action.orderid];
+    let new_iteminorder = {...iteminorder  };
+    new_iteminorder.rowides.push(action.rowid);
+    return {...state,  ItemsInOrder : ItemsInOrdersAdapter.upsertOne(new_iteminorder,state.ItemsInOrder)};
+  }
+
+  
+}
+
 
 export const reducer = createReducer(
   initialState,
+  on(HallstateActions.SelectItem, (state, action) => {return {...state, Orderitems: OrderitemAdapter.updateOne(action.data,state.Orderitems) }}),
+  on(HallstateActions.ModifyOrderItem, (state, action) => {return {...state, Orderitems: OrderitemAdapter.updateOne(action.data,state.Orderitems) }}),
   on(HallstateActions.loadHallstatesSuccess, (state, action) => LoadState(state, action)),
   on(HallstateActions.refreshHallstatesSuccess, (state, action) => RefresState(state, action)),
   on(HallstateActions.loadHallstatesFailure, (state, action) => state),
   on(HallstateActions.refreshHallstatesFailure, (state, action) => state),
-
+  on(HallstateActions.AddOrderOntable, (state, action) => AddOrderOntable(state, action)),
+  on(HallstateActions.AddRowInOrder, (state, action) => AddRowInOrder(state, action)),
+  on(HallstateActions.AddRow, (state, action) => {return {...state, Orderitems: OrderitemAdapter.addOne(action.data,state.Orderitems) }}),
 );
 
 export const {selectAll : selectAllItems , selectEntities : selectItemEntities, selectIds : selectItemIds }  = OrderitemAdapter.getSelectors();

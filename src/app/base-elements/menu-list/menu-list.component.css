@@ -16,9 +16,16 @@ ion-list {
     padding-bottom: 0px;
 }
 
+
+
 .ml {
     margin-left: 8px;
   }
+
+.pr-4 {
+    padding-right: 4px;
+}
+
 
 .pl-4 {
     padding-left: 4px;

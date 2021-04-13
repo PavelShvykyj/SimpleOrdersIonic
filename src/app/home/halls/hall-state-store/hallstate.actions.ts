@@ -1,5 +1,6 @@
+import { Update } from '@ngrx/entity';
 import { createAction, props } from '@ngrx/store';
-import { HallsState } from './hallstate.reducer';
+import { HallsState, Orderitem } from './hallstate.reducer';
 
 export const loadHallstates = createAction(
   '[Hallstate] Load Hallstates'
@@ -23,6 +24,33 @@ export const refreshHallstatesFailure = createAction(
   '[Hallstate] refresh Hallstates Failure',
   props<{ error: any }>()
 );
+
+export const SelectItem = createAction(
+  '[Hallsstore] Select item in order page',
+  props<{ data : Update<Orderitem>}>()
+);  
+
+/// прежде чем сохранить данные нужно где то  помнить изменения
+export const ModifyOrderItem = createAction(
+  '[Hallsstore] Modify item in order page',
+  props<{ data : Update<Orderitem>}>()
+);  
+
+export const AddOrderOntable = createAction(
+  '[Hallsstore] Add order on table in order page', 
+   props<{hallid: string, orderid: string, tableid: string}>()
+  );  
+  
+export const AddRowInOrder = createAction(
+    '[Hallsstore] Add row on order in order page', 
+     props<{orderid: string , rowid: string}>()
+);
+
+export const AddRow = createAction(
+  '[Hallsstore] Add row  in order page', 
+   props<{data : Orderitem}>()
+);
+
 
 
 

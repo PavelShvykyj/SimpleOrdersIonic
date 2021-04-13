@@ -21,9 +21,9 @@
         <ion-title>Order totals</ion-title>
       </ion-toolbar>
       <ion-list *ngIf="items$ | async as items">
-        <ion-item *ngFor="let item of items">
-          <ion-checkbox slot="start"></ion-checkbox>
-          <ion-label> 
+        <ion-item button *ngFor="let item of items" (click)=CallEditRowDialog(item)>
+          <ion-checkbox #el  [checked]="item.isSelected == undefined ? false : item.isSelected" (ionChange)=OnItemSelected(item,el.checked) slot="start"></ion-checkbox>
+          <ion-label [color]="item.isChanged == undefined ? '' : 'medium'"> 
              <p>{{item.goodname}} </p> 
              <p *ngIf="item.comment"><small > {{item.comment}}  </small></p>
           </ion-label>
@@ -46,7 +46,7 @@
         <ion-title>Menu</ion-title>
       </ion-toolbar> -->
       
-      <menu-list style="height: 100%;"></menu-list>
+      <menu-list (MenuElementSelect)="OnMenuElementSelect($event)" style="height: 100%;"></menu-list>
     </ion-slide>
 
     <ion-slide>
