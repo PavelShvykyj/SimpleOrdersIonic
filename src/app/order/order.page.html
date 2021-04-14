@@ -5,9 +5,9 @@
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button  color="primary"><ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon> </ion-button>
-      <ion-button  color="primary">new</ion-button>
-      <ion-button  color="primary"><ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon></ion-button>
+      <ion-button  color="primary" (click)="NextOrder(-1)"><ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon> </ion-button>
+      <ion-button  color="primary" (click)="NextOrder(0)">new</ion-button>
+      <ion-button  color="primary" (click)="NextOrder(1)"><ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon></ion-button>
   
     </ion-buttons>
 

@@ -161,3 +161,20 @@ export const selectHallStateData = createSelector(
   })
 
 
+  export const selectOrderItems = createSelector(
+    
+    selectItemsInOrdersEntyties,
+    selectItemsEntyties,
+    ( ItemsInOrders: Dictionary<fromHallstate.ItemsInOrders>,
+      Items: Dictionary<fromHallstate.Orderitem>,
+      id: string
+    ) => { 
+      const order =  ItemsInOrders[id];
+      if (order === undefined) {
+        return []
+      }
+          
+      return order.rowides.map(id => Items[id])
+
+
+    })

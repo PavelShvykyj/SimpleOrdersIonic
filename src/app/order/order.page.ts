@@ -1,12 +1,13 @@
+import { OrdersOnTable } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow } from './../home/halls/hall-state-store/hallstate.actions';
 import { Orderitem } from 'src/app/home/halls/hall-state-store/hallstate.reducer';
-import { concatMap, filter, map, take, tap, debounceTime } from 'rxjs/operators';
+import { concatMap, filter, map, take, tap, debounceTime, first } from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { State } from 'src/app/reducers';
 import { of, Observable } from 'rxjs';
-import { selectItemsByID, selectItemsInOrdersByID } from '../home/halls/hall-state-store/hallstate.selectors';
+import { selectItemsByID, selectItemsInOrdersByID, selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
 import { ActionSheetController, ModalController } from '@ionic/angular';
@@ -83,14 +84,18 @@ export class OrderPage implements OnInit {
   }
 
   OnOrderidChages() {
-    const ids = [this.orderid];
-    this.items$ = this.store.select(selectItemsInOrdersByID, { ids })
-      .pipe(concatMap(iio => {
-        if (iio[0] === undefined) {
-          return of([])
-        }
-        return this.store.select(selectItemsByID, { ids: iio[0].rowides })
-      }));
+    
+    
+    this.items$ = this.store.pipe(select(selectOrderItems,this.orderid)) 
+    
+    // const ids = [this.orderid];
+    // this.items$ = this.store.select(selectItemsInOrdersByID, { ids })
+    //   .pipe(concatMap(iio => {
+    //     if (iio[0] === undefined) {
+    //       return of([])
+    //     }
+    //     return this.store.select(selectItemsByID, { ids: iio[0].rowides })
+    //   }));
 
   }
 
@@ -212,15 +217,37 @@ export class OrderPage implements OnInit {
       this.store.dispatch(ModifyOrderItem({ data: changes, kaskad: kaskad }));
     }
 
-
-    this.OnOrderidChages();
-
-
-
+    if (kaskad.orderid) {
+      this.OnOrderidChages(); 
+    }
     // this.store.dispatch(AddOrderOntable({ hallid: this.hallid, orderid: this.orderid, tableid: this.table }));
     // this.store.dispatch(AddRowInOrder({ orderid: this.orderid, rowid: rowid }));
 
   }
+
+  NextOrder(par : number) {
+    if (par === 0) {
+      this.router.navigate(this.route.snapshot.url, { queryParams: {orderid: "" , hallid: this.hallid , tableid : this.table} });
+      return;
+    }
+
+    this.store.pipe(select(selectOrdersOnTableBuId,{ids:[this.hallid+" "+this.table]}),first()).subscribe(el=>{
+      if (el.lenth === 0) {
+        return
+      }
+
+      
+
+      const  nextorderindex = this.orderid === "" ? 0 : el[0].orders.indexOf(this.orderid)+par;
+      console.log('nextorderindex',nextorderindex);
+      if (nextorderindex >=0 && nextorderindex<= el[0].orders.length-1) {
+        console.log('next order',el[0].orders[nextorderindex]);  
+        this.router.navigate(this.route.snapshot.url, { queryParams: {orderid: el[0].orders[nextorderindex] , hallid: this.hallid , tableid : this.table} });
+      }
+    })
+  }
+
+
 
 
   OnMenuElementSelect(event) {
