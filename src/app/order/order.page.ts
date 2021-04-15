@@ -2,7 +2,7 @@ import { OrdersOnTable } from './../home/halls/hall-state-store/hallstate.reduce
 import { AddRow } from './../home/halls/hall-state-store/hallstate.actions';
 import { Orderitem } from 'src/app/home/halls/hall-state-store/hallstate.reducer';
 import { concatMap, filter, map, take, tap, debounceTime, first } from 'rxjs/operators';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { State } from 'src/app/reducers';
@@ -10,7 +10,7 @@ import { of, Observable } from 'rxjs';
 import { selectItemsByID, selectItemsInOrdersByID, selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
-import { ActionSheetController, ModalController } from '@ionic/angular';
+import { ActionSheetController, IonSlides, ModalController } from '@ionic/angular';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Menu } from '../menu-store/menu-store.reducer';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
@@ -18,6 +18,13 @@ import { orderactions } from '../global.enums';
 import { AddOrderOntable, AddRowInOrder, ModifyOrderItem, SelectItem } from '../home/halls/hall-state-store/hallstate.actions';
 import { Update } from '@ngrx/entity';
 import { v4 as uuidv4 } from 'uuid';
+import { inQueue, inQueueSuccess } from '../queue/queue-store.actions';
+import { Queue } from '../queue/queue-store.reducer';
+import { AppsettingsService } from '../appsettings/appsettings.service';
+
+
+
+
 
 @Component({
   selector: 'app-order',
@@ -32,6 +39,10 @@ export class OrderPage implements OnInit {
   table: string;
   orderid: string;
   form: FormGroup;
+  totals$ 
+
+  @ViewChild('slider', { static: true })
+  slider : IonSlides
 
   actions = {
     header: 'order actions',
@@ -45,27 +56,28 @@ export class OrderPage implements OnInit {
     }, {
       text: 'ПЕЧАТЬ',
 
-      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+      handler: () =>{ this.OnOrderActionClick(orderactions.PRINT)}    
     }, {
       text: 'ОТМЕНА ПОЗИЦИЙ',
-      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+      handler: () =>{ this.OnOrderActionClick(orderactions.CANCEL_ROW)}    
       
     }, {
       text: 'ПРЕЧЕК',
-      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+      handler: () =>{ this.OnOrderActionClick(orderactions.PRECHECK)}    
       
     }, {
       text: 'ДИСКОНТ',
-      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+      handler: () =>{ this.OnOrderActionClick(orderactions.DISCOUNT)}    
     }, {
       text: 'ОПЛАТА',
-      handler: () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
+      handler: () =>{ this.OnOrderActionClick(orderactions.PAY)}    
     }]
   }
 
   constructor(private route: ActivatedRoute,
     private router: Router,
     private store: Store<State>,
+    private setingsService : AppsettingsService,
     public actionSheetController: ActionSheetController,
     public modalController: ModalController
   ) { }
@@ -87,7 +99,20 @@ export class OrderPage implements OnInit {
     
     
     this.items$ = this.store.pipe(select(selectOrderItems,this.orderid)) 
-    
+    this.totals$ = this.items$.pipe(map(items=> {
+      if (items.length === 0) {
+        this.slider.slideTo(1);
+        return {summ : 0, discountname : "",  discountsumm: 0}  
+      }
+      
+      const discountname = items[0].dicountname;
+      
+      let summ = 0;
+      let discountsumm = 0;
+      items.forEach(el => {{summ=summ+el.summ; discountsumm = discountsumm + el.discountsumm;  }})  
+
+      return {summ , discountname ,  discountsumm}
+    }))
     // const ids = [this.orderid];
     // this.items$ = this.store.select(selectItemsInOrdersByID, { ids })
     //   .pipe(concatMap(iio => {
@@ -220,8 +245,6 @@ export class OrderPage implements OnInit {
     if (kaskad.orderid) {
       this.OnOrderidChages(); 
     }
-    // this.store.dispatch(AddOrderOntable({ hallid: this.hallid, orderid: this.orderid, tableid: this.table }));
-    // this.store.dispatch(AddRowInOrder({ orderid: this.orderid, rowid: rowid }));
 
   }
 
@@ -235,20 +258,12 @@ export class OrderPage implements OnInit {
       if (el.lenth === 0) {
         return
       }
-
-      
-
       const  nextorderindex = this.orderid === "" ? 0 : el[0].orders.indexOf(this.orderid)+par;
-      console.log('nextorderindex',nextorderindex);
       if (nextorderindex >=0 && nextorderindex<= el[0].orders.length-1) {
-        console.log('next order',el[0].orders[nextorderindex]);  
         this.router.navigate(this.route.snapshot.url, { queryParams: {orderid: el[0].orders[nextorderindex] , hallid: this.hallid , tableid : this.table} });
       }
     })
   }
-
-
-
 
   OnMenuElementSelect(event) {
     // search row
@@ -264,17 +279,38 @@ export class OrderPage implements OnInit {
     this.store.dispatch(SelectItem({ data: { id: item.rowid, changes: { isSelected: checked } } }))
   }
 
-  OnOrderActionClick(action: orderactions) {
-    switch (action) {
-      case orderactions.SAVE:
-      case orderactions.PRINT:
-      case orderactions.PRECHECK:
-      case orderactions.PAY:
-      case orderactions.DISCOUNT:
-      case orderactions.CANCEL_ROW:  
-      default:
-        break;
-    }
+  OnOrderActionClick(command: orderactions) {
+    this.items$.pipe(take(1)).subscribe(
+      items=> {
+        
+        
+        let el : Queue = {
+          id: uuidv4() as string,
+          command : command,
+          commandParamrtr : JSON.stringify(items),
+          commandDate : new Date(),
+          gajet: this.setingsService.deviceID
+        };
+    
+        console.log('queue el', el);
+        
+        this.store.dispatch(inQueue({ data : el }));
+    
+      }
+    )
+    
+    
+    
+    // switch (action) {
+    //   case orderactions.SAVE:
+    //   case orderactions.PRINT:
+    //   case orderactions.PRECHECK:
+    //   case orderactions.PAY:
+    //   case orderactions.DISCOUNT:
+    //   case orderactions.CANCEL_ROW:  
+    //   default:
+    //     break;
+    // }
 
   }
 

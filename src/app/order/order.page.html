@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title> {{ (hall$ | async).name }} / {{ table }}</ion-title>
+    <ion-title>  {{ (hall$ | async).name }} /  {{ table }}</ion-title>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
@@ -15,10 +15,15 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-slides>
+  <ion-slides #slider>
     <ion-slide>
-      <ion-toolbar>
-        <ion-title>Order totals</ion-title>
+      <ion-toolbar *ngIf="totals$ | async as totals">
+        <ion-title slot="start"><h5> Сума {{totals.summ}} </h5>
+        <ng-container *ngIf="totals.discountname">
+          <h5>{{totals.discountname}}</h5> 
+          <h5> Знижка {{totals.discountsumm}}  </h5>
+        </ng-container>  
+      </ion-title>
       </ion-toolbar>
       <ion-list *ngIf="items$ | async as items">
         <ion-item button *ngFor="let item of items" (click)=CallEditRowDialog(item)>
