@@ -9,7 +9,7 @@ export class AppsettingsService {
   _deviceID : string
 
   constructor(private device: Device) {
-    console.log('device',this.device);
+    
     setTimeout(()=> {this._deviceID = this.device.uuid}, 150) ;
    }
 

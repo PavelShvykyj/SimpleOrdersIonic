@@ -18,7 +18,7 @@
   <ion-slides #slider>
     <ion-slide>
       <ion-toolbar *ngIf="totals$ | async as totals">
-        <ion-title slot="start"><h5> Сума {{totals.summ}} </h5>
+        <ion-title color='tertiary' slot="start"><h5> Сума {{totals.summ}} </h5>
         <ng-container *ngIf="totals.discountname">
           <h5>{{totals.discountname}}</h5> 
           <h5> Знижка {{totals.discountsumm}}  </h5>
