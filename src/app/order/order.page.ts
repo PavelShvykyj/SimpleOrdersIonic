@@ -1,5 +1,5 @@
 import { OrdersOnTable } from './../home/halls/hall-state-store/hallstate.reducer';
-import { AddRow } from './../home/halls/hall-state-store/hallstate.actions';
+import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
 import { Orderitem } from 'src/app/home/halls/hall-state-store/hallstate.reducer';
 import { concatMap, filter, map, take, tap, debounceTime, first } from 'rxjs/operators';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
@@ -39,10 +39,10 @@ export class OrderPage implements OnInit {
   table: string;
   orderid: string;
   form: FormGroup;
-  totals$ 
+  totals$
 
   @ViewChild('slider', { static: true })
-  slider : IonSlides
+  slider: IonSlides
 
   actions = {
     header: 'order actions',
@@ -50,34 +50,38 @@ export class OrderPage implements OnInit {
     buttons: [{
       text: 'СОХРАНИТЬ',
       handler:
-      () =>{ this.OnOrderActionClick(orderactions.SAVE)}    
-      
-
+        () => { this.OnOrderActionClick(orderactions.SAVE) }
     }, {
       text: 'ПЕЧАТЬ',
 
-      handler: () =>{ this.OnOrderActionClick(orderactions.PRINT)}    
+      handler: () => { this.OnOrderActionClick(orderactions.PRINT) }
     }, {
       text: 'ОТМЕНА ПОЗИЦИЙ',
-      handler: () =>{ this.OnOrderActionClick(orderactions.CANCEL_ROW)}    
-      
-    }, {
+      handler: () => { this.OnOrderActionClick(orderactions.CANCEL_ROW) }
+
+    },
+    {
+      text: 'ОТМЕТИТЬ ФИСКАЛ',
+      handler: () => { this.OnOrderActionClick(orderactions.FISKAL) }
+
+    },
+    {
       text: 'ПРЕЧЕК',
-      handler: () =>{ this.OnOrderActionClick(orderactions.PRECHECK)}    
-      
+      handler: () => { this.OnOrderActionClick(orderactions.PRECHECK) }
+
     }, {
       text: 'ДИСКОНТ',
-      handler: () =>{ this.OnOrderActionClick(orderactions.DISCOUNT)}    
+      handler: () => { this.OnOrderActionClick(orderactions.DISCOUNT) }
     }, {
       text: 'ОПЛАТА',
-      handler: () =>{ this.OnOrderActionClick(orderactions.PAY)}    
+      handler: () => { this.OnOrderActionClick(orderactions.PAY) }
     }]
   }
 
   constructor(private route: ActivatedRoute,
     private router: Router,
     private store: Store<State>,
-    private setingsService : AppsettingsService,
+    private setingsService: AppsettingsService,
     public actionSheetController: ActionSheetController,
     public modalController: ModalController
   ) { }
@@ -96,22 +100,22 @@ export class OrderPage implements OnInit {
   }
 
   OnOrderidChages() {
-    
-    
-    this.items$ = this.store.pipe(select(selectOrderItems,this.orderid)) 
-    this.totals$ = this.items$.pipe(map(items=> {
+
+
+    this.items$ = this.store.pipe(select(selectOrderItems, this.orderid))
+    this.totals$ = this.items$.pipe(map(items => {
       if (items.length === 0) {
         this.slider.slideTo(1);
-        return {summ : 0, discountname : "",  discountsumm: 0}  
+        return { summ: 0, discountname: "", discountsumm: 0 }
       }
-      
+
       const discountname = items[0].dicountname;
-      
+
       let summ = 0;
       let discountsumm = 0;
-      items.forEach(el => {{summ=summ+el.summ; discountsumm = discountsumm + el.discountsumm;  }})  
+      items.forEach(el => { { summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm; } })
 
-      return {summ , discountname ,  discountsumm}
+      return { summ, discountname, discountsumm }
     }))
     // const ids = [this.orderid];
     // this.items$ = this.store.select(selectItemsInOrdersByID, { ids })
@@ -243,24 +247,24 @@ export class OrderPage implements OnInit {
     }
 
     if (kaskad.orderid) {
-      this.OnOrderidChages(); 
+      this.OnOrderidChages();
     }
 
   }
 
-  NextOrder(par : number) {
+  NextOrder(par: number) {
     if (par === 0) {
-      this.router.navigate(this.route.snapshot.url, { queryParams: {orderid: "" , hallid: this.hallid , tableid : this.table} });
+      this.router.navigate(this.route.snapshot.url, { queryParams: { orderid: "", hallid: this.hallid, tableid: this.table } });
       return;
     }
 
-    this.store.pipe(select(selectOrdersOnTableBuId,{ids:[this.hallid+" "+this.table]}),first()).subscribe(el=>{
+    this.store.pipe(select(selectOrdersOnTableBuId, { ids: [this.hallid + " " + this.table] }), first()).subscribe(el => {
       if (el.lenth === 0) {
         return
       }
-      const  nextorderindex = this.orderid === "" ? 0 : el[0].orders.indexOf(this.orderid)+par;
-      if (nextorderindex >=0 && nextorderindex<= el[0].orders.length-1) {
-        this.router.navigate(this.route.snapshot.url, { queryParams: {orderid: el[0].orders[nextorderindex] , hallid: this.hallid , tableid : this.table} });
+      const nextorderindex = this.orderid === "" ? 0 : el[0].orders.indexOf(this.orderid) + par;
+      if (nextorderindex >= 0 && nextorderindex <= el[0].orders.length - 1) {
+        this.router.navigate(this.route.snapshot.url, { queryParams: { orderid: el[0].orders[nextorderindex], hallid: this.hallid, tableid: this.table } });
       }
     })
   }
@@ -280,27 +284,49 @@ export class OrderPage implements OnInit {
   }
 
   OnOrderActionClick(command: orderactions) {
+    
+    switch (command) {
+      case orderactions.FISKAL:
+        this.items$.pipe(
+          take(1),
+          map(items => items.filter(el => el.isSelected)))
+          .subscribe(items => {
+            const itemchanges : Array<Update<Orderitem>> = 
+            items.map(el => {return {id: el.rowid ,changes: {isexcise: !el.isexcise }}});
+            this.store.dispatch(UpdateOrderItemsValues({data: itemchanges} ))
+          });
+
+                          
+
+
+        return;
+      case orderactions.PAY:
+      case orderactions.DISCOUNT:
+      default:
+        break;
+    }
+    
     this.items$.pipe(take(1)).subscribe(
-      items=> {
-        
-        
-        let el : Queue = {
+      items => {
+
+
+        let el: Queue = {
           id: uuidv4() as string,
-          command : command,
-          commandParamrtr : JSON.stringify(items),
-          commandDate : new Date(),
+          command: command,
+          commandParamrtr: JSON.stringify(items),
+          commandDate: new Date(),
           gajet: this.setingsService.deviceID
         };
-    
-        console.log('queue el', el);
+
         
-        this.store.dispatch(inQueue({ data : el }));
-    
+
+        this.store.dispatch(inQueue({ data: el }));
+
       }
     )
-    
-    
-    
+
+
+
     // switch (action) {
     //   case orderactions.SAVE:
     //   case orderactions.PRINT:

@@ -36,6 +36,10 @@ export const ModifyOrderItem = createAction(
   props<{ data : Update<Orderitem>, kaskad: {rowid: string , orderid: string, hallid: string, tableid: string}}>()
 );  
 
+export const UpdateOrderItemsValues = createAction(
+  '[Hallsstore] Update Order Items Values in order page',
+  props<{ data :Update<Orderitem>[]}>());
+
 export const AddOrderOntable = createAction(
   '[Hallsstore] Add order on table in order page', 
    props<{hallid: string, orderid: string, tableid: string}>()
@@ -50,6 +54,7 @@ export const AddRow = createAction(
   '[Hallsstore] Add row  in order page', 
    props<{data : Orderitem, kaskad: {rowid: string , orderid: string , hallid: string, tableid: string}}>()
 );
+
 
 
 

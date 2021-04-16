@@ -167,7 +167,7 @@ function AddOrderOntable(state: HallsState, action) {
 }
 
 function AddRowInOrder(state : HallsState, action) {
-  console.log('AddRowInOrder',action);
+  
   if ((<Array<string>>state.ItemsInOrder.ids).indexOf(action.data.orderid) === -1) {
     const new_iteminorder = {
       orderid : action.data.orderid,
@@ -222,6 +222,9 @@ function ModifyRow(state : HallsState, action ) {
   return nextState;
 }  
 
+function UpdateRow(state, action) {
+  return {...state, Orderitems: OrderitemAdapter.updateMany(action.data,state.Orderitems) }
+}
 
 
 export const reducer = createReducer(
@@ -239,6 +242,7 @@ export const reducer = createReducer(
   on(HallstateActions.AddRowInOrder, (state, action) => AddRowInOrder(state, action)),
   
   on(HallstateActions.ModifyOrderItem, (state, action) => ModifyRow(state, action)),
+  on(HallstateActions.UpdateOrderItemsValues, (state, action) => UpdateRow(state, action)),
   on(HallstateActions.AddRow, (state, action) => AddRow(state, action)),
   on(HallstateActions.SelectItem, (state, action) => {return {...state, Orderitems: OrderitemAdapter.updateOne(action.data,state.Orderitems) }}),
 );

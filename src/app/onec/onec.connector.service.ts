@@ -1,3 +1,4 @@
+import { doQueue } from './../queue/queue-store.actions';
 import { selectAppSettings } from './../appsettings/app-settings.selectors';
 import { Store, select } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
@@ -9,6 +10,7 @@ import { State } from '../reducers';
 import { HallsState } from '../home/halls/hall-state-store/hallstate.reducer';
 import { setPing } from '../net/netcontrol.actions';
 import { Menu } from '../menu-store/menu-store.reducer';
+import { Queue } from '../queue/queue-store.reducer';
 
 
 
@@ -86,7 +88,7 @@ export class OnecConnectorService implements OnInit {
   }
 
   Ping() {
-    console.log("PING");
+    //console.log("PING");
     const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/ping`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
     this.hclient.get(URL,{headers:headers,
@@ -96,7 +98,7 @@ export class OnecConnectorService implements OnInit {
       responseType:'text'}).pipe(
         timeout(5000),
         map(res => {
-          console.log('ping', res);
+          //console.log('ping', res);
           if (res = "ping good") {
             this.ChangeStatus(true)
           } else {
@@ -104,7 +106,7 @@ export class OnecConnectorService implements OnInit {
           }
          }),
         catchError(err=>{
-          console.log('ping bad');
+          //console.log('ping bad');
           
           this.ChangeStatus(false);        
           return of(err)
@@ -166,8 +168,18 @@ export class OnecConnectorService implements OnInit {
         timeout(5000),  
         map(res => JSON.parse(res))
         );
+  }
 
-
+  doQueue(queue: Queue[]) {
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/domobileactions`;
+    let headers = new HttpHeaders().append('Content-Type','text/json');
+    
+   
+    return this.hclient.post(URL,JSON.stringify(queue),{headers:headers,
+      observe: 'body',
+      withCredentials:false,
+      reportProgress:false,
+      responseType:'text'}).pipe(timeout(5000));
   }
 
 }

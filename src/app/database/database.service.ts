@@ -14,7 +14,11 @@ export class DatabaseService {
 
   SaveData<T>(key:string,data:T) : Observable<T> {
     
-    return from(this.db.setItem(key,data) as Promise<T>);
+    return from((this.db.setItem(key,data) as Promise<T>).catch<T>(err=>{ 
+      return new Promise<T>((resolve, reject) => {
+        ////// тут какой то лог придумать и в других методах тоже
+        resolve(err);
+    })}));
   }
 
   GetKeys() : Observable<Array<string>> {

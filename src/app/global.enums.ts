@@ -1,5 +1,6 @@
 export enum orderactions {
     "SAVE" = "Сохранить",
+    "FISKAL" = "Фискал",
     "PRINT" = "Печать",
     "PRECHECK" = "Пречек",
     "DISCOUNT" = "Дисконт",

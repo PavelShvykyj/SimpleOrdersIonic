@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, concatMap } from 'rxjs/operators';
+import { catchError, map, concatMap, filter, tap, withLatestFrom, take } from 'rxjs/operators';
 import { EMPTY, from, of } from 'rxjs';
 
 import * as QueueStoreActions from './queue-store.actions';
@@ -11,6 +11,7 @@ import { Queue } from './queue-store.reducer';
 import { Store, select } from '@ngrx/store';
 import { State } from '../reducers';
 import { selectAllQueue } from './queue-store.selectors';
+import { PingStatus } from '../net/netcontrol.selectors';
 
 
 
@@ -23,16 +24,43 @@ export class QueueStoreEffects {
     return this.actions$.pipe( 
       /// фильтруем событие
       ofType(QueueStoreActions.inQueue),
-      concatMap(() => { return this.store.pipe(select(selectAllQueue))  }),
-      concatMap((queue) => { return this.localdb.SaveData<Array<Queue>>('queue',queue)})
+      concatMap(() => { return this.store.pipe(select(selectAllQueue),take(1)) }),
+      concatMap((queue) => { return this.localdb.SaveData<Array<Queue>>('queue',queue)}),
+      map(() => {console.log('call doQueue');  return QueueStoreActions.doQueue() } )
       
-    )}, { dispatch: false });
+    )});
+
+  doQueueEffect$ = createEffect(() => {
+    return this.actions$.pipe( 
+      /// фильтруем событие
+      ofType(QueueStoreActions.doQueue),
+      concatMap(()=> {console.log('doQueueEffect'); return from(this.loadingController.create({message: "Send to 1C",keyboardClose:true,spinner: "lines"}))}),
+      withLatestFrom(this.store.pipe(select(PingStatus))),
+      /// если статус плох вызываем действие пустышку "провал" 
+      tap((data) => { 
+          console.log('ping status',data[1]);
+          if (!data[1]) {
+            return QueueStoreActions.doQueueFailure()
+          }}),
+      //// дальше идем только если статус хорош
+      filter(data => data[1]) ,   
+      withLatestFrom(this.store.pipe(select(selectAllQueue))),
+      concatMap((data) => {
+          console.log('call webdb');
+          data[0][0].present();
+          return this.webdb.doQueue(data[1]).pipe(
+            tap(()=> data[0][0].dismiss()),
+            map(()=>  QueueStoreActions.delQueue()),
+            catchError(() => of(QueueStoreActions.doQueueFailure()))
+          )
+      } )
+    )});  
 
     delQueueEffect$ = createEffect(() => {
       return this.actions$.pipe( 
         /// фильтруем событие
         ofType(QueueStoreActions.delQueue),
-        concatMap(() => { return this.localdb.DellItem('queue')})
+        tap(() => this.localdb.DellItem('queue'))
       )}, { dispatch: false });    
 
 

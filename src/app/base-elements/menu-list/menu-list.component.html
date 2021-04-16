@@ -16,10 +16,13 @@
 <ion-row> 
 <ion-col> -->
 <ion-list class="w-100 pl-4 pr-4 py-0" *ngIf="menuitems$ | async as menuitems">
-  <ion-item class="w-100" slot="start" [color]="menuitem.isFolder ? 'medium' : ''" button *ngFor="let menuitem of menuitems"
+  <ion-item class="w-100" slot="start" [color]="menuitem.isFolder ? 'light' : ''" button *ngFor="let menuitem of menuitems"
     (click)="ElementClicked(menuitem)" [disabled]="menuitem.isBlocked">
-    <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap"> <ion-text>{{ menuitem.name }}</ion-text> </ion-label>
+    <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap"> 
+      
+      <ion-text>{{ menuitem.name }}</ion-text> </ion-label>
     <ion-note slot="end" *ngIf="!menuitem.isFolder" color="danger" class="ml"><ion-text>{{ menuitem.price }}</ion-text> </ion-note>
+    <ion-note slot="start" *ngIf="menuitem.isFolder"  > <ion-icon name="folder"></ion-icon> </ion-note>
   </ion-item>
 </ion-list>
 <!-- </ion-col>       
