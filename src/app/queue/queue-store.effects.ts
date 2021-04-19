@@ -12,6 +12,7 @@ import { Store, select } from '@ngrx/store';
 import { State } from '../reducers';
 import { selectAllQueue } from './queue-store.selectors';
 import { PingStatus } from '../net/netcontrol.selectors';
+import { refreshHallstates } from '../home/halls/hall-state-store/hallstate.actions';
 
 
 
@@ -49,7 +50,13 @@ export class QueueStoreEffects {
           console.log('call webdb');
           data[0][0].present();
           return this.webdb.doQueue(data[1]).pipe(
+            /////   тут нужено обработать ответ или это конкретный заказ или весь холл стэйт
+            /////   пока просто делаем запрос на обновлдение всего состояния посмотрим на быстродействие
+            //tap(() => {this.store.dispatch(refreshHallstates())}),
             tap(()=> data[0][0].dismiss()),
+
+            
+
             map(()=>  QueueStoreActions.delQueue()),
             catchError(() => of(QueueStoreActions.doQueueFailure()))
           )

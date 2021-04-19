@@ -6,11 +6,11 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { State } from 'src/app/reducers';
-import { of, Observable } from 'rxjs';
+import { of, Observable, pipe, Subscription } from 'rxjs';
 import { selectItemsByID, selectItemsInOrdersByID, selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
-import { ActionSheetController, IonSlides, ModalController } from '@ionic/angular';
+import { ActionSheetController, IonSlides, ModalController, ToastController } from '@ionic/angular';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Menu } from '../menu-store/menu-store.reducer';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
@@ -21,6 +21,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { inQueue, inQueueSuccess } from '../queue/queue-store.actions';
 import { Queue } from '../queue/queue-store.reducer';
 import { AppsettingsService } from '../appsettings/appsettings.service';
+import { BarcodeinputComponent } from '../base-elements/barcodeinput/barcodeinput.component';
+import { OrderpayComponent } from './orderpay/orderpay.component';
 
 
 
@@ -83,7 +85,8 @@ export class OrderPage implements OnInit {
     private store: Store<State>,
     private setingsService: AppsettingsService,
     public actionSheetController: ActionSheetController,
-    public modalController: ModalController
+    public modalController: ModalController,
+    public toastController: ToastController
   ) { }
 
   init() {
@@ -295,33 +298,49 @@ export class OrderPage implements OnInit {
             items.map(el => {return {id: el.rowid ,changes: {isexcise: !el.isexcise }}});
             this.store.dispatch(UpdateOrderItemsValues({data: itemchanges} ))
           });
-
-                          
-
-
         return;
       case orderactions.PAY:
+        if (this.orderid === "" || this.orderid === undefined)  {
+          this.toastController.create({
+            message: 'Сначала нужно сохранить заказ',
+            duration: 2000,
+            color:'danger',
+            position:'middle',
+            header:'Ошибки при оплате'
+          }).then(toast => toast.present());
+        } else {
+          this.OpenPayDialog();           
+        }
+        return;
+
       case orderactions.DISCOUNT:
+        if (this.orderid === "" || this.orderid === undefined)  {
+          this.toastController.create({
+            message: 'Сначала нужно сохранить заказ',
+            duration: 2000,
+            color:'danger',
+            position:'middle',
+            header:'Ошибки при сканировании'
+          }).then(toast => toast.present());
+        } else {
+          this.OpenDiscountDialog();           
+        }
+        return  
+        
       default:
         break;
     }
     
     this.items$.pipe(take(1)).subscribe(
       items => {
-
-
         let el: Queue = {
           id: uuidv4() as string,
           command: command,
-          commandParamrtr: JSON.stringify(items),
+          commandParamrtr: {items:items , hallid: this.hallid, table: this.table, orerid: this.orderid} ,
           commandDate: new Date(),
           gajet: this.setingsService.deviceID
         };
-
-        
-
         this.store.dispatch(inQueue({ data: el }));
-
       }
     )
 
@@ -338,6 +357,78 @@ export class OrderPage implements OnInit {
     //     break;
     // }
 
+  }
+  OpenPayDialog() {
+    this.totals$.pipe(take(1)).subscribe(total => {
+    
+    this.modalController.create({
+      component: OrderpayComponent,
+      // cssClass: 'my-custom-class',
+      componentProps: {
+        OrderSumm : total.summ
+       }
+    }).then(modalEl => {
+      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data));
+      modalEl.present();
+    }); 
+    });
+  }
+
+  OpenDiscountDialog() {
+   
+  
+    this.modalController.create({
+      component: BarcodeinputComponent,
+      // cssClass: 'my-custom-class',
+      // componentProps: {
+      // }
+    }).then(modalEl => {
+      modalEl.onWillDismiss().then(data => this.OnDiscountDialogClosed(data));
+      modalEl.present();
+    }); 
+
+  }
+
+  OnPayDialogClosed(dialogres) {
+    if (dialogres.canseled) {
+      return
+    }
+    
+    const parametr = {
+      orderid: this.orderid,
+      paytype: dialogres.paytype,
+      cash: dialogres.res
+    };
+
+    let el: Queue = {
+      id: uuidv4() as string,
+      command: orderactions.PAY,
+      commandParamrtr: parametr,
+      commandDate: new Date(),
+      gajet: this.setingsService.deviceID
+    };
+    this.store.dispatch(inQueue({ data: el }));
+    this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
+  }
+
+  OnDiscountDialogClosed(dialogres) {
+    if (dialogres.canseled) {
+      return
+    }
+    
+    const commandParamrtr = {
+      discountcode : dialogres.data,
+      orderid : this.orderid
+    }
+    
+    let el: Queue = {
+      id: uuidv4() as string,
+      command: orderactions.DISCOUNT,
+      commandParamrtr: commandParamrtr,
+      commandDate: new Date(),
+      gajet: this.setingsService.deviceID
+    };
+    this.store.dispatch(inQueue({ data: el }));    
   }
 
 }

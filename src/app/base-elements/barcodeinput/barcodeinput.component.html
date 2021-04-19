@@ -1,0 +1,41 @@
+<ion-header>
+    <ion-toolbar>
+      <ion-title>Scan code</ion-title>
+      <!-- <ion-buttons slot="start">
+        <ion-back-button defaultHref="home"></ion-back-button>
+      </ion-buttons> -->
+    </ion-toolbar>
+</ion-header>
+  
+  
+  
+  
+  <ion-content >
+    <form [formGroup]="form">
+      <ion-grid>
+        <ion-row>
+          <ion-col size-sm="6" offset-sm="3">
+            <ion-item>
+              <ion-label position="stacked"> input code </ion-label>
+              <ion-input type="password"  formControlName="barcode" clear-input=true inputmode="decimal" required></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+  
+        <ion-row>
+          <ion-col size-sm="6" offset-sm="3">
+            <ion-button fill='solid' expand='block' color='tertiary'  (click)="Scan()"> Scan card</ion-button>
+          </ion-col> 
+        </ion-row>
+        
+        <ion-row>  
+          <ion-col size-sm="6" offset-sm="3">
+            <ion-button fill='solid' expand='block' color='primary' (click)="Save()"> Save</ion-button>
+            <ion-button fill='solid' expand='block' color='primary' (click)="Cancel()"> Cancel</ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </form>
+  
+  </ion-content>
+  

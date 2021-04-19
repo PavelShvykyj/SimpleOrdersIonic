@@ -9,6 +9,7 @@ import { OrderPageRoutingModule } from './order-routing.module';
 import { OrderPage } from './order.page';
 import { BaseElementsModule } from '../base-elements/base-elements.module';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
+import { OrderpayComponent } from './orderpay/orderpay.component';
 
 @NgModule({
   imports: [
@@ -19,6 +20,6 @@ import { EditOrderItemComponent } from './edit-order-item/edit-order-item.compon
     OrderPageRoutingModule,
     BaseElementsModule
   ],
-  declarations: [OrderPage, EditOrderItemComponent]
+  declarations: [OrderPage, EditOrderItemComponent, OrderpayComponent]
 })
 export class OrderPageModule {}

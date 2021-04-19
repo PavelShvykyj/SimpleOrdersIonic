@@ -9,7 +9,7 @@ export interface QueueStore extends EntityState<Queue> {}
 export interface Queue {
   id: string,
   command : string,
-  commandParamrtr : string
+  commandParamrtr : Object
   commandDate : Date,
   gajet: string
 }
