@@ -31,7 +31,7 @@ export class NetcontrolService implements OnDestroy {
     return netType === this.net.Connection.WIFI; //!(netType === this.net.Connection.NONE || netType === this.net.Connection.UNKNOWN || netType === null);
   }
 
-  GetIP() : Observable<string> {
+  GetIP() : Observable<any> {
     return from( this.netIP.getWiFiIPAddress());
   }
   

@@ -340,6 +340,7 @@ export class OrderPage implements OnInit {
           commandDate: new Date(),
           gajet: this.setingsService.deviceID
         };
+        
         this.store.dispatch(inQueue({ data: el }));
       }
     )

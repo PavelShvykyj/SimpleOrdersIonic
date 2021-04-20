@@ -31,11 +31,11 @@ export const inQueueFailure = createAction(
 );
 
 export const doQueue = createAction(
-  '[QueueStore] send queue to backen',
+  '[QueueStore] send queue to backend',
 );
 
 export const doQueueFailure = createAction(
-  '[QueueStore] send queue to backen',
+  '[QueueStore] send queue to backend failure',
 );
 
 export const delQueue = createAction(

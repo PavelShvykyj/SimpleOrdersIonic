@@ -10,6 +10,9 @@ export interface NetState {
   isConnected : boolean,
   NetworkCorrect : boolean,
   ServerPingStatus : boolean,
+  ServerPingAnswer : string,
+  ServerPingTry : Date,
+
 }
 
 export const initialState: NetState = {
@@ -17,7 +20,10 @@ export const initialState: NetState = {
   IP : '127.0.0.1',
   isConnected : false,
   NetworkCorrect : true,
-  ServerPingStatus : false
+  ServerPingStatus : false,
+  ServerPingAnswer : "",
+  ServerPingTry : new Date(),
+
 };
 
 function SetNetCorrect(state : NetState ,onecip : string) : NetState {
@@ -40,7 +46,7 @@ export const NetReducer = createReducer(
   on(NetcontrolActions.loadNetcontrols, (state,action) => {return {...state,  netType: action.netType, isConnected: action.isConnected }}),
   on(NetcontrolActions.setIP, (state,action) => {return {...state, IP:action.IP}}),
   on(NetcontrolActions.setNetCorrect,  (state,action) => SetNetCorrect(state,action.onecip)),
-  on(NetcontrolActions.setPing, (state,action) => {return {...state, ServerPingStatus:action.status}}),
+  on(NetcontrolActions.setPing, (state,action) => {return {...state, ServerPingStatus:action.status, ServerPingTry: new Date(), ServerPingAnswer : action.answer  }}),
  
 );
 

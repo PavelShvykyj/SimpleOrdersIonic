@@ -26,8 +26,8 @@ export class QueueStoreEffects {
       /// фильтруем событие
       ofType(QueueStoreActions.inQueue),
       concatMap(() => { return this.store.pipe(select(selectAllQueue),take(1)) }),
-      concatMap((queue) => { return this.localdb.SaveData<Array<Queue>>('queue',queue)}),
-      map(() => {console.log('call doQueue');  return QueueStoreActions.doQueue() } )
+      concatMap((queue) => { return this.localdb.SaveData<Array<Queue>>('queue',queue).pipe(take(1))}),
+      map(() => {return QueueStoreActions.doQueue() } )
       
     )});
 
@@ -35,11 +35,10 @@ export class QueueStoreEffects {
     return this.actions$.pipe( 
       /// фильтруем событие
       ofType(QueueStoreActions.doQueue),
-      concatMap(()=> {console.log('doQueueEffect'); return from(this.loadingController.create({message: "Send to 1C",keyboardClose:true,spinner: "lines"}))}),
+      concatMap(()=> {return from(this.loadingController.create({message: "Send to 1C",keyboardClose:true,spinner: "lines"}))}),
       withLatestFrom(this.store.pipe(select(PingStatus))),
       /// если статус плох вызываем действие пустышку "провал" 
       tap((data) => { 
-          console.log('ping status',data[1]);
           if (!data[1]) {
             return QueueStoreActions.doQueueFailure()
           }}),
@@ -47,18 +46,13 @@ export class QueueStoreEffects {
       filter(data => data[1]) ,   
       withLatestFrom(this.store.pipe(select(selectAllQueue))),
       concatMap((data) => {
-          console.log('call webdb');
           data[0][0].present();
           return this.webdb.doQueue(data[1]).pipe(
             /////   тут нужено обработать ответ или это конкретный заказ или весь холл стэйт
-            /////   пока просто делаем запрос на обновлдение всего состояния посмотрим на быстродействие
-            //tap(() => {this.store.dispatch(refreshHallstates())}),
-            tap(()=> data[0][0].dismiss()),
-
-            
-
-            map(()=>  QueueStoreActions.delQueue()),
-            catchError(() => of(QueueStoreActions.doQueueFailure()))
+            /////   после успешной чистки очереди обновляем зал  см delQueueEffect
+            map(()=> {console.log('call delQueue'); return QueueStoreActions.delQueue()}),
+            catchError((err) => {console.log('doQueueEffect error',err); return of(QueueStoreActions.doQueueFailure())} ),
+            tap(()=> data[0][0].dismiss())
           )
       } )
     )});  
@@ -67,8 +61,9 @@ export class QueueStoreEffects {
       return this.actions$.pipe( 
         /// фильтруем событие
         ofType(QueueStoreActions.delQueue),
-        tap(() => this.localdb.DellItem('queue'))
-      )}, { dispatch: false });    
+        tap(() => { this.localdb.DellItem('queue')} ),
+        map(()=> {return refreshHallstates()} )
+      )});    
 
 
   loadQueueStores$ = createEffect(() => {

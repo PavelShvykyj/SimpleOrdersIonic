@@ -1,7 +1,11 @@
+import { Store, select } from '@ngrx/store';
 import { Observable, pipe } from 'rxjs';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatabaseService } from '../database/database.service';
-import { take } from 'rxjs/operators';
+import { take, tap } from 'rxjs/operators';
+import { NetState } from '../net/netcontrol.reducer';
+import { State } from '../reducers';
+import { selectNetcontrolState } from '../net/netcontrol.selectors';
 
 @Component({
   selector: 'app-addons',
@@ -11,12 +15,15 @@ import { take } from 'rxjs/operators';
 export class AddonsPage implements OnInit {
 
 
-  keys$ : Observable<Array<string>>
+  keys$ : Observable<Array<string>>;
+  netState$ : Observable<NetState>
 
-  constructor(private db : DatabaseService) { }
+  constructor(private db : DatabaseService, private store: Store<State>,private detector : ChangeDetectorRef) { }
 
   ngOnInit() {
     this.keys$ = this.db.GetKeys();
+    this.netState$ = this.store.pipe(select(selectNetcontrolState), tap(()=>{ this.detector.detectChanges()} ))
+
   }
 
   Clear(key: string) {

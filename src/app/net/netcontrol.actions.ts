@@ -13,7 +13,7 @@ export const setIP = createAction(
 
   export const setPing = createAction(
     '[onec service] set ping status',
-    props<{  status  : boolean  }>()
+    props<{  status  : boolean , answer : string }>()
     );  
   
 

@@ -80,9 +80,9 @@ export class OnecConnectorService implements OnInit {
   ngOnInit() {
   }  
 
-  ChangeStatus(newStatus: boolean) {
+  ChangeStatus(newStatus: boolean, answer: string) {
     if (newStatus != this.currentStatus) {
-      this.store.dispatch(setPing({status:newStatus}));
+      this.store.dispatch(setPing({status:newStatus, answer: answer}));
       this.currentStatus = newStatus;
     }
   }
@@ -100,15 +100,15 @@ export class OnecConnectorService implements OnInit {
         map(res => {
           //console.log('ping', res);
           if (res = "ping good") {
-            this.ChangeStatus(true)
+            this.ChangeStatus(true, "ping good")
           } else {
-            this.ChangeStatus(false)           
+            this.ChangeStatus(false, 'timeout')           
           }
          }),
         catchError(err=>{
           //console.log('ping bad');
           
-          this.ChangeStatus(false);        
+          this.ChangeStatus(false, JSON.stringify(err));        
           return of(err)
         }
           ),
