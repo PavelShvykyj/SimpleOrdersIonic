@@ -21,7 +21,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HallStateStoreModule } from './home/halls/hall-state-store/hall-state-store.module';
 import { MenuStoreModule } from './menu-store/menu-store.module';
 import { BaseElementsModule } from './base-elements/base-elements.module';
-
+import { HTTP } from '@ionic-native/http/ngx';
 
 
 @NgModule({
@@ -43,8 +43,9 @@ import { BaseElementsModule } from './base-elements/base-elements.module';
             BaseElementsModule,
             QueueModule
             
+            
           ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [HTTP, { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

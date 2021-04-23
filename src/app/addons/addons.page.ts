@@ -35,4 +35,9 @@ export class AddonsPage implements OnInit {
       alert(JSON.stringify(data))
     )
   }
+
+  WievString(long : string) {
+    alert(long);
+  }
+
 }

@@ -1,16 +1,17 @@
+import { Platform } from '@ionic/angular';
 import { doQueue } from './../queue/queue-store.actions';
 import { selectAppSettings } from './../appsettings/app-settings.selectors';
 import { Store, select } from '@ngrx/store';
-import { Observable, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { Injectable, OnInit } from '@angular/core';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, timeout, catchError, tap } from 'rxjs/operators';
 import { State } from '../reducers';
-import { HallsState } from '../home/halls/hall-state-store/hallstate.reducer';
 import { setPing } from '../net/netcontrol.actions';
 import { Menu } from '../menu-store/menu-store.reducer';
 import { Queue } from '../queue/queue-store.reducer';
+import { HTTP } from '@ionic-native/http/ngx';
 
 
 
@@ -64,7 +65,9 @@ export class OnecConnectorService implements OnInit {
   currentStatus : boolean;
 
   constructor(private hclient : HttpClient, 
-    private store : Store<State>) { 
+              private mhclient: HTTP, 
+              private store : Store<State>,
+              private plt : Platform) { 
       
       this.store.pipe(select(selectAppSettings)).subscribe(data=>{
         this.serverIP = data.onecIP;
@@ -81,7 +84,7 @@ export class OnecConnectorService implements OnInit {
   }  
 
   ChangeStatus(newStatus: boolean, answer: string) {
-    if (newStatus != this.currentStatus) {
+    if (newStatus != this.currentStatus ) {
       this.store.dispatch(setPing({status:newStatus, answer: answer}));
       this.currentStatus = newStatus;
     }
@@ -91,6 +94,33 @@ export class OnecConnectorService implements OnInit {
     //console.log("PING");
     const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/ping`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
+    
+
+    if (this.plt.is('cordova') ) {
+      from(this.mhclient.get(URL,{},{})).pipe(
+        timeout(5000),
+        map(res => {
+          //console.log('ping', res);
+          if (res.data = "ping good") {
+            this.ChangeStatus(true, "ping good")
+          } else {
+            this.ChangeStatus(false, 'timeout')           
+          }
+         }),
+        catchError(err=>{
+          //console.log('ping bad');
+          //alert(JSON.stringify(err));
+          this.ChangeStatus(false, JSON.stringify(err));        
+          return of(err)
+        }
+          ),
+        ).subscribe(
+          ()=>setTimeout( this.Ping.bind(this), 4000),
+          err=> setTimeout( this.Ping.bind(this), 4000)
+        )
+    } else {
+    
+    
     this.hclient.get(URL,{headers:headers,
       observe: 'body',
       withCredentials:false,
@@ -107,7 +137,7 @@ export class OnecConnectorService implements OnInit {
          }),
         catchError(err=>{
           //console.log('ping bad');
-          
+          //alert(JSON.stringify(err));
           this.ChangeStatus(false, JSON.stringify(err));        
           return of(err)
         }
@@ -115,7 +145,7 @@ export class OnecConnectorService implements OnInit {
         ).subscribe(
           ()=>setTimeout( this.Ping.bind(this), 4000),
           err=> setTimeout( this.Ping.bind(this), 4000)
-        )
+        )}
   }
 
 

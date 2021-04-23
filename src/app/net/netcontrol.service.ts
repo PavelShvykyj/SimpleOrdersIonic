@@ -3,7 +3,7 @@ import { Network } from '@ionic-native/network/ngx';
 import { NetworkInterface } from '@ionic-native/network-interface/ngx';
 import { Store } from '@ngrx/store';
 import { Subscription, Observable, of, from } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, concatMap } from 'rxjs/operators';
 import { State } from '../reducers';
 import { loadNetcontrols } from './netcontrol.actions';
 
