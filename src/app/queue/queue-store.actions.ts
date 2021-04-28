@@ -43,7 +43,7 @@ export const delQueue = createAction(
 );
 
 export const delQueueSuccess = createAction(
-  '[QueueStore] send queue to backen',
+  '[QueueStore] dell queue sucsess',
 );
 
 

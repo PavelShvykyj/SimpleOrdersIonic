@@ -57,15 +57,17 @@ export interface Orderitem {
   price : number,
   summ : number,
   discountsumm : number,
-  isexcise : boolean,
-  isprecheck : boolean,
   comment : string,
   waitername : string,
   dicountname : string,
   dicountid : string,
   modified : Date,
+  Cancelreason? : string,
+  isexcise : boolean,
+  isprecheck : boolean,
   isChanged?  : boolean,
-  isSelected? : boolean
+  isSelected? : boolean,
+  isCanceled? : boolean
 }
 
 export interface HallStateData {
@@ -73,28 +75,30 @@ export interface HallStateData {
   name : string,
   tables : Array<OrdersOnTableData | string>
 }
-
-
 export interface OrderitemState extends EntityState<Orderitem> {}
 export const OrderitemAdapter: EntityAdapter<Orderitem> = createEntityAdapter<Orderitem>({
   selectId: (item) => item.rowid
 });
+
 export const initialOrderitemState: OrderitemState = OrderitemAdapter.getInitialState();
 
 export interface ItemsInOrdersState extends EntityState<ItemsInOrders> {}
+
 export const ItemsInOrdersAdapter: EntityAdapter<ItemsInOrders> = createEntityAdapter<ItemsInOrders>(
   {
     selectId: (item) => item.orderid,
   }
 );
-export const initialItemsInOrdersState: ItemsInOrdersState = ItemsInOrdersAdapter.getInitialState();
 
+export const initialItemsInOrdersState: ItemsInOrdersState = ItemsInOrdersAdapter.getInitialState();
 export interface OrdersOnTableState extends EntityState<OrdersOnTable> {}
+
 export const OrdersOnTableAdapter: EntityAdapter<OrdersOnTable> = createEntityAdapter<OrdersOnTable>(
   {
     selectId: (item) => item.hallid+" "+item.tableid,
   }
 );
+
 export const initialOrdersOnTableState: OrdersOnTableState = OrdersOnTableAdapter.getInitialState();
 
 
@@ -190,7 +194,6 @@ function AddRowInOrder(state : HallsState, action) {
 }
 
 function AddRow(state : HallsState, action) {
-  console.log('AddRow',action)
   let nextState = {...state, Orderitems: OrderitemAdapter.addOne(action.data,state.Orderitems) };
   
   if (action.kaskad.orderid) {
@@ -203,7 +206,6 @@ function AddRow(state : HallsState, action) {
     nextState = {...AddRowInOrder(nextState,action)} ;
   }
 
-  console.log('nextState',nextState.ItemsInOrder)
   return nextState;
 }  
 

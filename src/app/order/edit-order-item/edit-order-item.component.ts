@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { Orderitem } from 'src/app/home/halls/hall-state-store/hallstate.reducer';
 
 @Component({
@@ -17,10 +17,10 @@ export class EditOrderItemComponent implements OnInit {
   @ViewChild('inputId', {static: false}) ionInput: { setFocus: () => void; };
   
 
-  constructor(public modalController: ModalController) { }
+  constructor(public modalController: ModalController,public toastController: ToastController ) { }
 
   ngOnInit(): void {
-    
+    console.log('quantityprint', this.item.quantityprint);
     this.form = new FormGroup({
       "quantity" : new FormControl(this.item.quantity,Validators.min(this.item.quantityprint)),
       "comment"  : new FormControl(this.item.comment), 
@@ -38,7 +38,13 @@ export class EditOrderItemComponent implements OnInit {
   }
 
   Save() {
-    
+    if (!this.form.valid) {
+      this.toastController.create({message: "Не верное значение",
+        duration: 1500,
+        position: 'middle',
+        color: 'danger'}).then(ctrl=> ctrl.present())
+      return;
+    }
     this.modalController.dismiss({
       'canseled'    : false,
       'quantity'    : this.form.get('quantity').value, 

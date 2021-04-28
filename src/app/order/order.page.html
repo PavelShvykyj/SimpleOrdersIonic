@@ -26,8 +26,8 @@
       </ion-title>
       </ion-toolbar>
       <ion-list *ngIf="items$ | async as items">
-        <ion-item button *ngFor="let item of items" (click)=CallEditRowDialog(item)>
-          <ion-checkbox #el  [checked]="item.isSelected == undefined ? false : item.isSelected" (ionChange)=OnItemSelected(item,el.checked) slot="start"></ion-checkbox>
+        <ion-item button *ngFor="let item of items" (click)=OpenEditRowDialog(item) [disabled]="item.isCanceled">
+          <ion-checkbox  #el  [checked]="item.isSelected == undefined ? false : item.isSelected" (ionChange)=OnItemSelected(item,el.checked) slot="start"></ion-checkbox>
           <ion-label class="ion-text-wrap"> 
              <p>{{item.goodname}} </p> 
              <!-- <p *ngIf="item.comment"><small > {{item.comment}}  </small></p> -->
@@ -37,8 +37,8 @@
               <ion-icon color="danger" *ngIf="item.quantityprint != item.quantity" class="pl" slot="start" name="print-outline"></ion-icon>
               <ion-icon color="danger" *ngIf="item.isprecheck" class="pl" slot="start" name="close-outline"></ion-icon>
               <ion-icon color="danger" *ngIf="item.isChanged" class="pl" slot="start" name="pencil-outline"></ion-icon>
-              
-             </p>
+              <ion-icon color="danger" *ngIf="item.isCanceled" class="pl" slot="start" name="close-circle-outline"></ion-icon>
+            </p>
           </ion-label>
           
           <ion-note class="ml my-5" slot="end" color="tertiary">

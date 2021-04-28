@@ -1,9 +1,9 @@
-<ng-container *ngIf="stateData$ | async as stateData">
+<ng-container *ngIf="stateData">
     <ion-grid class="ion-no-padding">
         <ion-row  class="ion-no-padding" >
             <ion-col class="ion-no-padding"> <ion-item [color]="(stateData.PingStatus) ?  'primary' : 'danger'"><ion-label> user : {{ stateData.userName }} </ion-label></ion-item> </ion-col>
-            <ion-col class="ion-no-padding"> <ion-item [color]="(stateData.PingStatus && stateData.isConnected) ?  'primary' : 'danger'"><ion-label> net : {{ stateData.netName }} </ion-label></ion-item> </ion-col>
-            <ion-col class="ion-no-padding"> <ion-item [color]="(stateData.PingStatus && stateData.queueCount==0) ?  'primary' : 'danger'"><ion-label> {{ stateData.queueCount }} </ion-label></ion-item></ion-col>
+            <ion-col class="ion-no-padding"> <ion-item [color]="(stateData.PingStatus) ?  'primary' : 'danger'"><ion-label> net : {{ stateData.netName }} </ion-label></ion-item> </ion-col>
+            <ion-col class="ion-no-padding"> <ion-item button (click)="OnQueueClicked(stateData)" [color]="(stateData.PingStatus && stateData.queueCount==0) ?  'primary' : 'danger'"><ion-label> {{ stateData.queueCount }} </ion-label></ion-item></ion-col>
             <ion-col class="ion-no-padding"> <ion-item [color]="(stateData.PingStatus) ?  'primary' : 'danger'"> <ion-icon  [name]="stateData.PingStatus ? 'radio-outline' : 'cloud-offline-outline' "></ion-icon> </ion-item></ion-col> 
         </ion-row>
     </ion-grid>

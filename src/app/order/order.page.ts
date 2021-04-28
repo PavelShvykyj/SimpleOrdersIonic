@@ -1,6 +1,5 @@
-import { OrdersOnTable } from './../home/halls/hall-state-store/hallstate.reducer';
+import { OrdersOnTable, Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
-import { Orderitem } from 'src/app/home/halls/hall-state-store/hallstate.reducer';
 import { concatMap, filter, map, take, tap, debounceTime, first } from 'rxjs/operators';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -89,6 +88,23 @@ export class OrderPage implements OnInit {
     public toastController: ToastController
   ) { }
 
+  
+  ionViewWillLeave() {
+    this.OnOrderActionClick(orderactions.SAVE);
+  } 
+ 
+  ngOnInit() {
+
+    this.form = new FormGroup({
+      GuestsQuontity: new FormControl(null),
+      FeedBack: new FormControl(null),
+    });
+
+    this.init();
+
+
+  }
+
   init() {
     this.hall$ = this.route.queryParamMap.pipe(
       tap(params => {
@@ -100,6 +116,98 @@ export class OrderPage implements OnInit {
       }),
       concatMap(params => this.store.select(selectHallByid, params.get('hallid')))
     )
+  }
+
+  ShowActions() {
+    this.actionSheetController.create(this.actions).then(cntrl => {
+      cntrl.present();
+    })
+  }
+
+  GetOrderRowByMenuItem(menuitem: Menu): Observable<Orderitem | undefined> {
+    return this.items$.pipe(
+      map(items => {
+        const itemsinorder = items.filter(item => {
+          return item.goodid.trim().toUpperCase() === menuitem.id.trim().toUpperCase() && !item.isCanceled
+        });
+        
+
+        if (itemsinorder.length > 0) {
+          return itemsinorder[itemsinorder.length - 1];
+        }
+        else {
+          return undefined
+        }
+      }),
+      take(1));
+  }
+
+  GetQueueElement(command , items) : Queue {
+    let commandParametr = {
+      orderid : this.orderid,
+      hallid: this.hallid,
+      table: this.table,
+      waiter : "Admin",
+      items: items
+    }
+    
+    let elQueue: Queue = {
+      id: uuidv4() as string,
+      command: command,
+      commandParametr: commandParametr,
+      commandDate: new Date(),
+      gajet: this.setingsService.deviceID
+    };         
+
+    return elQueue
+  }
+
+  NextOrder(par: number) {
+    if (par === 0) {
+      this.router.navigate(this.route.snapshot.url, { queryParams: { orderid: "", hallid: this.hallid, tableid: this.table } });
+      return;
+    }
+
+    this.store.pipe(select(selectOrdersOnTableBuId, { ids: [this.hallid + " " + this.table] }), first()).subscribe(el => {
+      if (el.lenth === 0) {
+        return
+      }
+      const nextorderindex = this.orderid === "" ? 0 : el[0].orders.indexOf(this.orderid) + par;
+      if (nextorderindex >= 0 && nextorderindex <= el[0].orders.length - 1) {
+        this.router.navigate(this.route.snapshot.url, { queryParams: { orderid: el[0].orders[nextorderindex], hallid: this.hallid, tableid: this.table } });
+      }
+    })
+  }
+
+  ChangeRows(FnChange: Function , FnFilter : Function , params ) {
+    this.items$.pipe(
+      take(1),
+      map(items => items.filter(el=> !el.isCanceled)),
+      map(items => items.filter(el => FnFilter(el))))
+      .subscribe(items => {
+        let itemchanges : Array<Update<Orderitem>> = 
+        items.map((el) => FnChange(el,params) );
+        itemchanges.map(el=> {return el.changes = {...el.changes, isChanged: true, isSelected: false}} )
+        this.store.dispatch(UpdateOrderItemsValues({data: itemchanges} ))
+      });
+
+  }
+
+  OnMenuElementSelect(event) {
+    // search row
+
+    this.GetOrderRowByMenuItem(event)
+      .subscribe(editingRow => {
+        this.OpenEditRowDialog(editingRow, event)
+      })
+  }
+ 
+  OnItemSelected(item: Orderitem, checked: boolean) {
+    
+    if (item.isCanceled) {
+      return;
+    }
+    this.store.dispatch(SelectItem({ data: { id: item.rowid, changes: { isSelected: checked } } }))
   }
 
   OnOrderidChages() {
@@ -116,7 +224,9 @@ export class OrderPage implements OnInit {
 
       let summ = 0;
       let discountsumm = 0;
-      items.forEach(el => { { summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm; } })
+      items.forEach(el => { { if (!el.isCanceled) {
+        summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm;
+      }  } })
 
       return { summ, discountname, discountsumm }
     }))
@@ -131,43 +241,62 @@ export class OrderPage implements OnInit {
 
   }
 
-  ngOnInit() {
+  OnOrderActionClick(command: orderactions) {
+    
+    this.items$.pipe(take(1)).subscribe(
+      items => {
+        switch (command) {
+          case orderactions.FISKAL:
+          
+            this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isexcise: el.isSelected }}},
+                            (el) => {return el.isSelected},
+                            undefined);
+            return;
+          case orderactions.PAY:
+            this.OpenPayDialog(); 
+            return;
+          case orderactions.PRINT:
+            
+            this.store.dispatch(inQueue({ data: this.GetQueueElement(command, items) }));
+            this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {quantityprint: el.quantity }}},
+            (el) => {return true},
+            undefined);
+            return;  
+            
+            
+          case orderactions.CANCEL_ROW:
+            this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isCanceled: el.isSelected }}},
+            (el) => {return true},
+            undefined);
+            return;  
+          case orderactions.DISCOUNT:
+            this.OpenDiscountDialog();           
+            return;
+          default:
+            this.store.dispatch(inQueue({ data: this.GetQueueElement(command,items) }));
+            }
+      }
+    )
 
-    this.form = new FormGroup({
-      GuestsQuontity: new FormControl(null),
-      FeedBack: new FormControl(null),
-    });
 
-    this.init();
 
+    // switch (action) {
+    //   case orderactions.SAVE:
+    //   case orderactions.PRINT:
+    //   case orderactions.PRECHECK:
+    //   case orderactions.PAY:
+    //   case orderactions.DISCOUNT:
+    //   case orderactions.CANCEL_ROW:  
+    //   default:
+    //     break;
+    // }
 
   }
 
-  ShowActions() {
-    this.actionSheetController.create(this.actions).then(cntrl => {
-      cntrl.present();
-    })
-  }
-
-  GetOrderRowByMenuItem(menuitem: Menu): Observable<Orderitem | undefined> {
-    return this.items$.pipe(
-      map(items => {
-        const itemsinorder = items.filter(item => {
-          return item.goodid.trim().toUpperCase() === menuitem.id.trim().toUpperCase()
-        });
-        console.log('itemsinorder', itemsinorder);
-
-        if (itemsinorder.length > 0) {
-          return itemsinorder[itemsinorder.length - 1];
-        }
-        else {
-          return undefined
-        }
-      }),
-      take(1));
-  }
-
-  CallEditRowDialog(editingRow: Orderitem, menuitem?: Menu) {
+  OpenEditRowDialog(editingRow: Orderitem, menuitem?: Menu) {
+    if (editingRow !== undefined && editingRow.isCanceled) {
+      return;
+    }
 
     // call dialog
     this.modalController.create({
@@ -179,17 +308,92 @@ export class OrderPage implements OnInit {
           goodname: editingRow === undefined ? menuitem.name : editingRow.goodname,
           goodid: editingRow === undefined ? menuitem.id : editingRow.goodid,
           quantity: editingRow === undefined ? 0 : editingRow.quantity,
-          comment: editingRow === undefined ? "" : editingRow.comment
+          comment: editingRow === undefined ? "" : editingRow.comment,
+          quantityprint: editingRow === undefined ? 0 : editingRow.quantityprint,
         }
       }
     }).then(modalEl => {
-      modalEl.onWillDismiss().then(data => this.OnOrderRowChanged(data, editingRow));
+      modalEl.onWillDismiss().then(data => this.OnEditRowDialogClosed(data, editingRow));
       modalEl.present();
     });
   }
 
+  OpenPayDialog() {
+    this.totals$.pipe(take(1)).subscribe(total => {
+    
+    this.modalController.create({
+      component: OrderpayComponent,
+      // cssClass: 'my-custom-class',
+      componentProps: {
+        OrderSumm : total.summ
+       }
+    }).then(modalEl => {
+      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data));
+      modalEl.present();
+    }); 
+    });
+  }
 
-  OnOrderRowChanged(data, editingRow: Orderitem) {
+  OpenDiscountDialog() {
+   
+  
+    this.modalController.create({
+      component: BarcodeinputComponent,
+      // cssClass: 'my-custom-class',
+      // componentProps: {
+      // }
+    }).then(modalEl => {
+      modalEl.onWillDismiss().then(data => this.OnDiscountDialogClosed(data));
+      modalEl.present();
+    }); 
+
+  }
+  
+  OnPayDialogClosed(dialogres) {
+    if (dialogres.canseled) {
+      return
+    }
+    
+    let el: Queue = this.GetQueueElement(orderactions.PAY,[]);
+    el.commandParametr = {...el.commandParametr,
+      paytype: dialogres.paytype,
+      cash: dialogres.res
+    }  
+  
+    this.store.dispatch(inQueue({ data: el }));
+
+    //// отмечаем строки как модифицированные
+    this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isSelected : false }}},
+    (el) => {return true},
+    undefined);
+
+
+    this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
+  }
+
+  OnDiscountDialogClosed(dialogres) {
+    if (dialogres.canseled) {
+      return
+    }
+    let el: Queue = this.GetQueueElement(orderactions.DISCOUNT,[]);
+    el.commandParametr = {...el.commandParametr,
+      discountcode : dialogres.data
+    }  
+
+    this.store.dispatch(inQueue({ data: el }));
+    
+
+    //// сбрасываем предыдущую скидку до ответа от 1С
+    this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}},
+    (el) => {return true},
+    undefined);
+
+    
+
+
+  }
+
+  OnEditRowDialogClosed(data, editingRow: Orderitem) {
     if (data.data.canseled) {
       return;
     }
@@ -253,183 +457,6 @@ export class OrderPage implements OnInit {
       this.OnOrderidChages();
     }
 
-  }
-
-  NextOrder(par: number) {
-    if (par === 0) {
-      this.router.navigate(this.route.snapshot.url, { queryParams: { orderid: "", hallid: this.hallid, tableid: this.table } });
-      return;
-    }
-
-    this.store.pipe(select(selectOrdersOnTableBuId, { ids: [this.hallid + " " + this.table] }), first()).subscribe(el => {
-      if (el.lenth === 0) {
-        return
-      }
-      const nextorderindex = this.orderid === "" ? 0 : el[0].orders.indexOf(this.orderid) + par;
-      if (nextorderindex >= 0 && nextorderindex <= el[0].orders.length - 1) {
-        this.router.navigate(this.route.snapshot.url, { queryParams: { orderid: el[0].orders[nextorderindex], hallid: this.hallid, tableid: this.table } });
-      }
-    })
-  }
-
-  OnMenuElementSelect(event) {
-    // search row
-
-    this.GetOrderRowByMenuItem(event)
-      .subscribe(editingRow => {
-        this.CallEditRowDialog(editingRow, event)
-      })
-  }
-
-
-  OnItemSelected(item: Orderitem, checked: boolean) {
-    this.store.dispatch(SelectItem({ data: { id: item.rowid, changes: { isSelected: checked } } }))
-  }
-
-  OnOrderActionClick(command: orderactions) {
-    
-    switch (command) {
-      case orderactions.FISKAL:
-        this.items$.pipe(
-          take(1),
-          map(items => items.filter(el => el.isSelected)))
-          .subscribe(items => {
-            const itemchanges : Array<Update<Orderitem>> = 
-            items.map(el => {return {id: el.rowid ,changes: {isexcise: !el.isexcise }}});
-            this.store.dispatch(UpdateOrderItemsValues({data: itemchanges} ))
-          });
-        return;
-      case orderactions.PAY:
-        if (this.orderid === "" || this.orderid === undefined)  {
-          this.toastController.create({
-            message: 'Сначала нужно сохранить заказ',
-            duration: 2000,
-            color:'danger',
-            position:'middle',
-            header:'Ошибки при оплате'
-          }).then(toast => toast.present());
-        } else {
-          this.OpenPayDialog();           
-        }
-        return;
-
-      case orderactions.DISCOUNT:
-        if (this.orderid === "" || this.orderid === undefined)  {
-          this.toastController.create({
-            message: 'Сначала нужно сохранить заказ',
-            duration: 2000,
-            color:'danger',
-            position:'middle',
-            header:'Ошибки при сканировании'
-          }).then(toast => toast.present());
-        } else {
-          this.OpenDiscountDialog();           
-        }
-        return  
-        
-      default:
-        break;
-    }
-    
-    this.items$.pipe(take(1)).subscribe(
-      items => {
-        let el: Queue = {
-          id: uuidv4() as string,
-          command: command,
-          commandParamrtr: {items:items , hallid: this.hallid, table: this.table, orerid: this.orderid} ,
-          commandDate: new Date(),
-          gajet: this.setingsService.deviceID
-        };
-        
-        this.store.dispatch(inQueue({ data: el }));
-      }
-    )
-
-
-
-    // switch (action) {
-    //   case orderactions.SAVE:
-    //   case orderactions.PRINT:
-    //   case orderactions.PRECHECK:
-    //   case orderactions.PAY:
-    //   case orderactions.DISCOUNT:
-    //   case orderactions.CANCEL_ROW:  
-    //   default:
-    //     break;
-    // }
-
-  }
-  OpenPayDialog() {
-    this.totals$.pipe(take(1)).subscribe(total => {
-    
-    this.modalController.create({
-      component: OrderpayComponent,
-      // cssClass: 'my-custom-class',
-      componentProps: {
-        OrderSumm : total.summ
-       }
-    }).then(modalEl => {
-      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data));
-      modalEl.present();
-    }); 
-    });
-  }
-
-  OpenDiscountDialog() {
-   
-  
-    this.modalController.create({
-      component: BarcodeinputComponent,
-      // cssClass: 'my-custom-class',
-      // componentProps: {
-      // }
-    }).then(modalEl => {
-      modalEl.onWillDismiss().then(data => this.OnDiscountDialogClosed(data));
-      modalEl.present();
-    }); 
-
-  }
-
-  OnPayDialogClosed(dialogres) {
-    if (dialogres.canseled) {
-      return
-    }
-    
-    const parametr = {
-      orderid: this.orderid,
-      paytype: dialogres.paytype,
-      cash: dialogres.res
-    };
-
-    let el: Queue = {
-      id: uuidv4() as string,
-      command: orderactions.PAY,
-      commandParamrtr: parametr,
-      commandDate: new Date(),
-      gajet: this.setingsService.deviceID
-    };
-    this.store.dispatch(inQueue({ data: el }));
-    this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
-  }
-
-  OnDiscountDialogClosed(dialogres) {
-    if (dialogres.canseled) {
-      return
-    }
-    
-    const commandParamrtr = {
-      discountcode : dialogres.data,
-      orderid : this.orderid
-    }
-    
-    let el: Queue = {
-      id: uuidv4() as string,
-      command: orderactions.DISCOUNT,
-      commandParamrtr: commandParamrtr,
-      commandDate: new Date(),
-      gajet: this.setingsService.deviceID
-    };
-    this.store.dispatch(inQueue({ data: el }));    
   }
 
 }

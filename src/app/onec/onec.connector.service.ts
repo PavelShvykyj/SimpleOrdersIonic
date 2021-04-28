@@ -58,7 +58,7 @@ const FAKE_HALLS : Array<Hall> = [
 @Injectable({
   providedIn: 'root'
 })
-export class OnecConnectorService implements OnInit {
+export class OnecConnectorService  {
 
   serverIP : string = "127.0.0.1";
   baseName : string = "nobasename";
@@ -74,14 +74,9 @@ export class OnecConnectorService implements OnInit {
         this.baseName = data.onecBase;
         
       });
-      console.log("servise ctor");
       setTimeout(this.Ping.bind(this),1000); 
-      
-
     }
 
-  ngOnInit() {
-  }  
 
   ChangeStatus(newStatus: boolean, answer: string) {
     if (newStatus != this.currentStatus ) {
