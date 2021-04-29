@@ -43,15 +43,15 @@ export class OrderpayComponent implements OnInit {
     }
     
     this.modalController.dismiss({
-      'canseled' : false,
-      'paytype'  : this.form.get('paytype').value, 
-      'cash'     : this.form.get('cash').value,
+      canseled : false,
+      paytype  : this.form.get('paytype').value, 
+      cash     : this.form.get('cash').value,
     });
   }
 
   Cancel() {
     this.modalController.dismiss({
-      'canseled': true
+      canseled: true
     });
   }
 

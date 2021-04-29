@@ -27,9 +27,9 @@
       </ion-toolbar>
       <ion-list *ngIf="items$ | async as items">
         <ion-item button *ngFor="let item of items" (click)=OpenEditRowDialog(item) [disabled]="item.isCanceled">
-          <ion-checkbox  #el  [checked]="item.isSelected == undefined ? false : item.isSelected" (ionChange)=OnItemSelected(item,el.checked) slot="start"></ion-checkbox>
+          <ion-checkbox disabled=false  #el  [checked]="item.isSelected == undefined ? false : item.isSelected" (ionChange)=OnItemSelected(item,el.checked) slot="start"></ion-checkbox>
           <ion-label class="ion-text-wrap"> 
-             <p>{{item.goodname}} </p> 
+             <p>{{item.goodname}} {{item.quantityprint}} </p> 
              <!-- <p *ngIf="item.comment"><small > {{item.comment}}  </small></p> -->
              <p>
               <ion-text color="medium"> ціна  {{item.price}}</ion-text>

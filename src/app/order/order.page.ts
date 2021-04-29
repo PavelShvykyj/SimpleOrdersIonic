@@ -93,6 +93,10 @@ export class OrderPage implements OnInit {
     this.OnOrderActionClick(orderactions.SAVE);
   } 
  
+  ionViewWillEnter() {
+
+  }
+
   ngOnInit() {
 
     this.form = new FormGroup({
@@ -182,7 +186,7 @@ export class OrderPage implements OnInit {
   ChangeRows(FnChange: Function , FnFilter : Function , params ) {
     this.items$.pipe(
       take(1),
-      map(items => items.filter(el=> !el.isCanceled)),
+      map(items => items.filter(el=> !el.isCanceled || params.editcanceled)),
       map(items => items.filter(el => FnFilter(el))))
       .subscribe(items => {
         let itemchanges : Array<Update<Orderitem>> = 
@@ -250,7 +254,7 @@ export class OrderPage implements OnInit {
           
             this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isexcise: el.isSelected }}},
                             (el) => {return el.isSelected},
-                            undefined);
+                            {});
             return;
           case orderactions.PAY:
             this.OpenPayDialog(); 
@@ -260,14 +264,14 @@ export class OrderPage implements OnInit {
             this.store.dispatch(inQueue({ data: this.GetQueueElement(command, items) }));
             this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {quantityprint: el.quantity }}},
             (el) => {return true},
-            undefined);
+            {});
             return;  
             
             
           case orderactions.CANCEL_ROW:
-            this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isCanceled: el.isSelected }}},
+            this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {isCanceled: el.isSelected }}},
             (el) => {return true},
-            undefined);
+            {editcanceled: true});
             return;  
           case orderactions.DISCOUNT:
             this.OpenDiscountDialog();           
@@ -349,7 +353,8 @@ export class OrderPage implements OnInit {
 
   }
   
-  OnPayDialogClosed(dialogres) {
+  OnPayDialogClosed(res) {
+    const dialogres = res.data;
     if (dialogres.canseled) {
       return
     }
@@ -365,13 +370,15 @@ export class OrderPage implements OnInit {
     //// отмечаем строки как модифицированные
     this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isSelected : false }}},
     (el) => {return true},
-    undefined);
+    {});
 
 
     this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
   }
 
-  OnDiscountDialogClosed(dialogres) {
+  OnDiscountDialogClosed(res) {
+    const dialogres = res.data;
+    
     if (dialogres.canseled) {
       return
     }
@@ -386,7 +393,7 @@ export class OrderPage implements OnInit {
     //// сбрасываем предыдущую скидку до ответа от 1С
     this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}},
     (el) => {return true},
-    undefined);
+    {});
 
     
 
