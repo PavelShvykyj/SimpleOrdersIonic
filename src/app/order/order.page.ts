@@ -1,6 +1,6 @@
 import { OrdersOnTable, Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
-import { concatMap, filter, map, take, tap, debounceTime, first } from 'rxjs/operators';
+import { concatMap, filter, map, take, tap, debounceTime, first, share } from 'rxjs/operators';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
@@ -23,6 +23,9 @@ import { AppsettingsService } from '../appsettings/appsettings.service';
 import { BarcodeinputComponent } from '../base-elements/barcodeinput/barcodeinput.component';
 import { OrderpayComponent } from './orderpay/orderpay.component';
 
+import * as CRC32 from 'crc-32';   
+
+
 
 
 
@@ -39,8 +42,13 @@ export class OrderPage implements OnInit {
   hallid: string;
   table: string;
   orderid: string;
+  
   form: FormGroup;
-  totals$
+  totals;
+  startControlsumm : number;
+  version: number;
+  lastGajet : string;
+  
 
   @ViewChild('slider', { static: true })
   slider: IonSlides
@@ -111,8 +119,9 @@ export class OrderPage implements OnInit {
 
   init() {
     this.hall$ = this.route.queryParamMap.pipe(
-      tap(params => {
 
+      tap(params => {
+        
         this.hallid = params.get('hallid');
         this.table = params.get('tableid');
         this.orderid = params.get('orderid');
@@ -127,6 +136,7 @@ export class OrderPage implements OnInit {
       cntrl.present();
     })
   }
+
 
   GetOrderRowByMenuItem(menuitem: Menu): Observable<Orderitem | undefined> {
     return this.items$.pipe(
@@ -160,11 +170,65 @@ export class OrderPage implements OnInit {
       command: command,
       commandParametr: commandParametr,
       commandDate: new Date(),
+      version : this.version,
       gajet: this.setingsService.deviceID
     };         
 
     return elQueue
   }
+
+  GetTotals(items) {
+    if (items.length === 0) {
+      this.slider.slideTo(1);
+      return { summ: 0, discountname: "", discountsumm: 0 }
+    }
+
+    const discountname = items[0].dicountname;
+
+    let summ = 0;
+    let discountsumm = 0;
+    items.forEach(el => { { if (!el.isCanceled) {
+      summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm;
+    }  } })
+
+    return { summ, discountname, discountsumm }
+
+  }
+
+  GetControlSumm(items) : number {
+    
+    const clearItems = items.map(el => {return {...el,isSelected:false, isChanged: false, noControlSummCalculate: false}})
+    
+    return CRC32.str(JSON.stringify(clearItems))
+  }
+
+  inQueue(command: Queue, noControlSummCheck = false, changesFn ) {
+    let items = command.commandParametr.items; 
+    
+    
+
+    if (this.startControlsumm != this.GetControlSumm(items) || noControlSummCheck) {
+      this.version = this.version + 1;
+      
+      /// в копии ТЧ подменяем версию на текщую на всякий случай (версия в команде и в данных совпадает тогда) 
+      const itemsnewversion = items.map(el => {return {...el, version : this.version, gajet : this.setingsService.deviceID  }} );
+      command.version = this.version;
+      command.commandParametr.items = itemsnewversion;
+      this.store.dispatch(inQueue({data: command}));  
+    
+      /// отмечаем оптимистичные данные устанавливаем  версию и устройство 
+      this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {...changesFn(el),version : this.version, gajet : this.setingsService.deviceID }}},
+      (el) => {return true},
+      {editcanceled: true,
+       isLocal : true 
+      });
+        
+      
+      
+    } 
+
+  }
+ 
 
   NextOrder(par: number) {
     if (par === 0) {
@@ -184,14 +248,22 @@ export class OrderPage implements OnInit {
   }
 
   ChangeRows(FnChange: Function , FnFilter : Function , params ) {
+    /// если передали этот параметр то эти изменения на контрольную сумму влиять не должны
+    /// поетому ставим признак пересчета стартовой т.е. приравниаем последние изменения к стартовым
+    /// пересчет произойдет в подписке на select(selectOrderItems) 
+
+    
     this.items$.pipe(
       take(1),
+      // игнорируем отмененные строки если не сказаоно обратного
       map(items => items.filter(el=> !el.isCanceled || params.editcanceled)),
+      // отбираем по переданному фильтру
       map(items => items.filter(el => FnFilter(el))))
       .subscribe(items => {
-        let itemchanges : Array<Update<Orderitem>> = 
-        items.map((el) => FnChange(el,params) );
-        itemchanges.map(el=> {return el.changes = {...el.changes, isChanged: true, isSelected: false}} )
+        const itemchanges : Array<Update<Orderitem>> = 
+        items.map((el) => FnChange(el,params))
+             // двойной цикл .... нужно в самой функции прописывать
+             //.map((el) => {return el.changes = {...el.changes, isChanged: true, isSelected: false}});
         this.store.dispatch(UpdateOrderItemsValues({data: itemchanges} ))
       });
 
@@ -215,25 +287,45 @@ export class OrderPage implements OnInit {
   }
 
   OnOrderidChages() {
+    
+    this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
+                                  tap(items => {
+                                    console.log('SELECT ITEMS');
+                                    this.version = items.length === 0 ? 0 : items[0].version;
+                                    this.lastGajet = items.length === 0 ? "" : items[0].gajet;
+                                    const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate)!=undefined; 
+                                    
+                                    
+                                    
+                                    
+                                    if (!noControlSummCalculate) {
+                                      this.startControlsumm = this.GetControlSumm(items);
 
+                                    }
+                                    this.totals = this.GetTotals(items)
+                                    }),
+                                    
+                                    
+                                    map(items => {return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )})
+                                    
+                                    )
+    // this.totals$ = this.items$.pipe(map(items => {
+    //   if (items.length === 0) {
+    //     this.slider.slideTo(1);
+    //     return { summ: 0, discountname: "", discountsumm: 0 }
+    //   }
 
-    this.items$ = this.store.pipe(select(selectOrderItems, this.orderid))
-    this.totals$ = this.items$.pipe(map(items => {
-      if (items.length === 0) {
-        this.slider.slideTo(1);
-        return { summ: 0, discountname: "", discountsumm: 0 }
-      }
+    //   const discountname = items[0].dicountname;
 
-      const discountname = items[0].dicountname;
+    //   let summ = 0;
+    //   let discountsumm = 0;
+    //   items.forEach(el => { { if (!el.isCanceled) {
+    //     summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm;
+    //   }  } })
 
-      let summ = 0;
-      let discountsumm = 0;
-      items.forEach(el => { { if (!el.isCanceled) {
-        summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm;
-      }  } })
-
-      return { summ, discountname, discountsumm }
-    }))
+    //   return { summ, discountname, discountsumm }
+    // }))
+    
     // const ids = [this.orderid];
     // this.items$ = this.store.select(selectItemsInOrdersByID, { ids })
     //   .pipe(concatMap(iio => {
@@ -251,25 +343,36 @@ export class OrderPage implements OnInit {
       items => {
         switch (command) {
           case orderactions.FISKAL:
-          
-            this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isexcise: el.isSelected }}},
+            /// простоую отметку на 1С не гоняем
+            this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isexcise: el.isSelected, isSelected:false, isChanged : !!el.isexcise != !!el.isSelected }}},
                             (el) => {return el.isSelected},
-                            {});
+                            { });
             return;
           case orderactions.PAY:
             this.OpenPayDialog(); 
             return;
           case orderactions.PRINT:
+            /// в очердь версию данных для печати
             
-            this.store.dispatch(inQueue({ data: this.GetQueueElement(command, items) }));
-            this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {quantityprint: el.quantity }}},
-            (el) => {return true},
-            {});
+            const noControlSummCheck = true;
+
+            this.inQueue(this.GetQueueElement(command, items),
+            noControlSummCheck,
+            (el: Orderitem) => {return  {quantityprint: el.quantity, isSelected:false, isChanged : el.quantity!=el.quantityprint}}
+            );
+            
+            /// оптимистичные изменения для отображения без передачи на 1С
+            // this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {quantityprint: el.quantity, isSelected:false, isChanged : el.quantity!=el.quantityprint}}},
+            // (el) => {return true},
+            // {});
+
+
+
             return;  
             
             
           case orderactions.CANCEL_ROW:
-            this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {isCanceled: el.isSelected }}},
+            this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {isCanceled: el.isSelected, isSelected:false, isChanged : !!el.isSelected != !!el.isCanceled}}},
             (el) => {return true},
             {editcanceled: true});
             return;  
@@ -277,8 +380,10 @@ export class OrderPage implements OnInit {
             this.OpenDiscountDialog();           
             return;
           default:
-            this.store.dispatch(inQueue({ data: this.GetQueueElement(command,items) }));
-            }
+          
+          this.inQueue(this.GetQueueElement(command, items),false,(el)=> {return {}});
+            
+          }
       }
     )
 
@@ -298,7 +403,7 @@ export class OrderPage implements OnInit {
   }
 
   OpenEditRowDialog(editingRow: Orderitem, menuitem?: Menu) {
-    if (editingRow !== undefined && editingRow.isCanceled) {
+    if (editingRow != undefined && editingRow.isCanceled) {
       return;
     }
 
@@ -322,37 +427,6 @@ export class OrderPage implements OnInit {
     });
   }
 
-  OpenPayDialog() {
-    this.totals$.pipe(take(1)).subscribe(total => {
-    
-    this.modalController.create({
-      component: OrderpayComponent,
-      // cssClass: 'my-custom-class',
-      componentProps: {
-        OrderSumm : total.summ
-       }
-    }).then(modalEl => {
-      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data));
-      modalEl.present();
-    }); 
-    });
-  }
-
-  OpenDiscountDialog() {
-   
-  
-    this.modalController.create({
-      component: BarcodeinputComponent,
-      // cssClass: 'my-custom-class',
-      // componentProps: {
-      // }
-    }).then(modalEl => {
-      modalEl.onWillDismiss().then(data => this.OnDiscountDialogClosed(data));
-      modalEl.present();
-    }); 
-
-  }
-  
   OnPayDialogClosed(res) {
     const dialogres = res.data;
     if (dialogres.canseled) {
@@ -367,10 +441,6 @@ export class OrderPage implements OnInit {
   
     this.store.dispatch(inQueue({ data: el }));
 
-    //// отмечаем строки как модифицированные
-    this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isSelected : false }}},
-    (el) => {return true},
-    {});
 
 
     this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
@@ -382,23 +452,23 @@ export class OrderPage implements OnInit {
     if (dialogres.canseled) {
       return
     }
+    
+
     let el: Queue = this.GetQueueElement(orderactions.DISCOUNT,[]);
     el.commandParametr = {...el.commandParametr,
       discountcode : dialogres.data
     }  
 
-    this.store.dispatch(inQueue({ data: el }));
-    
+    this.inQueue(el,
+      true,
+      (el: Orderitem) => {return {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}
+      )
 
-    //// сбрасываем предыдущую скидку до ответа от 1С
-    this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}},
-    (el) => {return true},
-    {});
-
-    
-
-
-  }
+    // оптимистичные изменения сбрасываем предыдущую скидку до ответа от 1С
+    //   this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}},
+    //   (el) => {return true},
+    //   {});
+   }
 
   OnEditRowDialogClosed(data, editingRow: Orderitem) {
     if (data.data.canseled) {
@@ -442,7 +512,10 @@ export class OrderPage implements OnInit {
         dicountid: "",
         modified: new Date(),
         isChanged: true,
-        isSelected: true
+        isSelected: true,
+        version : this.version,
+        gajet   : this.setingsService.deviceID,
+        noControlSummCalculate:true 
       }
 
       this.store.dispatch(AddRow({ data: new_row, kaskad: kaskad }));
@@ -454,16 +527,63 @@ export class OrderPage implements OnInit {
           isChanged: true,
           quantity: data.data.quantity,
           comment: data.data.comment,
-          summ: data.data.quantity * data.data.price
+          summ: data.data.quantity * data.data.price,
+          noControlSummCalculate:true 
+
         }
       };
       this.store.dispatch(ModifyOrderItem({ data: changes, kaskad: kaskad }));
+     
+      /// сумма дисконта должна перерасчитатья на стороне 1С 
+      this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С', noControlSummCalculate:true  }}},
+      (el) => {return true},
+      {});
     }
 
+    
     if (kaskad.orderid) {
       this.OnOrderidChages();
+      ///  мы перечитали заказ с первой добавленной строкой 
+      ///  фактически создали новый ордер ид - ноцжно на негоподписаться
+      ///  при этом стартовая контролька рассчиталась 
+      ///  что бы передать изменения на 1С - сбросим ее
+      this.startControlsumm = 0;
     }
 
   }
 
+
+
+  OpenPayDialog() {
+    //this.totals$.pipe(take(1)).subscribe(total => {
+    
+    this.modalController.create({
+      component: OrderpayComponent,
+      // cssClass: 'my-custom-class',
+      componentProps: {
+        OrderSumm : this.totals.summ
+       }
+    }).then(modalEl => {
+      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data));
+      modalEl.present();
+    }); 
+    //});
+  }
+
+  OpenDiscountDialog() {
+   
+  
+    this.modalController.create({
+      component: BarcodeinputComponent,
+      // cssClass: 'my-custom-class',
+      // componentProps: {
+      // }
+    }).then(modalEl => {
+      modalEl.onWillDismiss().then(data => this.OnDiscountDialogClosed(data));
+      modalEl.present();
+    }); 
+
+  }
+  
+  
 }

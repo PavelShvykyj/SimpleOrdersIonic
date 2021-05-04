@@ -15,7 +15,15 @@
     <ng-container *ngIf="netState$ | async as netState">
       <ion-item>
         <ion-label color='danger'>{{netState.IP}} </ion-label>
+        <ion-buttons slot="end">
+          <ion-button (click)="RefreshIP()">
+            <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-item>
+
+
+      
       <ion-item>
         <ion-label>{{netState.ServerPingTry | date:'mediumTime' }} </ion-label>
       </ion-item>

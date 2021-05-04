@@ -9,9 +9,10 @@ export interface QueueStore extends EntityState<Queue> {}
 export interface Queue {
   id: string,
   command : string,
-  commandParametr : Object
+  commandParametr : any
   commandDate : Date,
-  gajet: string
+  gajet: string,
+  version : number,
 }
 
 export const adapter: EntityAdapter<Queue> = createEntityAdapter<Queue>({

@@ -17,8 +17,11 @@
 <ion-content [fullscreen]="true">
   <ion-slides #slider>
     <ion-slide>
-      <ion-toolbar *ngIf="totals$ | async as totals">
-        <ion-title color='primary' slot="end"><h5> Итого {{totals.summ}} </h5>
+      <ion-toolbar *ngIf="totals">
+      <!-- <ion-toolbar *ngIf="totals$ | async as totals"> -->
+        <ion-title color='medium' slot="start"><h6>  ver. {{version}} <small>{{ lastGajet }}</small>  </h6> </ion-title>
+        <ion-title color='primary' slot="end"><h5> Итого {{totals.summ}} </h5> 
+        
         <ng-container *ngIf="totals.discountname">
           <h5>{{totals.discountname}}</h5> 
           <h5> Знижка {{totals.discountsumm}}  </h5>
@@ -29,7 +32,7 @@
         <ion-item button *ngFor="let item of items" (click)=OpenEditRowDialog(item) [disabled]="item.isCanceled">
           <ion-checkbox disabled=false  #el  [checked]="item.isSelected == undefined ? false : item.isSelected" (ionChange)=OnItemSelected(item,el.checked) slot="start"></ion-checkbox>
           <ion-label class="ion-text-wrap"> 
-             <p>{{item.goodname}} {{item.quantityprint}} </p> 
+             <p>{{item.quantityprint}} {{item.goodname}}  </p> 
              <!-- <p *ngIf="item.comment"><small > {{item.comment}}  </small></p> -->
              <p>
               <ion-text color="medium"> ціна  {{item.price}}</ion-text>

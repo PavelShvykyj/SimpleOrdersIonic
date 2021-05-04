@@ -27,11 +27,12 @@ export class MenuListComponent implements OnInit {
   constructor(private store: Store<State>, private detector : ChangeDetectorRef) { }
 
   ngOnInit(): void {
-    this.menuitems$ = this.store.pipe(select(selectMemuByParent,""),tap((data)=>{
-      this.menuitems = data;
-      this.detector.detectChanges();
-      console.log('emty parent',  data);
-    }));
+    this.menuitems$ = this.store.pipe(select(selectMemuByParent,""));
+    //   ,tap((data)=>{
+    //   this.menuitems = data;
+    //   this.detector.detectChanges();
+      
+    // }));
 
   }
 

@@ -67,7 +67,11 @@ export interface Orderitem {
   isprecheck : boolean,
   isChanged?  : boolean,
   isSelected? : boolean,
-  isCanceled? : boolean
+  isCanceled? : boolean,
+  noControlSummCalculate? : boolean
+  version : number,
+  gajet : string
+
 }
 
 export interface HallStateData {
