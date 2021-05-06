@@ -1,12 +1,12 @@
-import { OrdersOnTable, Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
+import { Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
-import { concatMap, filter, map, take, tap, debounceTime, first, share } from 'rxjs/operators';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { concatMap,  map, take, tap,  first } from 'rxjs/operators';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { State } from 'src/app/reducers';
-import { of, Observable, pipe, Subscription } from 'rxjs';
-import { selectItemsByID, selectItemsInOrdersByID, selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
+import { Observable  } from 'rxjs';
+import { selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
 import { ActionSheetController, IonSlides, ModalController, ToastController } from '@ionic/angular';
@@ -14,10 +14,10 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Menu } from '../menu-store/menu-store.reducer';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
 import { orderactions } from '../global.enums';
-import { AddOrderOntable, AddRowInOrder, ModifyOrderItem, SelectItem } from '../home/halls/hall-state-store/hallstate.actions';
+import { ModifyOrderItem, SelectItem } from '../home/halls/hall-state-store/hallstate.actions';
 import { Update } from '@ngrx/entity';
 import { v4 as uuidv4 } from 'uuid';
-import { inQueue, inQueueSuccess } from '../queue/queue-store.actions';
+import { inQueue } from '../queue/queue-store.actions';
 import { Queue } from '../queue/queue-store.reducer';
 import { AppsettingsService } from '../appsettings/appsettings.service';
 import { BarcodeinputComponent } from '../base-elements/barcodeinput/barcodeinput.component';
@@ -290,22 +290,14 @@ export class OrderPage implements OnInit {
     
     this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
                                   tap(items => {
-                                    console.log('SELECT ITEMS');
                                     this.version = items.length === 0 ? 0 : items[0].version;
                                     this.lastGajet = items.length === 0 ? "" : items[0].gajet;
                                     const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate)!=undefined; 
-                                    
-                                    
-                                    
-                                    
                                     if (!noControlSummCalculate) {
                                       this.startControlsumm = this.GetControlSumm(items);
-
                                     }
                                     this.totals = this.GetTotals(items)
                                     }),
-                                    
-                                    
                                     map(items => {return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )})
                                     
                                     )

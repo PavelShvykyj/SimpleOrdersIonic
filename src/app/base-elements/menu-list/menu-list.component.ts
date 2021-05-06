@@ -33,7 +33,7 @@ export class MenuListComponent implements OnInit {
     //   this.detector.detectChanges();
       
     // }));
-
+    
   }
 
   OnNameFilterInput(event) {

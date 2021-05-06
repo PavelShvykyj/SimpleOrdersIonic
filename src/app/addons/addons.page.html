@@ -63,5 +63,33 @@
         </ion-item-options>
       </ion-item-sliding>
     </ng-container>
+
+
+
   </ion-list>
+
+  <ion-list>
+
+    <ion-list-header class="ion-text-center">
+      <ion-label>measure</ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label color='danger'>refresh measure </ion-label>
+
+      <ion-buttons slot="end">
+        <ion-button (click)="Measure()">
+          <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+
+    <ion-item *ngFor="let item of measure">
+      <ion-label [color]="item.res ? 'primary' : 'danger'" > {{item.duration}}  </ion-label>
+    </ion-item>
+
+
+
+  </ion-list>
+
 </ion-content>

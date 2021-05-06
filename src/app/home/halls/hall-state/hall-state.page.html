@@ -21,11 +21,11 @@
         <ion-row *virtualItem="let item">
 
           <ion-col *ngFor="let orderontable of item" size=4>
-            <ion-card *ngIf="orderontable.orders.length == 0" button type="button" class="ion-no-padding ion-no-margin "
+            <ion-card *ngIf="orderontable.orders.length == 0" button mode='ios' type="button" class="ion-no-padding ion-no-margin "
               routerLink="/order"
               [queryParams]="{'orderid': '', hallid: orderontable.hallid, tableid : orderontable.tableid}">
               <ion-card-header>
-                <ion-card-title class="ion-text-center">table {{orderontable.tableid}}</ion-card-title>
+                <ion-card-title mode='md' class="ion-text-center">table {{orderontable.tableid}}</ion-card-title>
                 <ion-card-subtitle class="ion-text-center ion-no-margin"> ---
                 </ion-card-subtitle>
               </ion-card-header>
@@ -36,10 +36,10 @@
 
             <ion-slides #slider *ngIf="orderontable.orders.length != 0">
               <ion-slide *ngFor="let order of orderontable.orders">
-                <ion-card button type="button" class="ion-no-padding ion-no-margin slidecontent" routerLink="/order"
+                <ion-card mode='ios' button type="button" class="ion-no-padding ion-no-margin slidecontent" routerLink="/order"
                   [queryParams]="{'orderid': order.orderid, hallid: orderontable.hallid, tableid : orderontable.tableid}">
                   <ion-card-header>
-                    <ion-card-title class="ion-text-center">order {{orderontable.orders.indexOf(order)+1 }} /
+                    <ion-card-title mode='md' class="ion-text-center"> order {{orderontable.orders.indexOf(order)+1 }} /
                       {{orderontable.orders.length}} </ion-card-title>
                     <ion-card-subtitle class="ion-text-center ion-no-margin">summ {{order.orderheader.summ }}
                     </ion-card-subtitle>
@@ -53,10 +53,10 @@
                 </ion-card>
               </ion-slide>
               <ion-slide>
-                <ion-card button type="button" class="ion-no-padding ion-no-margin " routerLink="/order"
+                <ion-card mode='ios' button type="button" class="ion-no-padding ion-no-margin " routerLink="/order"
                   [queryParams]="{'orderid': '', hallid: orderontable.hallid, tableid : orderontable.tableid}">
                   <ion-card-header>
-                    <ion-card-title class="ion-text-center">table {{orderontable.tableid}}</ion-card-title>
+                    <ion-card-title mode='md' class="ion-text-center">table {{orderontable.tableid}}</ion-card-title>
                     <ion-card-subtitle class="ion-text-center ion-no-margin"> ---
                     </ion-card-subtitle>
                   </ion-card-header>

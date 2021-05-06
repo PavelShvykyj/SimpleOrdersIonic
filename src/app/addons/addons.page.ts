@@ -8,6 +8,8 @@ import { NetState } from '../net/netcontrol.reducer';
 import { State } from '../reducers';
 import { selectNetcontrolState } from '../net/netcontrol.selectors';
 import { NetcontrolService } from '../net/netcontrol.service';
+import { OnecConnectorService } from '../onec/onec.connector.service';
+
 
 @Component({
   selector: 'app-addons',
@@ -19,8 +21,9 @@ export class AddonsPage implements OnInit {
 
   keys$ : Observable<Array<string>>;
   netState$ : Observable<NetState>
+  measure : Array<{res:boolean, duration : number}> = [];
 
-  constructor(private netService : NetcontrolService,  private db : DatabaseService, private store: Store<State>,private detector : ChangeDetectorRef) { }
+  constructor(private onec : OnecConnectorService, private netService : NetcontrolService,  private db : DatabaseService, private store: Store<State>,private detector : ChangeDetectorRef) { }
 
   ngOnInit() {
     this.keys$ = this.db.GetKeys();
@@ -49,5 +52,22 @@ export class AddonsPage implements OnInit {
     })
 
   }
+
+  DoMeasure() {
+    const start = Date.now();
+    this.onec.GetHallState().subscribe(()=> {
+      this.measure.push({res: true, duration :  Date.now()- start})
+    }, err => {
+      this.measure.push({res: false, duration :   Date.now() - start })
+    })
+
+  }
+
+  Measure() {
+    this.measure = []; 
+    let  interval = setInterval(this.DoMeasure.bind(this),1000);    
+    setTimeout(()=> {clearInterval(interval)},5001);
+  }
+
 
 }
