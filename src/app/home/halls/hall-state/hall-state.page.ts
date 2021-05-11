@@ -1,6 +1,6 @@
 import { concatMap, map, take } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
-import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import { State } from 'src/app/reducers';
@@ -28,7 +28,7 @@ export class HallStatePage implements OnInit {
 
 
 
-  constructor(private rout: ActivatedRoute, private store: Store<State>) {
+  constructor(private router : Router, private rout: ActivatedRoute, private store: Store<State>) {
     // this.items = [];
     //     for (let i = 1; i < 200; i++) {
     //         this.items.push({
@@ -46,6 +46,15 @@ export class HallStatePage implements OnInit {
         }
       }
     )
+  }
+
+
+  OrderCompare(o1,o2) {
+    return o1.orderid === o2.orderid;
+  }
+
+  OnOrderSelected(queryParams) {
+    this.router.navigate(["/order"] ,{ queryParams:queryParams });
   }
 
   Refresh() {

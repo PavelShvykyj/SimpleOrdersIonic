@@ -25,16 +25,41 @@
               routerLink="/order"
               [queryParams]="{'orderid': '', hallid: orderontable.hallid, tableid : orderontable.tableid}">
               <ion-card-header>
-                <ion-card-title mode='md' class="ion-text-center">table {{orderontable.tableid}}</ion-card-title>
+                <ion-card-title mode='md' class="ion-text-center">стол {{orderontable.tableid}}</ion-card-title>
                 <ion-card-subtitle class="ion-text-center ion-no-margin"> ---
                 </ion-card-subtitle>
               </ion-card-header>
               <ion-card-content class="ion-text-center">
-                <p> new order </p>
+                <p> Новый заказ </p>
               </ion-card-content>
             </ion-card>
 
-            <ion-slides #slider *ngIf="orderontable.orders.length != 0">
+
+            <ion-card mode='ios' *ngIf="orderontable.orders.length != 0"  class="ion-no-padding ion-no-margin ">
+              <ion-card-header>
+                <ion-card-title mode='md' class="ion-text-center">стол {{orderontable.tableid}}</ion-card-title>
+                <ion-card-subtitle mode='md' class="ion-text-center ion-no-margin"> Выбрать  из {{ orderontable.orders.length + 1}} </ion-card-subtitle>
+              </ion-card-header> 
+
+              <ion-item>
+                <ion-label color='medium' class="ion-text-wrap"><small> Выбрать заказ </small>  </ion-label>
+                <ion-select (ionChange)="OnOrderSelected({'orderid': '', hallid: orderontable.hallid, tableid : orderontable.tableid})"   interface="alert" multiple="false" >
+                  <ion-select-option *ngFor="let order of orderontable.orders"  value="order">
+                    
+                    <ion-text><small>{{ order.orderheader.waitername }} \ </small></ion-text>
+                    
+                    <ion-note slot="end"><small>поз. {{ order.orderheader.quantity }} \ </small> </ion-note>
+                    <ion-note slot="end"><small>сум. {{ order.orderheader.summ }} </small> </ion-note>
+                    
+                    
+                  </ion-select-option>
+                  <ion-select-option value="{orderid : ''}">  Новый заказ </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-card>
+
+
+            <!-- <ion-slides #slider *ngIf="orderontable.orders.length != 0">
               <ion-slide *ngFor="let order of orderontable.orders">
                 <ion-card mode='ios' button type="button" class="ion-no-padding ion-no-margin slidecontent" routerLink="/order"
                   [queryParams]="{'orderid': order.orderid, hallid: orderontable.hallid, tableid : orderontable.tableid}">
@@ -65,7 +90,7 @@
                   </ion-card-content>
                 </ion-card>
               </ion-slide>
-            </ion-slides>
+            </ion-slides> -->
           </ion-col>
 
         </ion-row>
