@@ -29,6 +29,7 @@ export class HallStatePage implements OnInit {
 
 
   constructor(private router : Router, private rout: ActivatedRoute, private store: Store<State>) {
+    
     // this.items = [];
     //     for (let i = 1; i < 200; i++) {
     //         this.items.push({
@@ -50,7 +51,8 @@ export class HallStatePage implements OnInit {
 
 
   OrderCompare(o1,o2) {
-    return o1.orderid === o2.orderid;
+    console.log(o1,o2);
+    return o1 && o2 ? o1.orderid === o2.orderid : o1 === o2; 
   }
 
   OnOrderSelected(queryParams) {

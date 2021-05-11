@@ -24,6 +24,7 @@ import { BarcodeinputComponent } from '../base-elements/barcodeinput/barcodeinpu
 import { OrderpayComponent } from './orderpay/orderpay.component';
 
 import * as CRC32 from 'crc-32';   
+import { MenuListComponent } from '../base-elements/menu-list/menu-list.component';
 
 
 
@@ -48,8 +49,9 @@ export class OrderPage implements OnInit {
   startControlsumm : number;
   version: number;
   lastGajet : string;
-  
 
+  MenuComponent = MenuListComponent;
+ 
   @ViewChild('slider', { static: true })
   slider: IonSlides
 
