@@ -25,7 +25,10 @@ export const selectAllMenu = createSelector(
 
 export const selectMemuByParent = createSelector(
   selectAllMenu,
-  (elements: fromMenuStore.Menu[]  ,id:string) => {return elements.filter(el => el.parentid === id)}
+  (elements: fromMenuStore.Menu[]  ,id:string) => {
+    
+    return elements.filter(el => el.parentid === id);
+  }
 )
 
 export const selectMemuByName = createSelector(  selectAllMenu,

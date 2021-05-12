@@ -51,12 +51,20 @@ export class HallStatePage implements OnInit {
 
 
   OrderCompare(o1,o2) {
-    console.log(o1,o2);
     return o1 && o2 ? o1.orderid === o2.orderid : o1 === o2; 
   }
 
-  OnOrderSelected(queryParams) {
+  OnOrderSelected(orderontable , select) {
+    if (select.value===undefined) {
+      return
+    }
+    const queryParams = {'orderid': select.value.orderid , hallid: orderontable.hallid, tableid : orderontable.tableid}
+    
+    
+
     this.router.navigate(["/order"] ,{ queryParams:queryParams });
+    setTimeout(()=> {select.value=undefined; select.selectedText = ''},2);
+
   }
 
   Refresh() {

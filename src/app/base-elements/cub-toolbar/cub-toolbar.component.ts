@@ -62,7 +62,7 @@ export class CubToolbarComponent implements OnInit {
         ...item
       }
       this.lenta[this.lenta.length-1].last = false;
-      this.lenta.push(newElemnt);
+      this.lenta.unshift(newElemnt);
     }
     
   }
@@ -71,7 +71,7 @@ export class CubToolbarComponent implements OnInit {
     if(item == undefined) {
       this.lenta = [];
     } else {
-      this.lenta.splice( this.lenta.indexOf(item)+1);
+      this.lenta.splice(0, this.lenta.indexOf(item));
       if(this.lenta.length!=0) {
         this.lenta[this.lenta.length-1].last=true;
       }

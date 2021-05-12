@@ -1,6 +1,6 @@
-import { tap } from 'rxjs/operators';
+
 import { Menu } from './../../menu-store/menu-store.reducer';
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { selectMemuByName, selectMemuByParent } from 'src/app/menu-store/menu-store.selectors';
 import { State } from 'src/app/reducers';
@@ -23,6 +23,14 @@ export class MenuListComponent implements OnInit {
   @Output('MenuElementSelect')
   MenuElementSelect = new EventEmitter();
 
+  @Input('callBack')
+  callBack :  Function;
+  @Input('hallid')
+  hallid: string = "";  
+  @Input('table')
+  table : string = "";
+
+  @ViewChild('search') search : any;
 
   constructor(private store: Store<State>, private detector : ChangeDetectorRef) { }
 
@@ -34,6 +42,7 @@ export class MenuListComponent implements OnInit {
       
     // }));
     
+   
   }
 
   OnNameFilterInput(event) {
@@ -67,6 +76,7 @@ export class MenuListComponent implements OnInit {
       
     } else {     
       this.MenuElementSelect.emit(item);
+      this.callBack(item);
     }
 
   }
@@ -91,6 +101,12 @@ export class MenuListComponent implements OnInit {
     }
     return parent;
 
+  }
+
+  ActivateSearch() {
+    setTimeout(() => {
+      this.search.setFocus();
+    }, 50);
   }
 
 

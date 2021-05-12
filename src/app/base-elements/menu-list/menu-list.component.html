@@ -1,35 +1,47 @@
-
-  <ion-searchbar  show-clear-button='always'
-    debounce="10"
-    showCancelButton="focus"
-    placeholder="search by name"
-    (ionInput)=OnNameFilterInput($event.target.value)
-    >
+<!-- *ngFor="let menuitem of menuitems" -->
+<ion-header>
+  <ion-searchbar  #search show-clear-button='always' debounce="10" showCancelButton="focus" placeholder="search by name"
+    (ionInput)=OnNameFilterInput($event.target.value)>
   </ion-searchbar>
-  <cub-toolbar class="w-100" (OnElementClicked)="OnLentaElementClicked($event)"
+ 
+</ion-header>
+
+<ion-content>
+
+  
+  <ng-container *ngIf="menuitems$ | async as menuitems">
+    <ion-virtual-scroll [items]="menuitems" approxItemHeight="50px">
+
+  <!-- <ion-list class="w-100 pl-4 pr-4 py-0" *ngIf="menuitems$ | async as menuitems"> -->
+    <ion-item class="w-100" slot="start" [color]="menuitem.isFolder ? 'light' : ''" button
+      *virtualItem="let menuitem" (click)="ElementClicked(menuitem)" [disabled]="menuitem.isBlocked">
+      <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap">
+
+        <ion-text>{{ menuitem.name }}</ion-text>
+      </ion-label>
+      <ion-note slot="end" *ngIf="!menuitem.isFolder" color="danger" class="ml">
+        <ion-text>{{ menuitem.price }}</ion-text>
+      </ion-note>
+      <ion-note slot="start" *ngIf="menuitem.isFolder">
+        <ion-icon name="folder"></ion-icon>
+      </ion-note>
+    </ion-item>
+  <!-- </ion-list> -->
+    </ion-virtual-scroll>
+  </ng-container>
+</ion-content>
+
+<ion-footer>
+  <cub-toolbar class="w-100 " (OnElementClicked)="OnLentaElementClicked($event)"
     (OnToolbarCommandClicked)="OnToolbarCommandClicked($event)">
   </cub-toolbar>
-
-
-<!-- menu  -->
-<!-- <ion-grid>
-<ion-row> 
-<ion-col> -->
-<ion-list class="w-100 pl-4 pr-4 py-0" *ngIf="menuitems$ | async as menuitems">
-  <ion-item class="w-100" slot="start" [color]="menuitem.isFolder ? 'light' : ''" button *ngFor="let menuitem of menuitems"
-    (click)="ElementClicked(menuitem)" [disabled]="menuitem.isBlocked">
-    <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap"> 
-      
-      <ion-text>{{ menuitem.name }}</ion-text> </ion-label>
-    <ion-note slot="end" *ngIf="!menuitem.isFolder" color="danger" class="ml"><ion-text>{{ menuitem.price }}</ion-text> </ion-note>
-    <ion-note slot="start" *ngIf="menuitem.isFolder"  > <ion-icon name="folder"></ion-icon> </ion-note>
-  </ion-item>
-</ion-list>
-<!-- </ion-col>       
-</ion-row>
-</ion-grid> -->
-
-
-
-
-<!-- search results -->
+  
+  <ion-toolbar color='light'>
+    <ion-buttons slot="end">
+      <ion-button (click)="ActivateSearch()" class="mr-5" slot="icon-only"><ion-icon name="search-outline"></ion-icon></ion-button>
+      <ion-nav-link router-direction='back'>
+        <ion-button>order</ion-button>
+      </ion-nav-link>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>  

@@ -10,6 +10,8 @@ import { OrderPage } from './order.page';
 import { BaseElementsModule } from '../base-elements/base-elements.module';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
 import { OrderpayComponent } from './orderpay/orderpay.component';
+import { OrderNavComponent } from './order-nav/order-nav.component';
+import { AnketaComponent } from './anketa/anketa.component';
 
 @NgModule({
   imports: [
@@ -20,6 +22,6 @@ import { OrderpayComponent } from './orderpay/orderpay.component';
     OrderPageRoutingModule,
     BaseElementsModule
   ],
-  declarations: [OrderPage, EditOrderItemComponent, OrderpayComponent]
+  declarations: [OrderPage, EditOrderItemComponent, OrderpayComponent, OrderNavComponent, AnketaComponent]
 })
 export class OrderPageModule {}

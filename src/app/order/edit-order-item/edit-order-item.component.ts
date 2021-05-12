@@ -15,12 +15,13 @@ export class EditOrderItemComponent implements OnInit {
   form : FormGroup;
 
   @ViewChild('inputId', {static: false}) ionInput: { setFocus: () => void; };
+  @ViewChild('commentinputId', {static: false}) commentinputId: { setFocus: () => void; };
+
   
 
   constructor(public modalController: ModalController,public toastController: ToastController ) { }
 
   ngOnInit(): void {
-    console.log('quantityprint', this.item.quantityprint);
     this.form = new FormGroup({
       "quantity" : new FormControl(this.item.quantity,Validators.min(this.item.quantityprint)),
       "comment"  : new FormControl(this.item.comment), 
@@ -34,7 +35,11 @@ export class EditOrderItemComponent implements OnInit {
   }
 
   ionViewDidEnter() {
-    setTimeout(()=>this.ionInput.setFocus(),200)
+    setTimeout(()=>this.ionInput.setFocus(),10)
+  }
+
+  OnQuantityLeave() {
+    setTimeout(()=>this.commentinputId.setFocus(),10)
   }
 
   Save() {

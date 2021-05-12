@@ -1,73 +1,72 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>  {{ (hall$ | async).name }} /  {{ table }}</ion-title>
+  <ion-toolbar  color='light'>
+    <ion-title class="text-smaller"> {{(hall$ | async).name }} / {{ table }}</ion-title>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button  color="primary" (click)="NextOrder(-1)"><ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon> </ion-button>
-      <ion-button  color="primary" (click)="NextOrder(0)">new</ion-button>
-      <ion-button  color="primary" (click)="NextOrder(1)"><ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon></ion-button>
-  
+      <ion-button color="primary" (click)="NextOrder(-1)">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <ion-button color="primary" (click)="NextOrder(0)">new</ion-button>
+      <ion-button color="primary" (click)="NextOrder(1)">
+        <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
-
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <!-- <ion-nav [root]="MenuComponent"></ion-nav>
-  <ion-nav-link [component]="MenuComponent" router-direction='forward' componentProps='{}'> 
-    <ion-item button>menu</ion-item>  
-  </ion-nav-link>  
+
   <ion-toolbar *ngIf="totals">
-      
-    <ion-title color='medium' slot="start"><h6>  ver. {{version}}   </h6> <h6><small>{{ lastGajet }}</small></h6> </ion-title>
-    <ion-title color='primary' slot="end"><h5> Итого {{totals.summ}} </h5> 
-      
-
-      
-    <ng-container *ngIf="totals.discountname">
-      <h5>{{totals.discountname}}</h5> 
-      <h5> Знижка {{totals.discountsumm}}  </h5>
-    </ng-container>  
-  </ion-title>
-  
- </ion-toolbar>
-
-
-
+    <ion-title  class="text-smaller" color='medium' slot="start">
+      <h6> ver. {{version}} </h6>
+      <h6><small>{{ lastGajet }}</small></h6>
+    </ion-title>
+    <ion-title  class="text-smaller" color='primary' slot="end">
+      <h5> Итого {{totals.summ}} </h5>
+      <ng-container *ngIf="totals.discountname">
+        <h5>{{totals.discountname}}</h5>
+        <h5> Знижка {{totals.discountsumm}} </h5>
+      </ng-container>
+    </ion-title>
+  </ion-toolbar>
   <ion-list *ngIf="items$ | async as items">
     <ion-item button *ngFor="let item of items" (click)=OpenEditRowDialog(item) [disabled]="item.isCanceled">
-      <ion-checkbox disabled=false  #el  [checked]="item.isSelected == undefined ? false : item.isSelected" (ionChange)=OnItemSelected(item,el.checked) slot="start"></ion-checkbox>
-      <ion-label class="ion-text-wrap"> 
-         <p>{{item.quantityprint}} {{item.goodname}}  </p> 
-         
-         <p>
-          <ion-text color="medium"> ціна  {{item.price}}</ion-text>
+      <ion-label class="ion-text-wrap">
+        <p>{{item.quantityprint}} {{item.goodname}} </p>
+
+        <p>
+          <ion-text color="medium"> ціна {{item.price}}</ion-text>
           <ion-icon color="danger" *ngIf="item.isexcise" class="pl" slot="start" name="cash-outline"></ion-icon>
-          <ion-icon color="danger" *ngIf="item.quantityprint != item.quantity" class="pl" slot="start" name="print-outline"></ion-icon>
+          <ion-icon color="danger" *ngIf="item.quantityprint != item.quantity" class="pl" slot="start"
+            name="print-outline"></ion-icon>
           <ion-icon color="danger" *ngIf="item.isprecheck" class="pl" slot="start" name="close-outline"></ion-icon>
           <ion-icon color="danger" *ngIf="item.isChanged" class="pl" slot="start" name="pencil-outline"></ion-icon>
-          <ion-icon color="danger" *ngIf="item.isCanceled" class="pl" slot="start" name="close-circle-outline"></ion-icon>
+          <ion-icon color="danger" *ngIf="item.isCanceled" class="pl" slot="start" name="close-circle-outline">
+          </ion-icon>
         </p>
       </ion-label>
-      
+
       <ion-note class="ml my-5" slot="end" color="tertiary">
 
-        
+
         <h5>{{item.quantity}}</h5>
-        
+
       </ion-note>
-      
+
       <ion-note class="ml" slot="end" color="primary">
         <h5>{{item.summ}} </h5>
-        
+
       </ion-note>
+      <ion-checkbox disabled=false #el [checked]="item.isSelected == undefined ? false : item.isSelected"
+        (ionChange)=OnItemSelected(item,el.checked) slot="end"></ion-checkbox>
+
     </ion-item>
-  </ion-list> -->
+  </ion-list>
 
 
-  <ion-slides #slider>
+  <!-- <ion-slides #slider>
     <ion-slide>
       <ion-toolbar *ngIf="totals">
       
@@ -150,10 +149,27 @@
       </form>
       
     </ion-slide>
-  </ion-slides>
+  </ion-slides> -->
 
 
 </ion-content>
+
 <ion-footer>
-  <ion-button fill='solid' expand='block' color='primary' (click)="ShowActions()"> Actions</ion-button>
+  <!-- <ion-button fill='solid' expand='block' color='primary' (click)="ShowActions()"> Actions</ion-button> -->
+  <ion-toolbar color='light'>
+    <ion-buttons slot="start">
+      <ion-button color='primary' (click)="ShowActions()"> Actions</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-nav-link [component]="AnketaComp" router-direction='forward' componentProps='{}'>
+        <ion-button>анкета</ion-button>
+      </ion-nav-link>
+
+
+      <ion-nav-link [component]="MenuComp" router-direction='forward' [componentProps]="MenuProps">
+        <ion-button>меню</ion-button>
+      </ion-nav-link>
+    </ion-buttons>
+  </ion-toolbar>
+
 </ion-footer>

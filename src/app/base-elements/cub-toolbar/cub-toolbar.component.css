@@ -5,6 +5,10 @@
     overflow-x: auto;
 } */
 
+.text-smaller {
+    font-size: smaller;
+}
+
 .pl-4 {
     padding-left: 4px;
 }
@@ -21,4 +25,5 @@
 .m-auto {
     margin: auto !important;
 }
+
 

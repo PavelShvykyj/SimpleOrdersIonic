@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 
@@ -11,6 +11,8 @@ export class OrderpayComponent implements OnInit {
   @Input('OrderSumm')
   OrderSumm : number
 
+  @ViewChild('cashinputId', {static: false}) cashinputId: { setFocus: () => void; };
+
   form : FormGroup;
 
   constructor(public modalController: ModalController,
@@ -18,11 +20,17 @@ export class OrderpayComponent implements OnInit {
       ) { }
 
   ngOnInit(): void {
-    console.log('OrderSumm', this.OrderSumm)
+    
     this.form = new FormGroup({
       "cash" : new FormControl(this.OrderSumm,[Validators.min(this.OrderSumm), Validators.required]),
       "paytype"  : new FormControl( 'cash' , Validators.required) 
     })
+  }
+
+  
+  ionViewDidEnter() {
+    setTimeout(()=>this.cashinputId.setFocus(),50);
+    setTimeout(()=>this.cashinputId.setFocus(),10);
   }
 
   OnPayTypeSelect(event) {

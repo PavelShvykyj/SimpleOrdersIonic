@@ -9,7 +9,7 @@ import { Observable  } from 'rxjs';
 import { selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
-import { ActionSheetController, IonSlides, ModalController, ToastController } from '@ionic/angular';
+import { ActionSheetController, IonSlides, ModalController, NavController, ToastController } from '@ionic/angular';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Menu } from '../menu-store/menu-store.reducer';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
@@ -25,6 +25,7 @@ import { OrderpayComponent } from './orderpay/orderpay.component';
 
 import * as CRC32 from 'crc-32';   
 import { MenuListComponent } from '../base-elements/menu-list/menu-list.component';
+import { AnketaComponent } from './anketa/anketa.component';
 
 
 
@@ -44,16 +45,19 @@ export class OrderPage implements OnInit {
   table: string;
   orderid: string;
   
-  form: FormGroup;
+  
   totals;
   startControlsumm : number;
   version: number;
   lastGajet : string;
 
-  MenuComponent = MenuListComponent;
- 
-  @ViewChild('slider', { static: true })
-  slider: IonSlides
+  MenuComp = MenuListComponent;
+  AnketaComp = AnketaComponent;
+  // @ViewChild('slider', { static: true })
+  // slider: IonSlides
+
+  MenuProps  
+
 
   actions = {
     header: 'order actions',
@@ -95,28 +99,21 @@ export class OrderPage implements OnInit {
     private setingsService: AppsettingsService,
     public actionSheetController: ActionSheetController,
     public modalController: ModalController,
-    public toastController: ToastController
+    public toastController: ToastController,
+    public ctrl : NavController
   ) { }
 
   
+
   ionViewWillLeave() {
     this.OnOrderActionClick(orderactions.SAVE);
   } 
  
   ionViewWillEnter() {
-
   }
 
   ngOnInit() {
-
-    this.form = new FormGroup({
-      GuestsQuontity: new FormControl(null),
-      FeedBack: new FormControl(null),
-    });
-
     this.init();
-
-
   }
 
   init() {
@@ -128,6 +125,10 @@ export class OrderPage implements OnInit {
         this.table = params.get('tableid');
         this.orderid = params.get('orderid');
         this.OnOrderidChages();
+
+        this.MenuProps = {callBack : this.OnMenuElementSelect.bind(this),
+          hallid: this.hallid,
+          table : this.table}
       }),
       concatMap(params => this.store.select(selectHallByid, params.get('hallid')))
     )
@@ -181,7 +182,7 @@ export class OrderPage implements OnInit {
 
   GetTotals(items) {
     if (items.length === 0) {
-      this.slider.slideTo(1);
+      //this.slider.slideTo(1);
       return { summ: 0, discountname: "", discountsumm: 0 }
     }
 
@@ -231,7 +232,6 @@ export class OrderPage implements OnInit {
 
   }
  
-
   NextOrder(par: number) {
     if (par === 0) {
       this.router.navigate(this.route.snapshot.url, { queryParams: { orderid: "", hallid: this.hallid, tableid: this.table } });
@@ -332,7 +332,6 @@ export class OrderPage implements OnInit {
   }
 
   OnOrderActionClick(command: orderactions) {
-    
     this.items$.pipe(take(1)).subscribe(
       items => {
         switch (command) {
@@ -476,13 +475,13 @@ export class OrderPage implements OnInit {
       tableid: this.table
     }
 
-
-    if (this.orderid === undefined || this.orderid === "") {
+    console.log('order id before',this.orderid)
+    if (this.orderid === undefined || this.orderid === "" || this.orderid === null) {
       this.orderid = uuidv4();
       kaskad.orderid = this.orderid
 
     }
-
+    console.log('order id after',this.orderid)
     if (editingRow === undefined) {
       const rowid = uuidv4() as string;
       kaskad.rowid = rowid;

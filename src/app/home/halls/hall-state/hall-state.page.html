@@ -41,11 +41,11 @@
                 <ion-card-subtitle mode='md' class="ion-text-center ion-no-margin"> Всего {{ orderontable.orders.length + 1}} </ion-card-subtitle>
               </ion-card-header> 
               <ion-card-content>
-              <ion-item color="tertiary">
+              <ion-item color="light">
                 <ion-label  class="text-small ion-text-center fool-width pr-5" > Выбрать </ion-label>
                 <ion-select  #select
                            
-                           (ionChange)="OnOrderSelected({'orderid': select.value.orderid , hallid: orderontable.hallid, tableid : orderontable.tableid}); select.value=undefined; select.selectedText = ''"
+                           (ionChange)="OnOrderSelected(orderontable , select)"
                            [compareWith]="OrderCompare"
                            okText="OK"
                            cancelText="Cancel"

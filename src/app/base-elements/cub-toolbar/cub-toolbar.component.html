@@ -8,10 +8,10 @@
         </ion-segment>
   </div>
   
-  <ion-toolbar color='light' class="lenta-container" style="width: 100vw; ">
+  <ion-toolbar  class="lenta-container text-smaller" style="width: 100vw; ">
     <!-- <ion-buttons class="w-100 pl-4 "> -->
-      <ion-button class="pl-4" slot="start" fill="solid" color='medium' (click)="ElementClicked(undefined)"><ion-icon slot="icon-only" name="home-outline"></ion-icon></ion-button>
-      <ion-button class="pr-4" fill="solid" slot="end" color='medium' *ngFor="let item of lenta"  (click)="ElementClicked(item)"> {{item.name }} </ion-button>
+      <ion-button class="pr-4 text-smaller" fill="solid" slot="end" color='medium' *ngFor="let item of lenta"  (click)="ElementClicked(item)"> {{item.name }} </ion-button>
+      <ion-button class="pr-4 text-smaller" slot="end" fill="solid" color='medium' (click)="ElementClicked(undefined)"><ion-icon slot="icon-only" name="home-outline"></ion-icon></ion-button>
       <div class="m-auto"></div>
     <!-- </ion-buttons> -->
   </ion-toolbar>  

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
@@ -17,6 +17,7 @@ import { map, take } from 'rxjs/operators';
 export class AuthtorisationPage implements OnInit {
 
   form : FormGroup;
+  @ViewChild('passinputid', {static: false}) passinputid: { setFocus: () => void; };
 
   constructor(private store: Store<State>, 
               private router : Router,
@@ -85,7 +86,10 @@ export class AuthtorisationPage implements OnInit {
       
   }
 
-  
+  ActivatePass() {
+    setTimeout(()=>this.passinputid.setFocus(),10)
+  }  
+
   private get password()  {
     return this.form.get('password')
   }

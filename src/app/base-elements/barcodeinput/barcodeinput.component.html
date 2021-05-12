@@ -22,20 +22,31 @@
           </ion-col>
         </ion-row>
   
-        <ion-row>
+        <!-- <ion-row>
           <ion-col size-sm="6" offset-sm="3">
             <ion-button fill='solid' expand='block' color='tertiary'  (click)="Scan()"> Scan card</ion-button>
           </ion-col> 
-        </ion-row>
+        </ion-row> -->
         
-        <ion-row>  
+        <!-- <ion-row>  
           <ion-col size-sm="6" offset-sm="3">
             <ion-button fill='solid' expand='block' color='primary' (click)="Save()"> Save</ion-button>
             <ion-button fill='solid' expand='block' color='primary' (click)="Cancel()"> Cancel</ion-button>
           </ion-col>
-        </ion-row>
+        </ion-row> -->
       </ion-grid>
     </form>
   
   </ion-content>
+
+<ion-footer>
+  <ion-button fill='solid' expand='block' color='tertiary'  (click)="Scan()"> Scan card</ion-button>
+  <ion-toolbar color='light'> 
+    <ion-buttons slot="end">
+      <ion-button  color='primary' (click)="Save()"> Save</ion-button>
+      <ion-button  (click)="Cancel()"> Cancel</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
+
   
