@@ -12,6 +12,7 @@ import { setPing } from '../net/netcontrol.actions';
 import { Menu } from '../menu-store/menu-store.reducer';
 import { Queue } from '../queue/queue-store.reducer';
 import { HTTP } from '@ionic-native/http/ngx';
+import { AppsettingsService } from '../appsettings/appsettings.service';
 
 
 
@@ -65,7 +66,8 @@ export class OnecConnectorService  {
   currentStatus : boolean;
 
   constructor(private hclient : HttpClient, 
-              private mhclient: HTTP, 
+              private mhclient: HTTP,
+              private setingsService: AppsettingsService,  
               private store : Store<State>,
               private plt : Platform) { 
       
@@ -141,6 +143,29 @@ export class OnecConnectorService  {
           ()=>setTimeout( this.Ping.bind(this), 4000),
           err=> setTimeout( this.Ping.bind(this), 4000)
         )}
+  }
+
+  Login(pass:string) : Observable<{[key:string]:any}> {
+      
+    const authData = btoa(`${this.setingsService.deviceID}:${pass}`);
+
+
+
+    
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/login`;
+    let headers = new HttpHeaders().append('Content-Type','text/json');
+    headers.append('Authorization',authData)
+
+    return this.hclient.get(URL,{headers:headers,
+      observe: 'body',
+      withCredentials:false,
+      reportProgress:false,
+      responseType:'text'}).pipe(
+        timeout(5000),  
+        map(res => JSON.parse(res))); 
+
+
+    
   }
 
 

@@ -7,7 +7,8 @@ import { loggIn, loggOut } from './auth.actions';
 import { BarcodeScanner, BarcodeScanResult, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
 import { ToastController } from '@ionic/angular';
 import { selectisDevMode } from '../appsettings/app-settings.selectors';
-import { map, take } from 'rxjs/operators';
+import { map, take, filter, concatMap } from 'rxjs/operators';
+import { OnecConnectorService } from '../onec/onec.connector.service';
 
 @Component({
   selector: 'app-authtorisation',
@@ -17,9 +18,10 @@ import { map, take } from 'rxjs/operators';
 export class AuthtorisationPage implements OnInit {
 
   form : FormGroup;
-  @ViewChild('passinputid', {static: false}) passinputid: { setFocus: () => void; };
+  @ViewChild('passinputid', {static: false}) passinputid;
 
   constructor(private store: Store<State>, 
+              private onecConn : OnecConnectorService,
               private router : Router,
               private barcodeScanner: BarcodeScanner,
               public toastController: ToastController) { }
@@ -28,6 +30,10 @@ export class AuthtorisationPage implements OnInit {
     this.form = new FormGroup({
       password: new FormControl(null,Validators.required),
     });
+  }
+
+  ionViewDidEnter() {
+    setTimeout(()=>this.passinputid.setFocus(),10)
   }
 
   Loggin() {
@@ -49,17 +55,44 @@ export class AuthtorisationPage implements OnInit {
             this.router.navigateByUrl('home/halls');
           }, 10);
         } else {
-          this.toastController.create({message: 'авторизиция доступна в режиме разработки.',
-          duration:500,
-          color: 'danger'}).then(el=>el.present());
+          // this.toastController.create({message: 'авторизиция доступна в режиме разработки.',
+          // duration:500,
+          // color: 'danger'}).then(el=>el.present());
         }
-
+        return isDevMode
+      }),
+      filter(isDevMode=>!isDevMode),    
+      concatMap(() => {return this.onecConn.Login(this.password.value)}),
+      map(loginData=> {
+        if (!loginData.success) {
+          // here show error 
+        } 
         
-      })).subscribe()
+        this.store.dispatch(loggIn({UserName: this.password.value, UserToken : "TokenDemo" }));
+        setTimeout(() => {
+          this.router.navigateByUrl('home/halls');
+        }, 10);
+      })
+
+
+      ).subscribe()
 
   }
   
-  
+  OnInputFocus(event) {
+    event.target.getInputElement().then(el=>{
+      el.select()
+    });
+  }
+
+  OnPasswordLeave() {
+    this.passinputid.getInputElement().then(el=>{
+      el.blur()
+    });
+    
+    this.Loggin();
+  }
+
   LogginWithCard() {
 
     const scanoptions : BarcodeScannerOptions = {

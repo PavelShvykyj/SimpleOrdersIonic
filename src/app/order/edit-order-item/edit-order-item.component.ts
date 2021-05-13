@@ -1,7 +1,9 @@
+import { select } from '@ngrx/store';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { Orderitem } from 'src/app/home/halls/hall-state-store/hallstate.reducer';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 @Component({
   selector: 'edit-order-item',
@@ -12,14 +14,15 @@ export class EditOrderItemComponent implements OnInit {
   @Input('item')
   item : Partial<Orderitem>
 
+  minus: number = 1;
   form : FormGroup;
 
-  @ViewChild('inputId', {static: false}) ionInput: { setFocus: () => void; };
-  @ViewChild('commentinputId', {static: false}) commentinputId: { setFocus: () => void; };
+  @ViewChild('inputId', {static: false}) ionInput;
+  @ViewChild('commentinputId', {static: false}) commentinputId;
 
   
 
-  constructor(public modalController: ModalController,public toastController: ToastController ) { }
+  constructor(public modalController: ModalController,public toastController: ToastController,private keyboard: Keyboard ) { }
 
   ngOnInit(): void {
     this.form = new FormGroup({
@@ -35,11 +38,15 @@ export class EditOrderItemComponent implements OnInit {
   }
 
   ionViewDidEnter() {
-    setTimeout(()=>this.ionInput.setFocus(),10)
+    //setTimeout(()=>this.ionInput.setFocus(),10)
   }
 
   OnQuantityLeave() {
     setTimeout(()=>this.commentinputId.setFocus(),10)
+  }
+
+  OnCommentLeave() {
+    this.commentinputId.getInputElement().then(el=> el.blur());
   }
 
   Save() {
@@ -68,6 +75,23 @@ export class EditOrderItemComponent implements OnInit {
     });
   }
 
+  SetMinus() {
+    this.minus = this.minus*(-1);
+  }
 
+  OnAddClick(quontity:number) {
+    const val = this.form.get('quantity').value;
+    this.form.get('quantity').patchValue(Math.max(this.item.quantityprint, val+quontity*this.minus));
+  }
+
+  EnterNumber() {
+    setTimeout(()=>this.ionInput.setFocus(),10);
+  }
+
+  OnInputFocus(IonInput) {
+    IonInput.target.getInputElement().then(el=>{
+      el.select()
+    });
+  }
 
 }

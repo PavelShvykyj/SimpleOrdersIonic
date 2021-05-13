@@ -205,9 +205,11 @@ export class OrderPage implements OnInit {
     return CRC32.str(JSON.stringify(clearItems))
   }
 
-  inQueue(command: Queue, noControlSummCheck = false, changesFn ) {
+  inQueue(command: Queue, noControlSummCheck = false, changesFn, filterFn=undefined ) {
     let items = command.commandParametr.items; 
-    
+    if (filterFn===undefined) {
+      filterFn = (el)=> {return true};
+    }
     
 
     if (this.startControlsumm != this.GetControlSumm(items) || noControlSummCheck) {
@@ -221,7 +223,7 @@ export class OrderPage implements OnInit {
     
       /// отмечаем оптимистичные данные устанавливаем  версию и устройство 
       this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {...changesFn(el),version : this.version, gajet : this.setingsService.deviceID }}},
-      (el) => {return true},
+      filterFn,
       {editcanceled: true,
        isLocal : true 
       });
@@ -432,8 +434,15 @@ export class OrderPage implements OnInit {
       cash: dialogres.res
     }  
   
-    this.store.dispatch(inQueue({ data: el }));
+    const noControlSummCheck = true
 
+    this.inQueue(el,
+    noControlSummCheck,
+    (el: Orderitem) => {},
+    (el)=> {return false}
+    );
+    //this.store.dispatch(inQueue({ data: el }));
+    
 
 
     this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
@@ -475,13 +484,13 @@ export class OrderPage implements OnInit {
       tableid: this.table
     }
 
-    console.log('order id before',this.orderid)
+    
     if (this.orderid === undefined || this.orderid === "" || this.orderid === null) {
       this.orderid = uuidv4();
       kaskad.orderid = this.orderid
 
     }
-    console.log('order id after',this.orderid)
+    
     if (editingRow === undefined) {
       const rowid = uuidv4() as string;
       kaskad.rowid = rowid;

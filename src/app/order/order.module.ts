@@ -13,6 +13,7 @@ import { OrderpayComponent } from './orderpay/orderpay.component';
 import { OrderNavComponent } from './order-nav/order-nav.component';
 import { AnketaComponent } from './anketa/anketa.component';
 
+
 @NgModule({
   imports: [
     CommonModule,

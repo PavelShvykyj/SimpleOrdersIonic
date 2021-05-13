@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 @Component({
   selector: 'app-anketa',
@@ -8,10 +9,10 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class AnketaComponent implements OnInit {
   form: FormGroup;
-  @ViewChild('inputGuestsId', {static: false}) inputGuestsId: { setFocus: () => void; };
-  @ViewChild('inputFeedBackId', {static: false}) inputFeedBackId: { setFocus: () => void; };
+  @ViewChild('inputGuestsId', {static: false}) inputGuestsId;
+  @ViewChild('inputFeedBackId', {static: false}) inputFeedBackId;
   
-  constructor() { }
+  constructor(private keyboard: Keyboard) { }
 
   ngOnInit() {
     this.form = new FormGroup({
@@ -27,4 +28,15 @@ export class AnketaComponent implements OnInit {
   OnInputGuestsLeave() {
     setTimeout(()=>this.inputFeedBackId.setFocus(),10)
   }
+
+  OnInputFeedBackLeave() {
+    this.inputFeedBackId.getInputElement().then(el=> el.blur());
+  }
+
+  OnInputFocus(IonInput) {
+    IonInput.target.getInputElement().then(el=>{
+      el.select()
+    });
+  }
+
 }

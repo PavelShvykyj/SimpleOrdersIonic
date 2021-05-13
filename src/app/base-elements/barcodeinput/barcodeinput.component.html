@@ -1,6 +1,6 @@
 <ion-header>
     <ion-toolbar>
-      <ion-title>Scan code</ion-title>
+      <ion-title>Сканировать код</ion-title>
       <!-- <ion-buttons slot="start">
         <ion-back-button defaultHref="home"></ion-back-button>
       </ion-buttons> -->
@@ -17,7 +17,7 @@
           <ion-col size-sm="6" offset-sm="3">
             <ion-item>
               <ion-label position="stacked"> input code </ion-label>
-              <ion-input type="password"  formControlName="barcode" clear-input=true inputmode="decimal" required></ion-input>
+              <ion-input (ionFocus)=OnInputFocus($event) #inputCodeId (keyup.enter)="OninputCodeIdLeave()" type="password"  formControlName="barcode" clear-input=true inputmode="decimal" required></ion-input>
             </ion-item>
           </ion-col>
         </ion-row>
@@ -40,11 +40,12 @@
   </ion-content>
 
 <ion-footer>
-  <ion-button fill='solid' expand='block' color='tertiary'  (click)="Scan()"> Scan card</ion-button>
+  <ion-button fill='solid' expand='block' color='tertiary'  (click)="Scan()"> Сканировать код</ion-button>
   <ion-toolbar color='light'> 
     <ion-buttons slot="end">
-      <ion-button  color='primary' (click)="Save()"> Save</ion-button>
-      <ion-button  (click)="Cancel()"> Cancel</ion-button>
+      <ion-button  color='primary' (click)="Activate()"> Ввести код</ion-button>
+      <ion-button  color='primary' (click)="Save()"> Сохранить</ion-button>
+      <ion-button  (click)="Cancel()"> Отмена</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>

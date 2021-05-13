@@ -1,4 +1,4 @@
-import { Component, OnInit, Output } from '@angular/core';
+import { Component, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BarcodeScanner, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
 import { ModalController } from '@ionic/angular';
@@ -11,7 +11,7 @@ import { ModalController } from '@ionic/angular';
 export class BarcodeinputComponent implements OnInit {
 
   form : FormGroup;
-  
+  @ViewChild('inputCodeId', {static: false}) inputGuestsId;
 
 
   constructor(private barcodeScanner: BarcodeScanner,
@@ -49,10 +49,25 @@ export class BarcodeinputComponent implements OnInit {
     
   }
 
+
+  Activate() {
+    setTimeout(()=>this.inputGuestsId.setFocus(),10)
+  }
+
+  OninputCodeIdLeave() {
+    this.inputGuestsId.getInputElement().then(el=> el.blur());
+  }
+
+
   Save() {
     this.modalController.dismiss({data: this.barcode});
   }
 
+  OnInputFocus(IonInput) {
+    IonInput.target.getInputElement().then(el=>{
+      el.select()
+    });
+  }
 
   Cancel() {
     this.modalController.dismiss({
@@ -60,6 +75,7 @@ export class BarcodeinputComponent implements OnInit {
     });
   }
 
+  
   private get barcode()  {
     return this.form.get('barcode').value;
   }

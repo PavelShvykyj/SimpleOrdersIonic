@@ -13,7 +13,7 @@
         <ion-col size-sm="6" offset-sm="3">
           <ion-item>
             <ion-label position="stacked"> Получено от покупателя </ion-label>
-            <ion-input #cashinputId type="number" formControlName="cash" clear-input=true inputmode="decimal" required></ion-input>
+            <ion-input (ionFocus)=OnInputFocus($event) (keyup.enter)="OnSummInput()"  #cashinputId type="number" formControlName="cash" clear-input=true inputmode="decimal" required></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -35,7 +35,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-segment mode='ios' (ionChange)="OnPayTypeSelect($event)" value="cash">
+  <ion-segment  (ionChange)="OnPayTypeSelect($event)" value="cash">
     <ion-segment-button value="cash">
       <ion-label>Наличные</ion-label>
     </ion-segment-button>
@@ -46,8 +46,9 @@
 
   <ion-toolbar color='light'>
     <ion-buttons slot="end">
-      <ion-button color='primary' (click)="Save()"> Save </ion-button>
-      <ion-button (click)="Cancel()"> Cancel</ion-button>
+      <ion-button color='primary' (click)="ActivateSumm()"> Ввести сумму </ion-button>
+      <ion-button color='primary' (click)="Save()"> Сохранить </ion-button>
+      <ion-button (click)="Cancel()"> Отмена</ion-button>
     </ion-buttons>
   </ion-toolbar>
 

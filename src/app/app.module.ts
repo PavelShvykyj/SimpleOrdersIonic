@@ -22,6 +22,7 @@ import { HallStateStoreModule } from './home/halls/hall-state-store/hall-state-s
 import { MenuStoreModule } from './menu-store/menu-store.module';
 import { BaseElementsModule } from './base-elements/base-elements.module';
 import { HTTP } from '@ionic-native/http/ngx';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 
 @NgModule({
@@ -45,7 +46,7 @@ import { HTTP } from '@ionic-native/http/ngx';
             
             
           ],
-  providers: [HTTP, { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [HTTP, Keyboard, { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

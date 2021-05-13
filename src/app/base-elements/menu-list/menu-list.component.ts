@@ -1,3 +1,4 @@
+import { concatMap } from 'rxjs/operators';
 
 import { Menu } from './../../menu-store/menu-store.reducer';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
@@ -30,7 +31,7 @@ export class MenuListComponent implements OnInit {
   @Input('table')
   table : string = "";
 
-  @ViewChild('search') search : any;
+  @ViewChild('search') search ;
 
   constructor(private store: Store<State>, private detector : ChangeDetectorRef) { }
 
@@ -59,6 +60,10 @@ export class MenuListComponent implements OnInit {
   }
 
   OnLentaElementClicked(event) {
+    if (this.search.value.length != 0) {
+      this.OnSearhLeave();
+    } 
+    
     let id = "";
     if (event != undefined)  {
       id = event.id
@@ -68,6 +73,12 @@ export class MenuListComponent implements OnInit {
   }
 
   ElementClicked(item) {
+    
+    if (this.search.value.length != 0) {
+      this.OnSearhLeave();
+    } 
+    
+    
     if (item.isFolder) {
       //this.ds.GetList(item.id);
       
@@ -107,6 +118,16 @@ export class MenuListComponent implements OnInit {
     setTimeout(() => {
       this.search.setFocus();
     }, 50);
+  }
+
+  OnSearhLeave() {
+    this.search.value = '';
+    this.OnNameFilterInput('');
+    this.search.getInputElement().then(el=> {
+      
+      el.blur();
+    });
+
   }
 
 

@@ -11,7 +11,7 @@ export class OrderpayComponent implements OnInit {
   @Input('OrderSumm')
   OrderSumm : number
 
-  @ViewChild('cashinputId', {static: false}) cashinputId: { setFocus: () => void; };
+  @ViewChild('cashinputId', {static: false}) cashinputId ;
 
   form : FormGroup;
 
@@ -29,8 +29,8 @@ export class OrderpayComponent implements OnInit {
 
   
   ionViewDidEnter() {
-    setTimeout(()=>this.cashinputId.setFocus(),50);
-    setTimeout(()=>this.cashinputId.setFocus(),10);
+    // setTimeout(()=>this.cashinputId.setFocus(),50);
+    // setTimeout(()=>this.cashinputId.setFocus(),10);
   }
 
   OnPayTypeSelect(event) {
@@ -63,7 +63,20 @@ export class OrderpayComponent implements OnInit {
     });
   }
 
+  ActivateSumm() {
+    setTimeout(()=>this.cashinputId.setFocus(),10);
+  }
   
+  OnSummInput() {
+    this.cashinputId.getInputElement().then(el=> el.blur());
+  }
+
+  OnInputFocus(IonInput) {
+    IonInput.target.getInputElement().then(el=>{
+      el.select()
+    });
+  }
+
   public get cash() : number {
     return this.form.get('cash').value; 
   }

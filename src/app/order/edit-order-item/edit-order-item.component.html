@@ -1,6 +1,7 @@
 <ion-header>
   <ion-toolbar color='light'>
-    <ion-title class="text-smaller" slot="start"> {{ item.goodname }} {{item.price}} </ion-title>
+    <ion-title class="text-smaller" slot="start"> {{ item.goodname }} </ion-title>
+    <ion-title class="text-smaller" slot="end">   ц.{{item.price}}грн. </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -8,27 +9,60 @@
   <form [formGroup]="form">
     <ion-list>
       <ion-item>
-        <ion-label position="stacked"> input quantity </ion-label>
-        <ion-input (ionBlur)="OnQuantityLeave()" #inputId type="number" formControlName="quantity" clear-input=true inputmode="decimal"></ion-input>
+        <ion-label position="stacked"> Количество (в заказе {{this.item.quantity}} мин. {{this.item.quantityprint}} )  </ion-label>
+        <ion-input (ionFocus)=OnInputFocus($event) (keyup.enter)="OnQuantityLeave()" #inputId type="number" formControlName="quantity" clear-input=true inputmode="decimal"></ion-input>
       </ion-item>
     </ion-list>
 
     <ion-list>
       <ion-item>
-        <ion-label position="stacked"> input comment </ion-label>
-        <ion-input #commentinputId type="text" formControlName="comment" clear-input=true inputmode="text"></ion-input>
+        <ion-label position="stacked"> Коменнтарий </ion-label>
+        <ion-input (ionFocus)=OnInputFocus($event) (keyup.enter)="OnCommentLeave()" #commentinputId type="text" formControlName="comment" clear-input=true inputmode="text"></ion-input>
       </ion-item>
     </ion-list>
   </form>
+
+  <ion-grid>
+    <ion-row >
+      <ion-col >
+        <ion-button color='light' fill='solid' expand='block' (click)="OnAddClick(1)"> {{minus==-1 ? '-' : '+'}} 1 </ion-button>
+      </ion-col>
+      <ion-col  >
+        <ion-button color='light' fill='solid' expand='block' (click)="OnAddClick(2)"> {{minus==-1 ? '-' : '+'}} 2 </ion-button>
+      </ion-col>
+      <ion-col  >
+        <ion-button color='light' fill='solid' expand='block' (click)="OnAddClick(3)"> {{minus==-1 ? '-' : '+'}} 3 </ion-button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row >
+      <ion-col  >
+        <ion-button color='light' fill='solid' expand='block' (click)="OnAddClick(0.5)"> {{minus==-1 ? '-' : '+'}} 0.5 </ion-button>
+      </ion-col>
+      <ion-col  >
+        <ion-button color='light' fill='solid' expand='block' (click)="OnAddClick(50)"> {{minus==-1 ? '-' : '+'}} 50 </ion-button>
+      </ion-col  >
+      <ion-col  >
+        <ion-button color='light' fill='solid' expand='block' (click)="OnAddClick(100)"> {{minus==-1 ? '-' : '+'}} 100</ion-button>
+      </ion-col>
+    </ion-row>
+
+    
+    <ion-row>
+      <ion-col size="4"  > <ion-button color='medium' fill='solid' expand='block' (click)="SetMinus()"> +\- </ion-button></ion-col>
+      <ion-col size="8" ><ion-button color='medium' fill='solid' expand='block' (click)="EnterNumber()"> <small>Ввести количество</small></ion-button> </ion-col>
+    </ion-row>
+ 
+  </ion-grid>
+
+
 </ion-content>
 
 <ion-footer>
-
-
   <ion-toolbar color='light'>
     <ion-buttons slot="end">
-      <ion-button color='primary' (click)="Save()"> Save </ion-button>
-      <ion-button (click)="Cancel()"> Cancel</ion-button>
+      <ion-button color='primary' (click)="Save()"> Сохранить </ion-button>
+      <ion-button (click)="Cancel()"> Отменить</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>

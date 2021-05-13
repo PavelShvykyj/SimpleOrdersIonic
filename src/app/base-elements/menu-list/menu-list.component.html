@@ -1,6 +1,6 @@
 <!-- *ngFor="let menuitem of menuitems" -->
 <ion-header>
-  <ion-searchbar  #search show-clear-button='always' debounce="10" showCancelButton="focus" placeholder="search by name"
+  <ion-searchbar (keyup.enter)="OnSearhLeave()"  #search show-clear-button='always' debounce="10" showCancelButton="focus" placeholder="search by name"
     (ionInput)=OnNameFilterInput($event.target.value)>
   </ion-searchbar>
  
@@ -40,7 +40,7 @@
     <ion-buttons slot="end">
       <ion-button (click)="ActivateSearch()" class="mr-5" slot="icon-only"><ion-icon name="search-outline"></ion-icon></ion-button>
       <ion-nav-link router-direction='back'>
-        <ion-button>order</ion-button>
+        <ion-button>заказ</ion-button>
       </ion-nav-link>
     </ion-buttons>
   </ion-toolbar>

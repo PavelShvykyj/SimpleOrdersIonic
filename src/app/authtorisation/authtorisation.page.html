@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Authtorisation</ion-title>
+    <ion-title>Авторизация </ion-title>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
@@ -18,8 +18,8 @@
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
           <ion-item>
-            <ion-label position="stacked"> input password </ion-label>
-            <ion-input #passinputid type="password"  formControlName="password" clear-input=true inputmode="decimal" required></ion-input>
+            <ion-label position="stacked"> ввести пароль </ion-label>
+            <ion-input (ionFocus)=OnInputFocus($event) (keyup.enter)="OnPasswordLeave($event)" #passinputid type="password"  formControlName="password" clear-input=true inputmode="decimal" required></ion-input>
             
           </ion-item>
         </ion-col>
@@ -31,12 +31,12 @@
 </ion-content>
 
 <ion-footer>
-  <ion-button fill='solid' expand='block' color='tertiary'  (click)="LogginWithCard()"> Scan card</ion-button>
-  <ion-button fill='solid' expand='block' color='primary'  (click)="Loggin()"> Logg in</ion-button>
-  <ion-button fill='solid' expand='block' color='primary' routerLink="/home/block-app"> Cancel</ion-button>
+  <ion-button fill='solid' expand='block' color='tertiary'  (click)="LogginWithCard()"> Скан. карту доступа</ion-button>
   
   <ion-toolbar color='light'>
     <ion-buttons slot="end">
+      
+      <ion-button routerLink="/home/block-app"> Отмена</ion-button>
       <ion-button (click)="ActivatePass()"> Ввести пароль </ion-button>
     </ion-buttons>
   </ion-toolbar>

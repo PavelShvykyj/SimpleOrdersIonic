@@ -35,20 +35,20 @@ export class BlockAppPage implements OnInit {
 
   PrepareToExit() {
         this.toastController.create({
-          header: 'Do you want to exit ?',
+          header: 'Действительно закрыть  ?',
           position: 'middle',
           color: "medium",
           buttons: [
             {
               
               side: 'end',
-              text: 'yes',
+              text: 'да',
               role: 'confirm',
               handler: () => {
                 this.BeforeExit().subscribe(()=>App.exitApp())
               }
             }, {
-              text: 'no',
+              text: 'нет',
               role: 'cancel',
             }
           ]
