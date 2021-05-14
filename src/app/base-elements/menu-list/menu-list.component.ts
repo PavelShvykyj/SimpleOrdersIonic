@@ -1,12 +1,13 @@
-import { concatMap } from 'rxjs/operators';
+import { concatMap, map } from 'rxjs/operators';
 
 import { Menu } from './../../menu-store/menu-store.reducer';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { selectMemuByName, selectMemuByParent } from 'src/app/menu-store/menu-store.selectors';
 import { State } from 'src/app/reducers';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { CubToolbarComponent } from '../cub-toolbar/cub-toolbar.component';
+import { selectOrderItems } from 'src/app/home/halls/hall-state-store/hallstate.selectors';
 
 
 @Component({
@@ -24,12 +25,16 @@ export class MenuListComponent implements OnInit {
   @Output('MenuElementSelect')
   MenuElementSelect = new EventEmitter();
 
-  @Input('callBack')
+  
   callBack :  Function;
-  @Input('hallid')
+  GetOrderId : Function;
   hallid: string = "";  
-  @Input('table')
   table : string = "";
+
+  orderid : string;
+  items : {[key:string]:number} = {};
+  itemssubs : Subscription
+  intervalref
 
   @ViewChild('search') search ;
 
@@ -37,13 +42,37 @@ export class MenuListComponent implements OnInit {
 
   ngOnInit(): void {
     this.menuitems$ = this.store.pipe(select(selectMemuByParent,""));
+    this.OnOrderIdChange();
     //   ,tap((data)=>{
     //   this.menuitems = data;
     //   this.detector.detectChanges();
       
     // }));
     
-   
+    
+  }
+
+  ionViewDidLeave() {
+    this.itemssubs.unsubscribe();
+    if (this.intervalref) {
+      clearInterval(this.intervalref);
+    }
+
+  }
+
+  OnOrderIdChange() {
+    if (this.itemssubs) {
+      this.itemssubs.unsubscribe();
+    }
+    this.itemssubs = this.store.pipe(select(selectOrderItems, this.orderid),
+    map(orderitems => {
+      let items =  ({} as {[key:string]:number});
+      orderitems.forEach(el => {
+        items[el.goodid.trim()]=el.quantity;
+      })
+      return items
+    })).subscribe(res => {this.items=res}); 
+
   }
 
   OnNameFilterInput(event) {
@@ -88,6 +117,16 @@ export class MenuListComponent implements OnInit {
     } else {     
       this.MenuElementSelect.emit(item);
       this.callBack(item);
+      if (!this.orderid && !this.intervalref) {
+        this.intervalref = setInterval(()=>{
+          this.orderid= this.GetOrderId();
+          if (this.orderid) {
+            clearInterval(this.intervalref);
+            this.OnOrderIdChange();  
+          }  
+        },500)
+
+      }
     }
 
   }
@@ -119,6 +158,8 @@ export class MenuListComponent implements OnInit {
       this.search.setFocus();
     }, 50);
   }
+
+
 
   OnSearhLeave() {
     this.search.value = '';

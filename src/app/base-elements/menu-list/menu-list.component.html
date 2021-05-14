@@ -10,7 +10,7 @@
 
   
   <ng-container *ngIf="menuitems$ | async as menuitems">
-    <ion-virtual-scroll [items]="menuitems" approxItemHeight="50px">
+    <ion-virtual-scroll [items]="menuitems" approxItemHeight="70px">
 
   <!-- <ion-list class="w-100 pl-4 pr-4 py-0" *ngIf="menuitems$ | async as menuitems"> -->
     <ion-item class="w-100" slot="start" [color]="menuitem.isFolder ? 'light' : ''" button
@@ -18,13 +18,33 @@
       <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap">
 
         <ion-text>{{ menuitem.name }}</ion-text>
+        <p *ngIf="items[menuitem.id]">
+          
+            <ion-text class="text-smaller" color='success'>В заказе  <ion-text class="text-accent">{{items[menuitem.id]}} </ion-text> </ion-text>  
+         
+        </p>
+
       </ion-label>
-      <ion-note slot="end" *ngIf="!menuitem.isFolder" color="danger" class="ml">
+      
+      <ng-container *ngIf="!menuitem.isFolder">
+      
+        <!-- <ion-note *ngIf="items[menuitem.id]" color='dark'  slot="end" >
+          <ion-text class="text-accent">
+              <ion-text class="text-smaller" color='medium'>В заказе </ion-text>  {{items[menuitem.id]}}
+          </ion-text>
+        </ion-note>
+     -->
+      <ion-note slot="end"   class="ml">
         <ion-text>{{ menuitem.price }}</ion-text>
       </ion-note>
+     
+    </ng-container>
+
       <ion-note slot="start" *ngIf="menuitem.isFolder">
         <ion-icon name="folder"></ion-icon>
       </ion-note>
+    
+    
     </ion-item>
   <!-- </ion-list> -->
     </ion-virtual-scroll>

@@ -1,3 +1,4 @@
+
 import { Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
 import { concatMap,  map, take, tap,  first } from 'rxjs/operators';
@@ -9,8 +10,8 @@ import { Observable  } from 'rxjs';
 import { selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
-import { ActionSheetController, IonSlides, ModalController, NavController, ToastController } from '@ionic/angular';
-import { FormControl, FormGroup } from '@angular/forms';
+import { ActionSheetController,  ModalController, NavController, ToastController } from '@ionic/angular';
+
 import { Menu } from '../menu-store/menu-store.reducer';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
 import { orderactions } from '../global.enums';
@@ -50,14 +51,10 @@ export class OrderPage implements OnInit {
   startControlsumm : number;
   version: number;
   lastGajet : string;
-
   MenuComp = MenuListComponent;
   AnketaComp = AnketaComponent;
-  // @ViewChild('slider', { static: true })
-  // slider: IonSlides
-
-  MenuProps  
-
+  MenuProps : {[key:string]:any} = {};
+  @ViewChild('navlinkmenu', {static: false}) navlinkmenu ;
 
   actions = {
     header: 'order actions',
@@ -126,9 +123,11 @@ export class OrderPage implements OnInit {
         this.orderid = params.get('orderid');
         this.OnOrderidChages();
 
-        this.MenuProps = {callBack : this.OnMenuElementSelect.bind(this),
-          hallid: this.hallid,
-          table : this.table}
+        this.MenuProps.callBack = this.OnMenuElementSelect.bind(this);
+        this.MenuProps.GetOrderId =  this.GetOrderID.bind(this);
+        this.MenuProps.hallid = this.hallid;
+        this.MenuProps.orderid = this.orderid;  
+        this.MenuProps.table = this.table;
       }),
       concatMap(params => this.store.select(selectHallByid, params.get('hallid')))
     )
@@ -140,7 +139,15 @@ export class OrderPage implements OnInit {
     })
   }
 
-
+  trackByOrderitemFn(index, item: Orderitem ) {
+    return item.rowid
+  }
+  
+  GetOrderID() {
+    console.log("order", this.orderid);
+    return this.orderid;
+  }
+  
   GetOrderRowByMenuItem(menuitem: Menu): Observable<Orderitem | undefined> {
     return this.items$.pipe(
       map(items => {
@@ -180,7 +187,9 @@ export class OrderPage implements OnInit {
     return elQueue
   }
 
-  GetTotals(items) {
+  GetTotals(items:Array<Orderitem>) {
+    
+    
     if (items.length === 0) {
       //this.slider.slideTo(1);
       return { summ: 0, discountname: "", discountsumm: 0 }
@@ -193,6 +202,8 @@ export class OrderPage implements OnInit {
     items.forEach(el => { { if (!el.isCanceled) {
       summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm;
     }  } })
+
+    
 
     return { summ, discountname, discountsumm }
 
@@ -251,6 +262,28 @@ export class OrderPage implements OnInit {
     })
   }
 
+  AddQountity(q,item:Orderitem,event) {
+    event.stopPropagation();
+    const quantity = item.quantity+q;
+    if (quantity<item.quantityprint) {
+      return
+    }
+    
+    let data = {data: {
+      quantity: quantity,
+      comment: '',
+      price: item.price,
+      canseled: false
+    }}
+
+    this.OnEditRowDialogClosed(data, item);
+    
+  }
+
+  GoBack() {
+    this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
+  }
+
   ChangeRows(FnChange: Function , FnFilter : Function , params ) {
     /// если передали этот параметр то эти изменения на контрольную сумму влиять не должны
     /// поетому ставим признак пересчета стартовой т.е. приравниаем последние изменения к стартовым
@@ -302,34 +335,16 @@ export class OrderPage implements OnInit {
                                     }
                                     this.totals = this.GetTotals(items)
                                     }),
-                                    map(items => {return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )})
+                                    map(items => {return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )}),
+                                    tap(items => {if (items.length===0) {
+                                      
+                                      
+                                      
+                                      // setTimeout(()=>{this.navlinkmenu.el.click()},200); 
+                                    } })
                                     
                                     )
-    // this.totals$ = this.items$.pipe(map(items => {
-    //   if (items.length === 0) {
-    //     this.slider.slideTo(1);
-    //     return { summ: 0, discountname: "", discountsumm: 0 }
-    //   }
-
-    //   const discountname = items[0].dicountname;
-
-    //   let summ = 0;
-    //   let discountsumm = 0;
-    //   items.forEach(el => { { if (!el.isCanceled) {
-    //     summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm;
-    //   }  } })
-
-    //   return { summ, discountname, discountsumm }
-    // }))
-    
-    // const ids = [this.orderid];
-    // this.items$ = this.store.select(selectItemsInOrdersByID, { ids })
-    //   .pipe(concatMap(iio => {
-    //     if (iio[0] === undefined) {
-    //       return of([])
-    //     }
-    //     return this.store.select(selectItemsByID, { ids: iio[0].rowides })
-    //   }));
+  
 
   }
 
@@ -448,10 +463,6 @@ export class OrderPage implements OnInit {
     this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
   }
 
-  GoBack() {
-    this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
-  }
-
   OnDiscountDialogClosed(res) {
     const dialogres = res.data;
     
@@ -491,6 +502,7 @@ export class OrderPage implements OnInit {
     
     if (this.orderid === undefined || this.orderid === "" || this.orderid === null) {
       this.orderid = uuidv4();
+      
       kaskad.orderid = this.orderid
 
     }
@@ -557,8 +569,6 @@ export class OrderPage implements OnInit {
     }
 
   }
-
-
 
   OpenPayDialog() {
     //this.totals$.pipe(take(1)).subscribe(total => {

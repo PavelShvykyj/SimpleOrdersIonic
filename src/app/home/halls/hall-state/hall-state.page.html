@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color='light'>
     <ng-container *ngIf="hall$ | async as hall">
       <ion-title>{{hall.name}}</ion-title>
     </ng-container>
@@ -27,7 +27,7 @@
               [queryParams]="{'orderid': '', hallid: orderontable.hallid, tableid : orderontable.tableid}">
               <ion-card-header style="margin-top: 10px;">
                 <ion-card-title mode='md' class="ion-text-center ion-no-margin">стол {{orderontable.tableid}}</ion-card-title>
-                <ion-card-subtitle class="ion-text-center ion-no-margin"> Свободен
+                <ion-card-subtitle color='success' class="ion-text-center ion-no-margin"> Свободен
                 </ion-card-subtitle>
               </ion-card-header>
               <ion-card-content >
