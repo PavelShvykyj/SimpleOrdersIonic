@@ -61,8 +61,11 @@
 <ion-footer>
   <ion-toolbar color='light'>
     <ion-buttons slot="end">
-      <ion-button color='primary' (click)="Save()"> Сохранить </ion-button>
-      <ion-button (click)="Cancel()"> Отменить</ion-button>
+
+      
+      <ion-button  (click)="Cancel()" class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
+      <ion-button  (click)="Save()" class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
+
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>

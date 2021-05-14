@@ -40,7 +40,10 @@
     <ion-buttons slot="end">
       <ion-button (click)="ActivateSearch()" class="mr-5" slot="icon-only"><ion-icon name="search-outline"></ion-icon></ion-button>
       <ion-nav-link router-direction='back'>
-        <ion-button>заказ</ion-button>
+        <ion-button   class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
+      </ion-nav-link>
+      <ion-nav-link router-direction='back'>
+        <ion-button  (click)="Save()" class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
       </ion-nav-link>
     </ion-buttons>
   </ion-toolbar>

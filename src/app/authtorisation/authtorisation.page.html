@@ -1,6 +1,6 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Авторизация </ion-title>
+  <ion-toolbar color='light'>
+    <ion-title class='text-small'>Введите пароль или считайте карту </ion-title>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
@@ -18,8 +18,8 @@
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
           <ion-item>
-            <ion-label position="stacked"> ввести пароль </ion-label>
-            <ion-input (ionFocus)=OnInputFocus($event) (keyup.enter)="OnPasswordLeave($event)" #passinputid type="password"  formControlName="password" clear-input=true inputmode="decimal" required></ion-input>
+            <ion-label position="fixed">  пароль </ion-label>
+            <ion-input (ionBlur)="OnInputBlur()" (ionFocus)="OnInputFocus($event)" (keyup.enter)="OnPasswordLeave($event)" #passinputid type="password"  formControlName="password" clear-input=true inputmode="decimal" required></ion-input>
             
           </ion-item>
         </ion-col>
@@ -31,13 +31,14 @@
 </ion-content>
 
 <ion-footer>
-  <ion-button fill='solid' expand='block' color='tertiary'  (click)="LogginWithCard()"> Скан. карту доступа</ion-button>
+  <ion-button fill='solid' expand='block' color='tertiary'  (click)="LogginWithCard()"> Сканировать карту </ion-button>
   
   <ion-toolbar color='light'>
     <ion-buttons slot="end">
+      <ion-button *ngIf="!inFocus" (click)="ActivatePass()"> Ввести пароль </ion-button>
+      <ion-button class="text-accent" size='large' expand='block' color='danger' routerLink="/home/block-app"> <ion-icon name="close-outline"></ion-icon></ion-button>
+      <ion-button  (click)="Loggin()" class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
       
-      <ion-button routerLink="/home/block-app"> Отмена</ion-button>
-      <ion-button (click)="ActivatePass()"> Ввести пароль </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>

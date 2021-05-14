@@ -18,6 +18,7 @@ import { OnecConnectorService } from '../onec/onec.connector.service';
 export class AuthtorisationPage implements OnInit {
 
   form : FormGroup;
+  inFocus : boolean = false;
   @ViewChild('passinputid', {static: false}) passinputid;
 
   constructor(private store: Store<State>, 
@@ -37,10 +38,12 @@ export class AuthtorisationPage implements OnInit {
   }
 
   Loggin() {
-    
+    console.log('Loggin');
     if (!this.form.valid) {
-      this.toastController.create({message: 'не указан пароль',
-      duration:500,
+      this.toastController.create({
+      message: 'не указан пароль',
+      duration:3000,
+      position:'middle',
       color: 'danger'}).then(el=>el.present());
     return
     }
@@ -80,13 +83,19 @@ export class AuthtorisationPage implements OnInit {
   }
   
   OnInputFocus(event) {
+    this.inFocus = true;
     event.target.getInputElement().then(el=>{
       el.select()
     });
   }
 
+  OnInputBlur() {
+    this.inFocus = false;
+  }
+
   OnPasswordLeave() {
     this.passinputid.getInputElement().then(el=>{
+      this.inFocus = false;
       el.blur()
     });
     

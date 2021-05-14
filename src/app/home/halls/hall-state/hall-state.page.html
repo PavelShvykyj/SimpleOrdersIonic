@@ -21,44 +21,40 @@
         <ion-row *virtualItem="let item">
 
           <ion-col *ngFor="let orderontable of item" size=4>
-            <ion-card mode='ios' *ngIf="orderontable.orders.length == 0" button  type="button" class="ion-no-padding ion-no-margin "
+            <ion-card  *ngIf="orderontable.orders.length == 0" button type="button" class="ion-no-padding ion-no-margin "
+            
               routerLink="/order"
               [queryParams]="{'orderid': '', hallid: orderontable.hallid, tableid : orderontable.tableid}">
-              <ion-card-header>
-                <ion-card-title mode='md' class="ion-text-center">стол {{orderontable.tableid}}</ion-card-title>
-                <ion-card-subtitle class="ion-text-center ion-no-margin"> ---
+              <ion-card-header style="margin-top: 10px;">
+                <ion-card-title mode='md' class="ion-text-center ion-no-margin">стол {{orderontable.tableid}}</ion-card-title>
+                <ion-card-subtitle class="ion-text-center ion-no-margin"> Свободен
                 </ion-card-subtitle>
               </ion-card-header>
-              <ion-card-content class="ion-text-center">
-                <p> Новый заказ </p>
+              <ion-card-content >
+                <ion-item color="light"></ion-item>
               </ion-card-content>
             </ion-card>
 
 
-            <ion-card mode='ios'  *ngIf="orderontable.orders.length != 0"  class="ion-no-padding ion-no-margin ">
+            <ion-card  (click)="select.el.click(); $event.stopPropagation()"  *ngIf="orderontable.orders.length != 0" button type="button" class="ion-no-padding ion-no-margin ">
               <ion-card-header>
-                <ion-card-title mode='md' class="ion-text-center">стол {{orderontable.tableid}}</ion-card-title>
-                <ion-card-subtitle mode='md' class="ion-text-center ion-no-margin"> Всего {{ orderontable.orders.length + 1}} </ion-card-subtitle>
+                <ion-card-title mode='md' class="ion-text-center ion-no-margin">стол {{orderontable.tableid}}</ion-card-title>
+                <ion-card-subtitle mode='md' class="ion-text-center ion-no-margin"> Заказов {{ orderontable.orders.length}} </ion-card-subtitle>
               </ion-card-header> 
               <ion-card-content>
               <ion-item color="light">
-                <ion-label  class="text-small ion-text-center fool-width pr-5" > Выбрать </ion-label>
+                <ion-label  class="text-small ion-text-center fool-width pr-5" >  </ion-label>
                 <ion-select  #select
-                           
+                           hidden=true
                            (ionChange)="OnOrderSelected(orderontable , select)"
                            [compareWith]="OrderCompare"
+                           [interfaceOptions]="GetInterfaceOpt(orderontable.tableid)"
                            okText="OK"
-                           cancelText="Cancel"
-                           interface="alert"
+                           cancelText="Отмена"
+                           interface="action-sheet"
                            multiple="false" >
-                  <ion-select-option class="ion-text-wrap" *ngFor="let order of orderontable.orders"  [value]="order">
-                    
-                    <small>{{ order.orderheader.waitername }} \ поз. {{ order.orderheader.quantity }} \ сум. {{ order.orderheader.summ }}</small>
-                    
-                    
-                    
-                    
-                    
+                  <ion-select-option class="ion-text-wrap text-small" *ngFor="let order of orderontable.orders"  [value]="order">
+                    оф. <ion-text>{{ order.orderheader.waitername }}</ion-text>  /  поз. {{ order.orderheader.quantity }}  /  сум. {{ order.orderheader.summ }}
                   </ion-select-option>
                   <ion-select-option value="{orderid : ''}">  Новый заказ </ion-select-option>
                 </ion-select>

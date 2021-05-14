@@ -33,9 +33,12 @@
   <ion-toolbar color='light'>
     
     <ion-buttons slot="end">
-      <ion-button  color='primary'> Сохранить </ion-button>
       <ion-nav-link router-direction='back'>
-        <ion-button>заказ</ion-button>
+        <ion-button   class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
+      </ion-nav-link>
+      <!-- заменить переход на сохранить и переход -->
+      <ion-nav-link router-direction='back'>
+      <ion-button   class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
       </ion-nav-link>
     </ion-buttons>
   </ion-toolbar>

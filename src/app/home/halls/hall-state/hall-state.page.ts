@@ -104,7 +104,12 @@ export class HallStatePage implements OnInit {
       );
     });
   }
+  GetInterfaceOpt(tableid) {
+    return {
+      header: `Заказы на столе ${tableid}`
 
-  
+    }
+  }
+
 
 }

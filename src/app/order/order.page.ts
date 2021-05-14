@@ -448,6 +448,10 @@ export class OrderPage implements OnInit {
     this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
   }
 
+  GoBack() {
+    this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
+  }
+
   OnDiscountDialogClosed(res) {
     const dialogres = res.data;
     

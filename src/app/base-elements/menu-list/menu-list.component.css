@@ -27,6 +27,11 @@ ion-list {
     padding-right: 5px;
 }
 
+.text-accent {
+    font-size: larger;
+    font-weight: bolder;
+}
+
 
 
 .pl-4 {

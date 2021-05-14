@@ -170,6 +170,10 @@
       <ion-nav-link [component]="MenuComp" router-direction='forward' [componentProps]="MenuProps">
         <ion-button>меню</ion-button>
       </ion-nav-link>
+
+      <ion-button  (click)="GoBack()" class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
+      <ion-button  (click)="OnOrderActionClick('Печать'); GoBack()" class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
+ 
     </ion-buttons>
   </ion-toolbar>
 
