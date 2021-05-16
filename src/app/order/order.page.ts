@@ -143,6 +143,7 @@ export class OrderPage implements OnInit, OnDestroy {
 
         this.MenuProps.callBack = this.OnMenuElementSelect.bind(this);
         this.MenuProps.GetOrderId =  this.GetOrderID.bind(this);
+        this.MenuProps.AddQountityFromMenu =  this.AddQountityFromMenu.bind(this);
         this.MenuProps.hallid = this.hallid;
         this.MenuProps.orderid = this.orderid;  
         this.MenuProps.table = this.table;
@@ -280,8 +281,32 @@ export class OrderPage implements OnInit, OnDestroy {
     })
   }
 
+  AddQountityFromMenu(q,menuitem:Menu, event) {
+    this.GetOrderRowByMenuItem(menuitem)
+    .subscribe(editingRow => {
+      
+      if (editingRow) {
+        this.AddQountity(q,editingRow,event)
+      } else {
+        let data = {data: {
+          quantity: q,
+          comment: '',
+          price: menuitem.price,
+          canseled: false,
+          goodid: menuitem.id,
+          goodname: menuitem.name
+        }}
+    
+        this.OnEditRowDialogClosed(data, editingRow);
+      }
+     
+      
+    })
+  }  
+
   AddQountity(q,item:Orderitem,event) {
     event.stopPropagation();
+    
     const quantity = item.quantity+q;
     if (quantity<item.quantityprint) {
       return
@@ -291,7 +316,7 @@ export class OrderPage implements OnInit, OnDestroy {
       quantity: quantity,
       comment: '',
       price: item.price,
-      canseled: false
+      canseled: false,
     }}
 
     this.OnEditRowDialogClosed(data, item);
@@ -641,5 +666,7 @@ export class OrderPage implements OnInit, OnDestroy {
 
   }
   
-  
+  itemHeightFn(tem, index) {
+    return 80;
+  }
 }

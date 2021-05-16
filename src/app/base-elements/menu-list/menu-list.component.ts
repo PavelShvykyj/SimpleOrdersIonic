@@ -28,6 +28,7 @@ export class MenuListComponent implements OnInit {
   
   callBack :  Function;
   GetOrderId : Function;
+  AddQountityFromMenu : Function;
   hallid: string = "";  
   table : string = "";
 
@@ -124,17 +125,21 @@ export class MenuListComponent implements OnInit {
       
     } else {     
       this.callBack(item);
-      if (!this.orderid && !this.intervalref) {
-        this.intervalref = setInterval(()=>{
-          this.orderid= this.GetOrderId();
-          if (this.orderid) {
-            clearInterval(this.intervalref);
-            this.OnOrderIdChange();  
-          }  
-        },500)
-      }
+      this.checkOrderidChange();
     }
 
+  }
+
+  checkOrderidChange() {
+  if (!this.orderid && !this.intervalref) {
+    this.intervalref = setInterval(()=>{
+      this.orderid= this.GetOrderId();
+      if (this.orderid) {
+        clearInterval(this.intervalref);
+        this.OnOrderIdChange();  
+      }  
+    },500)
+  }
   }
 
   OnToolbarCommandClicked(event) {
@@ -198,6 +203,23 @@ export class MenuListComponent implements OnInit {
 
   trackByFn(index,item:Menu) {
     return item.id;
+  }
+
+  AddQountity(q:number,menuitem:Menu,event) {
+    event.stopPropagation();
+    
+
+    const orderitem = this.items[menuitem.id];
+    this.AddQountityFromMenu(q,menuitem,event);
+    this.checkOrderidChange();
+
+    // if (orderitem) {
+    //   this.AddQountityFromMenu(q,menuitem,event)
+    // } else {
+    //   if (q>0) {
+    //     this.ElementClicked(menuitem);  
+    //   }
+    // }
   }
 
 }

@@ -29,7 +29,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content>
   <!-- <ion-fab vertical="center" horizontal="end"  slot="fixed">
    
     <ion-fab-button color='medium' class="fab"><ion-icon name="search-outline" ></ion-icon> </ion-fab-button>
@@ -37,9 +37,11 @@
     <ion-fab-button color='medium' class="fab"><ion-icon name="home-outline" ></ion-icon> </ion-fab-button>
 
   </ion-fab> -->
-
-  <ion-list *ngIf="items$ | async as items">
-    <ion-item button *ngFor="let item of items; trackBy:trackByOrderitemFn"  [disabled]="item.isCanceled">
+  <ng-container *ngIf="items$ | async as items">
+  <ion-list >
+    <ion-virtual-scroll [items]="items" approxItemHeight="70px" [trackBy]="trackByOrderitemFn" [itemHeight]="itemHeightFn">
+      <!-- *ngFor="let item of items; trackBy:trackByOrderitemFn" -->
+      <ion-item button *virtualItem="let item"   [disabled]="item.isCanceled">
       <ion-label button appDebounceClick (debounceClick)=OpenEditRowDialog(item) class="ion-text-wrap">
         
         <p>{{item.quantityprint}} {{item.goodname}} </p>
@@ -76,9 +78,10 @@
       <ion-checkbox class="ml-10" disabled=false #el [checked]="item.isSelected == undefined ? false : item.isSelected"
         (ionChange)=OnItemSelected(item,el.checked) slot="end"></ion-checkbox>
 
-    </ion-item>
+      </ion-item>
+    </ion-virtual-scroll>
   </ion-list>
-
+  </ng-container> 
 
  
 
@@ -106,7 +109,8 @@
       
       <!-- <ion-button color='primary' (click)="ShowActions()"> Действия </ion-button> -->
 
-      <ion-fab-button (click)="ShowActions()"   color='primary' class="fab rotate-180"><ion-icon name="keypad-outline"></ion-icon> </ion-fab-button>
+      <!-- <ion-fab-button (click)="ShowActions()"   color='primary' class="fab rotate-180"><ion-icon name="keypad-outline"></ion-icon> </ion-fab-button> -->
+      <ion-button  (click)="ShowActions()" class="text-accent rotate-180" size='large' expand='block' color='primary' > <ion-icon name="keypad-outline"></ion-icon></ion-button>
       <ion-button  (click)=" GoBack()" class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
       <ion-button  (click)="OnOrderActionClick('Печать'); GoBack()" class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
  

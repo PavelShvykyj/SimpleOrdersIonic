@@ -21,22 +21,24 @@
   </ion-fab>
   
   <ng-container *ngIf="menuitems$ | async as menuitems">
-    <ion-virtual-scroll [items]="menuitems" approxItemHeight="70px" trackByFn>
+    <ion-virtual-scroll [items]="menuitems" approxItemHeight="70px" [trackBy]="trackByFn">
 
   
     <ion-item class="w-100" slot="start"  button
       *virtualItem="let menuitem" appDebounceClick (debounceClick)="ElementClicked(menuitem)" [disabled]="menuitem.isBlocked">
       <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap">
 
-        <ion-text>{{ menuitem.name }}</ion-text>
-        <p *ngIf="items[menuitem.id]">
+        <ion-text class="text-smaller">{{ menuitem.name }}</ion-text>
+        
           
-            <ion-text class="text-smaller" color='success'>В заказе  <ion-text class="text-accent">{{items[menuitem.id]}} </ion-text> </ion-text>  
+            <ion-text *ngIf="items[menuitem.id]" class="pl-4 text-smaller" color='success'>В заказе  <ion-text class="text-accent">{{items[menuitem.id]}} </ion-text> </ion-text>  
          
-        </p>
+        
 
       </ion-label>
       
+
+
       <ng-container *ngIf="!menuitem.isFolder">
       
         <!-- <ion-note *ngIf="items[menuitem.id]" color='dark'  slot="end" >
@@ -45,7 +47,17 @@
           </ion-text>
         </ion-note>
      -->
-      <ion-note slot="end" color='dark'  class="ml">
+     <ion-note class="ml-0" slot="end" >
+      
+        <ion-buttons>
+          <ion-button debounceTime = 50 appDebounceClick (debounceClick)=AddQountity(1,menuitem,$event) size='small' slot='icon-only'> <ion-icon name="add-circle-outline"></ion-icon></ion-button>
+          
+          <ion-button debounceTime = 50 appDebounceClick (debounceClick)=AddQountity(-1,menuitem,$event) size='small' slot='icon-only'> <ion-icon name="remove-circle-outline"></ion-icon></ion-button>
+        </ion-buttons>  
+      
+    </ion-note> 
+     
+     <ion-note slot="end" color='dark'  class="ml">
         <ion-text>{{ menuitem.price }}</ion-text>
       </ion-note>
      
@@ -74,7 +86,7 @@
         <ion-button   class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
       </ion-nav-link>
       <ion-nav-link router-direction='back'>
-        <ion-button  (click)="Save()" class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
+        <ion-button   class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
       </ion-nav-link>
     </ion-buttons>
   </ion-toolbar>
