@@ -1,20 +1,31 @@
 <!-- *ngFor="let menuitem of menuitems" -->
 <ion-header>
-  <ion-searchbar (keyup.enter)="OnSearhLeave()"  #search show-clear-button='always' debounce="10" showCancelButton="focus" placeholder="search by name"
+  <ion-toolbar color='light'>
+    <ion-title slot="start"><ion-text class="text-smaller">Меню</ion-text> </ion-title>
+    <ion-title slot="end"> <ion-text class="text-accent-smaller">{{parentName}}</ion-text> </ion-title>
+  </ion-toolbar>
+  
+  <ion-searchbar (keyup.enter)="OnSearhLeave()"  #search show-clear-button='always' debounce="10" showCancelButton="focus" placeholder="введите часть имени для поиска"
     (ionInput)=OnNameFilterInput($event.target.value)>
   </ion-searchbar>
  
 </ion-header>
 
 <ion-content>
+  <ion-fab vertical="center" horizontal="end"  slot="fixed">
+   
+    <ion-fab-button color='medium' class="fab" (click)="ActivateSearch()"><ion-icon name="search-outline" ></ion-icon> </ion-fab-button>
+    <ion-fab-button color='medium' class="fab" (click)="OnBackClick()"><ion-icon name="chevron-back-outline" ></ion-icon> </ion-fab-button>
+    <ion-fab-button color='medium' class="fab" (click)="OnHomeClick()"><ion-icon name="home-outline" ></ion-icon> </ion-fab-button>
 
+  </ion-fab>
   
   <ng-container *ngIf="menuitems$ | async as menuitems">
-    <ion-virtual-scroll [items]="menuitems" approxItemHeight="70px">
+    <ion-virtual-scroll [items]="menuitems" approxItemHeight="70px" trackByFn>
 
-  <!-- <ion-list class="w-100 pl-4 pr-4 py-0" *ngIf="menuitems$ | async as menuitems"> -->
-    <ion-item class="w-100" slot="start" [color]="menuitem.isFolder ? 'light' : ''" button
-      *virtualItem="let menuitem" (click)="ElementClicked(menuitem)" [disabled]="menuitem.isBlocked">
+  
+    <ion-item class="w-100" slot="start"  button
+      *virtualItem="let menuitem" appDebounceClick (debounceClick)="ElementClicked(menuitem)" [disabled]="menuitem.isBlocked">
       <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap">
 
         <ion-text>{{ menuitem.name }}</ion-text>
@@ -34,13 +45,13 @@
           </ion-text>
         </ion-note>
      -->
-      <ion-note slot="end"   class="ml">
+      <ion-note slot="end" color='dark'  class="ml">
         <ion-text>{{ menuitem.price }}</ion-text>
       </ion-note>
      
     </ng-container>
 
-      <ion-note slot="start" *ngIf="menuitem.isFolder">
+      <ion-note class="text-accent" color='medium' slot="start" *ngIf="menuitem.isFolder">
         <ion-icon name="folder"></ion-icon>
       </ion-note>
     
@@ -52,7 +63,7 @@
 </ion-content>
 
 <ion-footer>
-  <cub-toolbar class="w-100 " (OnElementClicked)="OnLentaElementClicked($event)"
+  <cub-toolbar hidden="true" class="w-100 " (OnElementClicked)="OnLentaElementClicked($event)"
     (OnToolbarCommandClicked)="OnToolbarCommandClicked($event)">
   </cub-toolbar>
   

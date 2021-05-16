@@ -24,7 +24,8 @@ export interface ITolbarCommandsList {
 })
 export class CubToolbarComponent implements OnInit {
 
-  lenta: ILentaElement[] = [];
+  public lenta: ILentaElement[] = [];
+  
   
   @Input('toolbarcommands') toolbarcommands: ITolbarCommandsList[]=[];
 
@@ -62,12 +63,12 @@ export class CubToolbarComponent implements OnInit {
         ...item
       }
       this.lenta[this.lenta.length-1].last = false;
-      this.lenta.unshift(newElemnt);
+      this.lenta.push(newElemnt);
     }
     
   }
 
-  ElementClicked(item: ILentaElement | undefined) {
+  public ElementClicked(item: ILentaElement | undefined) {
     if(item == undefined) {
       this.lenta = [];
     } else {
@@ -101,5 +102,11 @@ export class CubToolbarComponent implements OnInit {
       return 4
     }
   }
+
+  
+  public get currenName() : string {
+    return this.lenta.length === 0 ? "" : this.lenta[this.lenta.length-1].name;
+  }
+  
 
 }

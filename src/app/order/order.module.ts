@@ -12,10 +12,14 @@ import { EditOrderItemComponent } from './edit-order-item/edit-order-item.compon
 import { OrderpayComponent } from './orderpay/orderpay.component';
 import { OrderNavComponent } from './order-nav/order-nav.component';
 import { AnketaComponent } from './anketa/anketa.component';
+import { GlobalDirectivesModule } from '../global-directives/global-directives.module';
+
+
 
 
 @NgModule({
   imports: [
+    GlobalDirectivesModule,
     CommonModule,
     FormsModule,
     IonicModule,
@@ -23,6 +27,6 @@ import { AnketaComponent } from './anketa/anketa.component';
     OrderPageRoutingModule,
     BaseElementsModule
   ],
-  declarations: [OrderPage, EditOrderItemComponent, OrderpayComponent, OrderNavComponent, AnketaComponent]
+  declarations: [ OrderPage, EditOrderItemComponent, OrderpayComponent, OrderNavComponent, AnketaComponent]
 })
 export class OrderPageModule {}

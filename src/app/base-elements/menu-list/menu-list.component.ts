@@ -1,9 +1,9 @@
-import { concatMap, map } from 'rxjs/operators';
+import { concatMap, map, take } from 'rxjs/operators';
 
 import { Menu } from './../../menu-store/menu-store.reducer';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { selectMemuByName, selectMemuByParent } from 'src/app/menu-store/menu-store.selectors';
+import { selectMemuByid, selectMemuByName, selectMemuByParent } from 'src/app/menu-store/menu-store.selectors';
 import { State } from 'src/app/reducers';
 import { Observable, Subscription } from 'rxjs';
 import { CubToolbarComponent } from '../cub-toolbar/cub-toolbar.component';
@@ -18,7 +18,7 @@ import { selectOrderItems } from 'src/app/home/halls/hall-state-store/hallstate.
 export class MenuListComponent implements OnInit {
 
   menuitems$ : Observable<Array<Menu>>
-  menuitems: Array<Menu> = []
+  //menuitems: Array<Menu> = []
   @ViewChild(CubToolbarComponent, { static: false })
   toolbar: CubToolbarComponent;
 
@@ -79,7 +79,7 @@ export class MenuListComponent implements OnInit {
     
     if (event.length == 0) {
       
-      this.menuitems$ = this.store.pipe(select(selectMemuByParent,  this.GetCurrentParentID() ));
+      this.menuitems$ = this.store.pipe(select(selectMemuByParent,  this.currentParentID ));
     } else {
       // заменям пробелы \s* на любое количество любых сиволов (".*")
       const reg = ".*"+event.trim().toUpperCase().replace(/\s+/g, ".*")+".*";
@@ -88,6 +88,7 @@ export class MenuListComponent implements OnInit {
 
   }
 
+  // depricatesd
   OnLentaElementClicked(event) {
     if (this.search.value.length != 0) {
       this.OnSearhLeave();
@@ -101,21 +102,27 @@ export class MenuListComponent implements OnInit {
     this.menuitems$ = this.store.pipe(select(selectMemuByParent,id))
   }
 
-  ElementClicked(item) {
-    
+  OnHomeClick() {
+    this.OnSearhLeave();
+    this.toolbar.ElementClicked(undefined);
+  }
+
+  ElementClicked(item:Menu) {
     if (this.search.value.length != 0) {
       this.OnSearhLeave();
+      if(!item.isFolder && item.parentid != this.currentParentID) {
+        this.store.pipe(select(selectMemuByid,item.parentid),take(1)).subscribe(el=>{
+          this.ElementClicked(el);
+        })  
+      }
     } 
     
-    
     if (item.isFolder) {
-      //this.ds.GetList(item.id);
       
       this.menuitems$ = this.store.pipe(select(selectMemuByParent,item.id))
       this.toolbar.AddElement(item);
       
     } else {     
-      this.MenuElementSelect.emit(item);
       this.callBack(item);
       if (!this.orderid && !this.intervalref) {
         this.intervalref = setInterval(()=>{
@@ -125,7 +132,6 @@ export class MenuListComponent implements OnInit {
             this.OnOrderIdChange();  
           }  
         },500)
-
       }
     }
 
@@ -135,31 +141,16 @@ export class MenuListComponent implements OnInit {
 
   }
 
-  GetCurrentParentID(): string | undefined {
-    const parent = this.GetCurrentParent();
-    if (parent == undefined) {
-      return ""
-    } else {
-      return parent.id
+  OnBackClick() {
+    this.OnSearhLeave();
+    if (this.toolbar) {
+      if (this.toolbar.lenta.length!=0) {
+        this.toolbar.lenta.splice(this.toolbar.lenta.length-1);
+        this.toolbar.ElementClicked(this.toolbar.lenta[0]);
+      } 
+
     }
   }
-
-  GetCurrentParent(): Menu | undefined {
-    let parent: Menu = undefined;
-    if (this.toolbar.lenta.length != 0) {
-      parent = this.toolbar.lenta[this.toolbar.lenta.length - 1];
-    }
-    return parent;
-
-  }
-
-  ActivateSearch() {
-    setTimeout(() => {
-      this.search.setFocus();
-    }, 50);
-  }
-
-
 
   OnSearhLeave() {
     this.search.value = '';
@@ -171,5 +162,42 @@ export class MenuListComponent implements OnInit {
 
   }
 
+  public get currentParentID(): string | undefined {
+    const parent = this.currentParent;
+    if (parent == undefined) {
+      return ""
+    } else {
+      return parent.id
+    }
+  }
+
+ 
+
+  public get currentParent(): Menu | undefined {
+    let parent: Menu = undefined;
+    if (this.toolbar.lenta.length != 0) {
+      parent = this.toolbar.lenta[this.toolbar.lenta.length - 1];
+    }
+    return parent;
+
+  }
+  
+  public get parentName() : string {
+    if (this.toolbar ) {
+      return this.toolbar.currenName;
+    }
+   
+    return "";
+  }
+  
+  ActivateSearch() {
+    setTimeout(() => {
+      this.search.setFocus();
+    }, 50);
+  }
+
+  trackByFn(index,item:Menu) {
+    return item.id;
+  }
 
 }

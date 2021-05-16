@@ -1,12 +1,12 @@
 
 import { Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
-import { concatMap,  map, take, tap,  first } from 'rxjs/operators';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { concatMap, map, take, tap, first, filter, debounceTime, share } from 'rxjs/operators';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { State } from 'src/app/reducers';
-import { Observable  } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
@@ -38,10 +38,11 @@ import { AnketaComponent } from './anketa/anketa.component';
   templateUrl: './order.page.html',
   styleUrls: ['./order.page.scss'],
 })
-export class OrderPage implements OnInit {
+export class OrderPage implements OnInit, OnDestroy {
 
   items$: Observable<Array<Orderitem>>;
   hall$: Observable<Hall>;
+  itemssubs : Subscription;
   hallid: string;
   table: string;
   orderid: string;
@@ -49,6 +50,8 @@ export class OrderPage implements OnInit {
   
   totals;
   startControlsumm : number;
+  currentControlsumm : number;
+
   version: number;
   lastGajet : string;
   MenuComp = MenuListComponent;
@@ -57,13 +60,16 @@ export class OrderPage implements OnInit {
   @ViewChild('navlinkmenu', {static: false}) navlinkmenu ;
 
   actions = {
-    header: 'order actions',
+    header: 'Выбрать действие :',
 
-    buttons: [{
-      text: 'СОХРАНИТЬ',
+    buttons: [
+    {
+      text: 'ЗАКРЫТЬ ЭТО МЕНЮ',
       handler:
-        () => { this.OnOrderActionClick(orderactions.SAVE) }
-    }, {
+        () => { this.OnOrderActionClick("ЗАКРЫТЬ ЭТО МЕНЮ") }
+    }, 
+    
+    {
       text: 'ПЕЧАТЬ',
 
       handler: () => { this.OnOrderActionClick(orderactions.PRINT) }
@@ -87,7 +93,9 @@ export class OrderPage implements OnInit {
     }, {
       text: 'ОПЛАТА',
       handler: () => { this.OnOrderActionClick(orderactions.PAY) }
-    }]
+    }
+    
+  ]
   }
 
   constructor(private route: ActivatedRoute,
@@ -103,7 +111,12 @@ export class OrderPage implements OnInit {
   
 
   ionViewWillLeave() {
-    this.OnOrderActionClick(orderactions.SAVE);
+    
+    if (this.currentControlsumm != this.startControlsumm) {
+      
+      this.OnOrderActionClick(orderactions.SAVE);  
+    }
+    
   } 
  
   ionViewWillEnter() {
@@ -111,6 +124,10 @@ export class OrderPage implements OnInit {
 
   ngOnInit() {
     this.init();
+  }
+
+  ngOnDestroy() {
+    this.itemssubs.unsubscribe();
   }
 
   init() {
@@ -121,6 +138,7 @@ export class OrderPage implements OnInit {
         this.hallid = params.get('hallid');
         this.table = params.get('tableid');
         this.orderid = params.get('orderid');
+        
         this.OnOrderidChages();
 
         this.MenuProps.callBack = this.OnMenuElementSelect.bind(this);
@@ -144,7 +162,7 @@ export class OrderPage implements OnInit {
   }
   
   GetOrderID() {
-    console.log("order", this.orderid);
+    
     return this.orderid;
   }
   
@@ -324,34 +342,55 @@ export class OrderPage implements OnInit {
   }
 
   OnOrderidChages() {
-    
+    this.MenuProps.orderid = this.orderid;  
     this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
-                                  tap(items => {
-                                    this.version = items.length === 0 ? 0 : items[0].version;
-                                    this.lastGajet = items.length === 0 ? "" : items[0].gajet;
-                                    const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate)!=undefined; 
-                                    if (!noControlSummCalculate) {
-                                      this.startControlsumm = this.GetControlSumm(items);
-                                    }
-                                    this.totals = this.GetTotals(items)
-                                    }),
-                                    map(items => {return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )}),
-                                    tap(items => {if (items.length===0) {
-                                      
-                                      
-                                      
-                                      // setTimeout(()=>{this.navlinkmenu.el.click()},200); 
-                                    } })
+
+                                    map(items => {console.log('selectOrderItems'); return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )}),
                                     
-                                    )
+                                    
+                                    
+                                    );
+                                  
+
+  this.items$.pipe(
+    take(1),
+    filter(items=>{return items.length===0})
+    ).subscribe(() => {
+      
+      setTimeout(() => {
+        this.navlinkmenu.el.click();
+      }, 500);
+        
+      
+    });
+
+  this.itemssubs = this.items$.subscribe(items=> {
+    
+    this.version = items.length === 0 ? 0 : items[0].version;
+    this.lastGajet = items.length === 0 ? "" : items[0].gajet;
+    const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate)!=undefined; 
+    this.currentControlsumm = this.GetControlSumm(items);
+    if (!noControlSummCalculate) {
+      this.startControlsumm = this.currentControlsumm;
+    }
+    this.totals = this.GetTotals(items)
+  });  
+
+
+                                        
   
 
   }
 
-  OnOrderActionClick(command: orderactions) {
+  OnOrderActionClick(command: string ) {
     this.items$.pipe(take(1)).subscribe(
       items => {
+        
         switch (command) {
+          
+          case "ЗАКРЫТЬ ЭТО МЕНЮ":
+            return;
+          
           case orderactions.FISKAL:
             /// простоую отметку на 1С не гоняем
             this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isexcise: el.isSelected, isSelected:false, isChanged : !!el.isexcise != !!el.isSelected }}},
@@ -560,6 +599,7 @@ export class OrderPage implements OnInit {
 
     
     if (kaskad.orderid) {
+      
       this.OnOrderidChages();
       ///  мы перечитали заказ с первой добавленной строкой 
       ///  фактически создали новый ордер ид - ноцжно на негоподписаться

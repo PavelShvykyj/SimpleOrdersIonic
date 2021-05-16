@@ -7,46 +7,75 @@
 <ion-content>
   <form [formGroup]="form">
     <ion-grid>
-
-
       <ion-row>
-        <ion-col size-sm="6" offset-sm="3">
+        <ion-col >
           <ion-item>
-            <ion-label position="stacked"> Получено от покупателя </ion-label>
-            <ion-input (ionFocus)=OnInputFocus($event) (keyup.enter)="OnSummInput()"  #cashinputId type="number" formControlName="cash" clear-input=true inputmode="decimal" required></ion-input>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size-sm="6" offset-sm="3">
-          <ion-item>
-            <ion-label position="stacked">
-              <ion-text>Сдача : </ion-text>
+            <ion-label >
+              <ion-text>Сумма к оплате : </ion-text>
             </ion-label>
-            <ion-note slot="end" color="tertiary">
-              <h5> {{ cash - OrderSumm }} </h5>
+            <ion-note slot="end" >
+              <ion-text class="text-accent"> {{ OrderSumm }} </ion-text>
             </ion-note>
           </ion-item>
         </ion-col>
       </ion-row>
+
+      <ion-row>
+        <ion-col >
+          <ion-item>
+            <ion-label position="fixed"> Сумма получено  </ion-label>
+            <ion-input [disabled]="isCredid" (ionFocus)=OnInputFocus($event) (keyup.enter)="OnSummInput()"  #cashinputId type="number" formControlName="cash"  inputmode="decimal" required></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col >
+          <ion-item>
+            <ion-label >
+              <ion-text>Сдача : </ion-text>
+            </ion-label>
+            <ion-note slot="end" >
+              <ion-text class="text-accent"> {{ cash - OrderSumm }} </ion-text>
+            </ion-note>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-segment  (ionChange)="OnPayTypeSelect($event)" value="cash">
+            <ion-segment-button value="cash">
+              <ion-label>Наличные</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="credit">
+              <ion-label>Терминал</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </ion-col>
+      </ion-row>  
+
+      <ion-row>
+        <ion-col size='6'>
+          <ion-button [disabled]="isCredid" expand='block' color='light'  (click)="ActivateSumm()"> Ввести сумму </ion-button>
+        </ion-col>
+        <ion-col size='3'>
+          <ion-button (click)="Cancel()" class="text-accent"  expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
+        </ion-col>
+        <ion-col size='3'>
+          <ion-button (click)="Save()"   class="text-accent"  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
+        </ion-col>
+      </ion-row>  
+    
     </ion-grid>
   </form>
 
 </ion-content>
 
 <ion-footer>
-  <ion-segment  (ionChange)="OnPayTypeSelect($event)" value="cash">
-    <ion-segment-button value="cash">
-      <ion-label>Наличные</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="credit">
-      <ion-label>Терминал</ion-label>
-    </ion-segment-button>
-  </ion-segment>
+
 
   <ion-toolbar color='light'>
     <ion-buttons slot="end">
-      <ion-button (click)="ActivateSumm()"> Ввести сумму </ion-button>
+      <!-- <ion-button (click)="ActivateSumm()"> Ввести сумму </ion-button> -->
       <ion-button (click)="Cancel()" class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
       <ion-button (click)="Save()"   class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
  

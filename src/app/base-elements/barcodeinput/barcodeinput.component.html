@@ -16,21 +16,21 @@
         <ion-row>
           <ion-col size-sm="6" offset-sm="3">
             <ion-item>
-              <ion-label position="stacked"> input code </ion-label>
+              <ion-label position="fixed">  код </ion-label>
               <ion-input (ionFocus)=OnInputFocus($event) #inputCodeId (keyup.enter)="OninputCodeIdLeave()" type="password"  formControlName="barcode" clear-input=true inputmode="decimal" required></ion-input>
             </ion-item>
           </ion-col>
         </ion-row>
         <ion-row>
-          <ion-col></ion-col>
-          <ion-col><ion-button (click)="Cancel()" class="text-accent"  expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button> </ion-col>
-          <ion-col><ion-button (click)="Save()"  expand='block' class="text-accent"   color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button></ion-col>
+          <ion-col size='6'><ion-button (click)="Activate()" expand='block' color='light'> Ввести код</ion-button></ion-col>
+          <ion-col size='3'><ion-button (click)="Cancel()" class="text-accent"  expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button> </ion-col>
+          <ion-col size='3'><ion-button (click)="Save()"  expand='block' class="text-accent"   color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button></ion-col>
         </ion-row>
-        <!-- <ion-row>
-          <ion-col size-sm="6" offset-sm="3">
-            <ion-button fill='solid' expand='block' color='tertiary'  (click)="Scan()"> Scan card</ion-button>
+        <ion-row>
+          <ion-col >
+            <ion-button fill='solid' expand='block' color='light'  (click)="Scan()"> Сканировать код</ion-button>
           </ion-col> 
-        </ion-row> -->
+        </ion-row>
         
         <!-- <ion-row>  
           <ion-col size-sm="6" offset-sm="3">
@@ -44,10 +44,10 @@
   </ion-content>
 
 <ion-footer>
-  <ion-button fill='solid' expand='block' color='tertiary'  (click)="Scan()"> Сканировать код</ion-button>
+  <!-- <ion-button fill='solid' expand='block' color='tertiary'  (click)="Scan()"> Сканировать код</ion-button> -->
   <ion-toolbar color='light'> 
     <ion-buttons slot="end">
-      <ion-button  (click)="Activate()"> Ввести код</ion-button>
+      <!-- <ion-button  (click)="Activate()"> Ввести код</ion-button> -->
       <ion-button  (click)="Cancel()" class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
       <ion-button  (click)="Save()"   class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
  

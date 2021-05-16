@@ -111,5 +111,8 @@ export class HallStatePage implements OnInit {
     }
   }
 
+  trackByFn(index,item:OrdersOnTableData) {
+    return item.hallid+item.tableid;
+  }
 
 }

@@ -46,7 +46,7 @@ export class AppstateComponent implements OnInit , OnDestroy {
       }})
       ).subscribe((res)=>{ 
       this.stateData = res;
-      console.log('net state ', res) } );    
+       } );    
 
   }
 

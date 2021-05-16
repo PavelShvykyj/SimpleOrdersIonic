@@ -4,6 +4,13 @@ ion-list {
     overflow-y: auto;
 }
 
+
+.fab {
+    opacity: 50%;
+    padding:  5px !important;
+}
+
+
 .py-0 {
     padding-top: 0px;
     padding-bottom: 0px;
@@ -43,4 +50,9 @@ ion-list {
 
 .text-smaller {
     font-size: smaller;
+}
+
+.text-accent-smaller {
+    font-size: smaller;
+    font-weight: bolder;
 }

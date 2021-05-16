@@ -17,7 +17,7 @@
 <ion-content [fullscreen]="true">
   <ion-grid>
     <ng-container *ngIf="hallstate$ | async as items">
-      <ion-virtual-scroll [items]="items" approxItemHeight="150px">
+      <ion-virtual-scroll [items]="items" approxItemHeight="150px" [trackBy]="trackByFn">
         <ion-row *virtualItem="let item">
 
           <ion-col *ngFor="let orderontable of item" size=4>

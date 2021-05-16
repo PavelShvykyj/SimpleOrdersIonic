@@ -25,8 +25,10 @@ import { HTTP } from '@ionic-native/http/ngx';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 
+
 @NgModule({
   declarations: [AppComponent],
+  
   entryComponents: [],
   imports: [BrowserModule,
             HttpClientModule,

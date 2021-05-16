@@ -28,7 +28,7 @@
 
     <ion-row class="spaser">
       <ion-col size-sm="6" offset-sm="3">
-        <ion-button fill='solid' expand='block' color='light' (click)='PrepareToExit()'> Закрыть приложение </ion-button>
+        <ion-button fill='solid' expand='block' color='light'  appDebounceClick (debounceClick) ='PrepareToExit()'> Закрыть приложение </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>

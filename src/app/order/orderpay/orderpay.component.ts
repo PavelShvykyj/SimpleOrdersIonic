@@ -1,3 +1,4 @@
+
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
@@ -14,6 +15,8 @@ export class OrderpayComponent implements OnInit {
   @ViewChild('cashinputId', {static: false}) cashinputId ;
 
   form : FormGroup;
+  isCredid : boolean = false;
+
 
   constructor(public modalController: ModalController,
     public toastController: ToastController        
@@ -34,7 +37,13 @@ export class OrderpayComponent implements OnInit {
   }
 
   OnPayTypeSelect(event) {
-    this.form.get('paytype').patchValue(event);
+    const paytype = event.target.value;
+    this.form.get('paytype').patchValue(paytype);
+    this.isCredid = (paytype === "credit");
+    if (this.isCredid) {
+      this.form.get('cash').patchValue(this.OrderSumm);
+    }
+
   }
 
   Save() {
