@@ -423,8 +423,13 @@ export class OrderPage implements OnInit, OnDestroy {
                             { });
             return;
           case orderactions.PAY:
-            this.OpenPayDialog(); 
+            this.OpenPayDialog(items); 
             return;
+          case orderactions.PRECHECK:
+            this.inQueue(this.GetQueueElement(command, items),
+            true,
+            (el: Orderitem) => {return  {isprecheck: true, isSelected:false, isChanged : true}}
+            );
           case orderactions.PRINT:
             /// в очердь версию данных для печати
             
@@ -501,16 +506,17 @@ export class OrderPage implements OnInit, OnDestroy {
     });
   }
 
-  OnPayDialogClosed(res) {
+  OnPayDialogClosed(res,items) {
     const dialogres = res.data;
     if (dialogres.canseled) {
       return
     }
     
-    let el: Queue = this.GetQueueElement(orderactions.PAY,[]);
+
+    let el: Queue = this.GetQueueElement(orderactions.PAY,items);
     el.commandParametr = {...el.commandParametr,
       paytype: dialogres.paytype,
-      cash: dialogres.res
+      cash: dialogres.cash
     }  
   
     const noControlSummCheck = true
@@ -635,7 +641,7 @@ export class OrderPage implements OnInit, OnDestroy {
 
   }
 
-  OpenPayDialog() {
+  OpenPayDialog(items) {
     //this.totals$.pipe(take(1)).subscribe(total => {
     
     this.modalController.create({
@@ -645,7 +651,7 @@ export class OrderPage implements OnInit, OnDestroy {
         OrderSumm : this.totals.summ
        }
     }).then(modalEl => {
-      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data));
+      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data,items));
       modalEl.present();
     }); 
     //});
