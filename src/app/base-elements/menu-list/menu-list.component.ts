@@ -84,7 +84,7 @@ export class MenuListComponent implements OnInit {
     } else {
       // заменям пробелы \s* на любое количество любых сиволов (".*")
       const reg = ".*"+event.trim().toUpperCase().replace(/\s+/g, ".*")+".*";
-      this.menuitems$ = this.store.pipe(select(selectMemuByName, {  filter: reg, onlyfolders: false }));
+      this.menuitems$ = this.store.pipe(select(selectMemuByName, {  filter: reg, withfolders: true }));
     }
 
   }
@@ -221,5 +221,13 @@ export class MenuListComponent implements OnInit {
     //   }
     // }
   }
-
+  itemHeightFn(item:Menu, index) {
+    
+    if (!item.isFolder) {
+      return 75;  
+    }  else {
+      return 55
+    }
+    
+  }
 }

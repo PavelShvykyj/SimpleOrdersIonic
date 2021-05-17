@@ -33,7 +33,7 @@ export const selectMemuByParent = createSelector(
 
 export const selectMemuByName = createSelector(  selectAllMenu,
   (goods: fromMenuStore.Menu[]  ,props) => {
-    const res = goods = goods.filter(element => {return ((!element.isFolder || props.onlyfolders) && element.name.toUpperCase().search(props.filter)!=-1)}).slice(0,20);
+    const res = goods = goods.filter(element => {return ((!element.isFolder || props.withfolders) && element.name.toUpperCase().search(props.filter)!=-1)}).slice(0,20);
     return res
   
   }

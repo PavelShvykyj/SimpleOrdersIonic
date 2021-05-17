@@ -21,14 +21,14 @@
   </ion-fab>
   
   <ng-container *ngIf="menuitems$ | async as menuitems">
-    <ion-virtual-scroll [items]="menuitems" approxItemHeight="70px" [trackBy]="trackByFn">
+    <ion-virtual-scroll [items]="menuitems" approxItemHeight="70px" [trackBy]="trackByFn" [itemHeight]="itemHeightFn">
 
   
     <ion-item class="w-100" slot="start"  button
       *virtualItem="let menuitem" appDebounceClick (debounceClick)="ElementClicked(menuitem)" [disabled]="menuitem.isBlocked">
       <ion-label [color]="menuitem.isBlocked ? 'danger' : '' " class="ion-text-wrap">
 
-        <ion-text class="text-smaller">{{ menuitem.name }}</ion-text>
+        <ion-text >{{ menuitem.name }}</ion-text>
         
           
             <ion-text *ngIf="items[menuitem.id]" class="pl-4 text-smaller" color='success'>В заказе  <ion-text class="text-accent">{{items[menuitem.id]}} </ion-text> </ion-text>  
@@ -55,9 +55,8 @@
           <ion-button debounceTime = 50 appDebounceClick (debounceClick)=AddQountity(-1,menuitem,$event) size='small' slot='icon-only'> <ion-icon name="remove-circle-outline"></ion-icon></ion-button>
         </ion-buttons>  
       
-    </ion-note> 
-     
-     <ion-note slot="end" color='dark'  class="ml">
+      <!-- </ion-note> 
+      <ion-note slot="end" color='dark'  class="ml"> -->
         <ion-text>{{ menuitem.price }}</ion-text>
       </ion-note>
      

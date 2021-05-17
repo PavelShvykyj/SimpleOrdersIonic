@@ -667,6 +667,6 @@ export class OrderPage implements OnInit, OnDestroy {
   }
   
   itemHeightFn(tem, index) {
-    return 80;
+    return 85;
   }
 }
