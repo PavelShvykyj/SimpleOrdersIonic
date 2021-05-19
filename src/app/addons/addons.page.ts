@@ -9,6 +9,7 @@ import { State } from '../reducers';
 import { selectNetcontrolState } from '../net/netcontrol.selectors';
 import { NetcontrolService } from '../net/netcontrol.service';
 import { OnecConnectorService } from '../onec/onec.connector.service';
+import { AppsettingsService } from '../appsettings/appsettings.service';
 
 
 @Component({
@@ -22,12 +23,25 @@ export class AddonsPage implements OnInit {
   keys$ : Observable<Array<string>>;
   netState$ : Observable<NetState>
   measure : Array<{res:boolean, duration : number}> = [];
+  gajet   : string = ""; 
 
-  constructor(private onec : OnecConnectorService, private netService : NetcontrolService,  private db : DatabaseService, private store: Store<State>,private detector : ChangeDetectorRef) { }
+
+  constructor(private onec : OnecConnectorService,
+              private netService : NetcontrolService,
+              private db : DatabaseService,
+              private store: Store<State>,
+              private detector : ChangeDetectorRef,
+              private appService : AppsettingsService
+              ) { }
 
   ngOnInit() {
     this.keys$ = this.db.GetKeys();
     this.netState$ = this.store.pipe(select(selectNetcontrolState), tap(()=>{ this.detector.detectChanges()} ))
+    this.gajet = this.appService.deviceID;
+  }
+
+  ionViewDidEnter() {
+    this.gajet = this.appService.deviceID;
 
   }
 

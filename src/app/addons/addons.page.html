@@ -9,9 +9,17 @@
 
 <ion-content>
   <ion-list>
+    
+    <ion-item>
+      <ion-label>Device {{ gajet }} </ion-label>
+    </ion-item>
+
+    
     <ion-list-header class="ion-text-center">
       <ion-label>connection</ion-label>
     </ion-list-header>
+    
+ 
     <ng-container *ngIf="netState$ | async as netState">
       <ion-item>
         <ion-label color='danger'>{{netState.IP}} </ion-label>
@@ -21,6 +29,7 @@
           </ion-button>
         </ion-buttons>
       </ion-item>
+
 
 
       

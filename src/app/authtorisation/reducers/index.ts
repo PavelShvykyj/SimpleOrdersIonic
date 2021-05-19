@@ -13,23 +13,35 @@ import { loggIn, loggOut } from '../auth.actions';
 
 export const authtorisationFeatureKey = 'authtorisation';
 
+export interface Permissions {
+  [key : string] : {
+    allowed : boolean,
+    afterPrint : boolean,
+    afterPrecheck : boolean
+  }
+}
+
 export interface AuthState {
   isLoggedIn: boolean,
+  IsAdmin   : boolean,
   UserToken : string,
-  UserName  : string
+  UserName  : string,
+  Permissions : Permissions
 }
 
 export const InitialState : AuthState = {
   isLoggedIn: false,
   UserToken : '',
-  UserName  : '' 
+  UserName  : '',
+  IsAdmin   : false,
+  Permissions : {} 
 }
 
 
 export const AuthReducer = createReducer(
   InitialState,
-  on(loggOut,(state,action)=>{return {...state, isLoggedIn:false, UserToken: "", UserName: "not login"}}),
-  on(loggIn,(state,action)=>{return {...state,isLoggedIn:true, UserToken: action.UserToken, UserName: action.UserName}}),
+  on(loggOut,(state,action)=>{return InitialState}),
+  on(loggIn,(state,action)=>{return action.data}),
   );
 
 export function authreducer(state: AuthState | undefined, action: Action) {

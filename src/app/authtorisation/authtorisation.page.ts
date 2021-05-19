@@ -5,10 +5,12 @@ import { Store, select } from '@ngrx/store';
 import { State } from '../reducers';
 import { loggIn, loggOut } from './auth.actions';
 import { BarcodeScanner, BarcodeScanResult, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
-import { ToastController } from '@ionic/angular';
+import { LoadingController, ToastController } from '@ionic/angular';
 import { selectisDevMode } from '../appsettings/app-settings.selectors';
 import { map, take, filter, concatMap } from 'rxjs/operators';
 import { OnecConnectorService } from '../onec/onec.connector.service';
+import { InitialState } from './reducers';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-authtorisation',
@@ -20,12 +22,14 @@ export class AuthtorisationPage implements OnInit {
   form : FormGroup;
   inFocus : boolean = false;
   @ViewChild('passinputid', {static: false}) passinputid;
-
+  loadIndicator;
   constructor(private store: Store<State>, 
               private onecConn : OnecConnectorService,
               private router : Router,
               private barcodeScanner: BarcodeScanner,
-              public toastController: ToastController) { }
+              public toastController: ToastController,
+              public loadingController: LoadingController
+              ) { }
 
   ngOnInit() {
     this.form = new FormGroup({
@@ -38,7 +42,7 @@ export class AuthtorisationPage implements OnInit {
   }
 
   Loggin() {
-    console.log('Loggin');
+    
     if (!this.form.valid) {
       this.toastController.create({
       message: 'не указан пароль',
@@ -53,25 +57,35 @@ export class AuthtorisationPage implements OnInit {
       take(1),
       map(isDevMode=>{
         if (isDevMode) {
-          this.store.dispatch(loggIn({UserName: this.password.value, UserToken : "TokenDemo" }));
+          this.store.dispatch(loggIn({data : {...InitialState, isLoggedIn: true, IsAdmin: true, UserName: 'Admin', UserToken: 'Developer'}} ));
           setTimeout(() => {
             this.router.navigateByUrl('home/halls');
           }, 10);
-        } else {
-          // this.toastController.create({message: 'авторизиция доступна в режиме разработки.',
-          // duration:500,
-          // color: 'danger'}).then(el=>el.present());
-        }
+        } 
         return isDevMode
       }),
       filter(isDevMode=>!isDevMode),    
-      concatMap(() => {return this.onecConn.Login(this.password.value)}),
-      map(loginData=> {
-        if (!loginData.success) {
-          // here show error 
-        } 
+      concatMap(()=> { return from(this.loadingController.create({message: "Авторизация",keyboardClose:true,spinner: "lines"}))}),
+      concatMap((el) => {
+        this.loadIndicator = el;
+        this.loadIndicator.present();
         
-        this.store.dispatch(loggIn({UserName: this.password.value, UserToken : "TokenDemo" }));
+        return this.onecConn.Login(this.password.value)
+      }),
+      map((loginData)=> {
+        this.loadIndicator.dismiss();
+        if (!loginData.success) {
+           this.toastController.create({message: 'Не авторизовано. Возможно не верный пароль или нет связи',
+           duration: 2500,
+           color: 'danger'}).then(el=>el.present());
+           this.store.dispatch(loggOut());
+
+
+        } else {
+          this.store.dispatch(loggIn({data : {...loginData.state, isLoggedIn : true}}));
+        }
+        
+        
         setTimeout(() => {
           this.router.navigateByUrl('home/halls');
         }, 10);

@@ -145,9 +145,15 @@ export class OnecConnectorService  {
         )}
   }
 
-  Login(pass:string) : Observable<{[key:string]:any}> {
-      
-    const authData = btoa(`${this.setingsService.deviceID}:${pass}`);
+  Login(pass:string) : Observable<any> {
+    
+    let authData
+    try {
+      authData = btoa(`${this.setingsService.deviceID}:${pass}`);
+    } catch (error) {
+      return of({success : false })
+    }
+    
 
 
 
@@ -156,16 +162,22 @@ export class OnecConnectorService  {
     let headers = new HttpHeaders().append('Content-Type','text/json');
     headers.append('Authorization',authData)
 
-    return this.hclient.get(URL,{headers:headers,
+    return this.hclient.post(URL,authData,{headers:headers,
       observe: 'body',
       withCredentials:false,
       reportProgress:false,
       responseType:'text'}).pipe(
         timeout(5000),  
-        map(res => JSON.parse(res))); 
-
-
-    
+        map(res => {
+          let answer = JSON.parse(res);
+          return {
+            success : true,
+            state : JSON.parse(res)
+          }
+        }),
+        catchError((err)=> {
+          return of({success : false })
+        })); 
   }
 
 
