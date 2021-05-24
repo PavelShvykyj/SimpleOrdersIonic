@@ -24,7 +24,7 @@
         <ion-col >
           <ion-item>
             <ion-label position="fixed"> Сумма получено  </ion-label>
-            <ion-input [disabled]="isCredid" (ionFocus)=OnInputFocus($event) (keyup.enter)="OnSummInput()"  #cashinputId type="number" formControlName="cash"  inputmode="decimal" required></ion-input>
+            <ion-input (ionFocus)=OnInputFocus($event) (keyup.enter)="OnSummInput()"  #cashinputId type="number" formControlName="cash"  inputmode="decimal" required></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>

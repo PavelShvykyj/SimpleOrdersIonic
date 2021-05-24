@@ -40,9 +40,15 @@ export class OrderpayComponent implements OnInit {
     const paytype = event.target.value;
     this.form.get('paytype').patchValue(paytype);
     this.isCredid = (paytype === "credit");
+    let cashControl  = this.form.get('cash');
     if (this.isCredid) {
-      this.form.get('cash').patchValue(this.OrderSumm);
+      cashControl.patchValue(this.OrderSumm);
+      cashControl.disable();
+    } else {
+      cashControl.enable();
     }
+
+    
 
   }
 

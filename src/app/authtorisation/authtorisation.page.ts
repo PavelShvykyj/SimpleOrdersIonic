@@ -11,6 +11,11 @@ import { map, take, filter, concatMap } from 'rxjs/operators';
 import { OnecConnectorService } from '../onec/onec.connector.service';
 import { InitialState } from './reducers';
 import { from } from 'rxjs';
+import * as CRC32 from 'crc-32';  
+import { DatabaseService } from '../database/database.service';
+import { stringify } from '@angular/compiler/src/util';
+import { AppsettingsService } from '../appsettings/appsettings.service';
+
 
 @Component({
   selector: 'app-authtorisation',
@@ -28,7 +33,9 @@ export class AuthtorisationPage implements OnInit {
               private router : Router,
               private barcodeScanner: BarcodeScanner,
               public toastController: ToastController,
-              public loadingController: LoadingController
+              public loadingController: LoadingController,
+              private localdb : DatabaseService,
+              private setingsService: AppsettingsService,  
               ) { }
 
   ngOnInit() {
@@ -82,7 +89,15 @@ export class AuthtorisationPage implements OnInit {
 
 
         } else {
-          this.store.dispatch(loggIn({data : {...loginData.state, isLoggedIn : true}}));
+          const loginState = {...loginData.state, isLoggedIn : true};
+          
+          const authData = btoa(`${this.setingsService.deviceID}:${this.password.value}`);
+
+          this.localdb.SaveData('LastLogin', {
+            authData : authData,
+            loginState : loginState
+          })
+          this.store.dispatch(loggIn({data : loginState}));
         }
         
         

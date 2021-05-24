@@ -13,6 +13,7 @@ import { Menu } from '../menu-store/menu-store.reducer';
 import { Queue } from '../queue/queue-store.reducer';
 import { HTTP } from '@ionic-native/http/ngx';
 import { AppsettingsService } from '../appsettings/appsettings.service';
+import { DatabaseService } from '../database/database.service';
 
 
 
@@ -67,6 +68,7 @@ export class OnecConnectorService  {
 
   constructor(private hclient : HttpClient, 
               private mhclient: HTTP,
+              private localdb : DatabaseService,
               private setingsService: AppsettingsService,  
               private store : Store<State>,
               private plt : Platform) { 
@@ -147,7 +149,8 @@ export class OnecConnectorService  {
 
   Login(pass:string) : Observable<any> {
     
-    let authData
+    let authData;
+   
     try {
       authData = btoa(`${this.setingsService.deviceID}:${pass}`);
     } catch (error) {
@@ -155,9 +158,23 @@ export class OnecConnectorService  {
     }
     
 
+    /// off line mode -- logg by last login
+    if (!this.currentStatus) {
+     return this.localdb.GetData<{authData: string , loginState: any}>("LastLogin").pipe( map(auth => {
+        if (auth === undefined || auth === null) {
+          return {success : false };
+        }
+        if (auth.authData = authData) {
+          return {success : true, state : auth.loginState }
+        } else {
+          return {success : false };
+        }
+      
+      })); 
+    }
 
 
-    
+    /// normal login
     const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/login`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
     headers.append('Authorization',authData)

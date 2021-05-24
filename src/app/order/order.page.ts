@@ -2,7 +2,7 @@
 import { Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
 import { concatMap, map, take, tap, first, filter, debounceTime, share } from 'rxjs/operators';
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { State } from 'src/app/reducers';
@@ -27,6 +27,8 @@ import { OrderpayComponent } from './orderpay/orderpay.component';
 import * as CRC32 from 'crc-32';   
 import { MenuListComponent } from '../base-elements/menu-list/menu-list.component';
 import { AnketaComponent } from './anketa/anketa.component';
+import { selectLoginState } from '../authtorisation/auth.selectors';
+import { PermissionsService } from '../permissions.service';
 
 
 
@@ -40,24 +42,31 @@ import { AnketaComponent } from './anketa/anketa.component';
 })
 export class OrderPage implements OnInit, OnDestroy {
 
+  //// order parametrs 
   items$: Observable<Array<Orderitem>>;
   hall$: Observable<Hall>;
   itemssubs : Subscription;
   hallid: string;
-  table: string;
+  table: string;  /// СТОЛ
   orderid: string;
   
-  
+  //// versions , totals , acces
   totals;
   startControlsumm : number;
   currentControlsumm : number;
-
+  localAccesAllowed : boolean = false;
   version: number;
   lastGajet : string;
+  
+  /// local navigation (router no changes )
   MenuComp = MenuListComponent;
   AnketaComp = AnketaComponent;
   MenuProps : {[key:string]:any} = {};
   @ViewChild('navlinkmenu', {static: false}) navlinkmenu ;
+
+  
+
+
 
   actions = {
     header: 'Выбрать действие :',
@@ -105,7 +114,9 @@ export class OrderPage implements OnInit, OnDestroy {
     public actionSheetController: ActionSheetController,
     public modalController: ModalController,
     public toastController: ToastController,
-    public ctrl : NavController
+    public ctrl : NavController,
+    private Permissions : PermissionsService,
+    private detector : ChangeDetectorRef
   ) { }
 
   
@@ -162,6 +173,25 @@ export class OrderPage implements OnInit, OnDestroy {
     return item.rowid
   }
   
+  AccessLocalChanges(items: Array<Orderitem>)  {
+    
+    this.store.pipe(select(selectLoginState),take(1),tap(UserData=> {
+      
+      if (items.length === 0) {
+        this.localAccesAllowed = true;
+        return  
+      }
+      const FirstItem = items[0];
+  
+      this.localAccesAllowed = 
+      (!FirstItem.isprecheck) &&
+      (UserData.UserName === FirstItem.waitername || UserData.IsAdmin)
+    })).subscribe()
+
+
+  }
+
+
   GetOrderID() {
     
     return this.orderid;
@@ -249,14 +279,24 @@ export class OrderPage implements OnInit, OnDestroy {
       const itemsnewversion = items.map(el => {return {...el, version : this.version, gajet : this.setingsService.deviceID  }} );
       command.version = this.version;
       command.commandParametr.items = itemsnewversion;
-      this.store.dispatch(inQueue({data: command}));  
+      const InQueueAction = inQueue({data: command});  
+
+      this.Permissions.CheckPerpission(InQueueAction)
+      .pipe(take(1))
+      .subscribe(allowed=>{
+        if (allowed) {
+          this.store.dispatch(InQueueAction);  
     
-      /// отмечаем оптимистичные данные устанавливаем  версию и устройство 
-      this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {...changesFn(el),version : this.version, gajet : this.setingsService.deviceID }}},
-      filterFn,
-      {editcanceled: true,
-       isLocal : true 
+          /// отмечаем оптимистичные данные устанавливаем  версию и устройство 
+          this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {...changesFn(el),version : this.version, gajet : this.setingsService.deviceID }}},
+          filterFn,
+          {editcanceled: true,
+           isLocal : true 
+          });
+        }
       });
+
+      
         
       
       
@@ -286,7 +326,8 @@ export class OrderPage implements OnInit, OnDestroy {
     .subscribe(editingRow => {
       
       if (editingRow) {
-        this.AddQountity(q,editingRow,event)
+        this.AddQountity(q,editingRow,event);
+        
       } else {
         let data = {data: {
           quantity: q,
@@ -363,20 +404,19 @@ export class OrderPage implements OnInit, OnDestroy {
     if (item.isCanceled) {
       return;
     }
+    
     this.store.dispatch(SelectItem({ data: { id: item.rowid, changes: { isSelected: checked } } }))
   }
 
   OnOrderidChages() {
     this.MenuProps.orderid = this.orderid;  
     this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
-
-                                    map(items => {console.log('selectOrderItems'); return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )}),
-                                    
-                                    
-                                    
+                                    map(items => {console.log('selectOrderItems',items); return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )}),
                                     );
-                                  
+                         
+  
 
+  /// navigate to menu in new order make once                                   
   this.items$.pipe(
     take(1),
     filter(items=>{return items.length===0})
@@ -385,12 +425,12 @@ export class OrderPage implements OnInit, OnDestroy {
       setTimeout(() => {
         this.navlinkmenu.el.click();
       }, 500);
-        
-      
     });
 
+
+  /// versions , totals  , acces - lsten changes 
   this.itemssubs = this.items$.subscribe(items=> {
-    
+
     this.version = items.length === 0 ? 0 : items[0].version;
     this.lastGajet = items.length === 0 ? "" : items[0].gajet;
     const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate)!=undefined; 
@@ -398,7 +438,10 @@ export class OrderPage implements OnInit, OnDestroy {
     if (!noControlSummCalculate) {
       this.startControlsumm = this.currentControlsumm;
     }
-    this.totals = this.GetTotals(items)
+    this.AccessLocalChanges(items);
+    this.totals = this.GetTotals(items);
+
+    
   });  
 
 
@@ -451,9 +494,20 @@ export class OrderPage implements OnInit, OnDestroy {
             
             
           case orderactions.CANCEL_ROW:
-            this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {isCanceled: el.isSelected, isSelected:false, isChanged : !!el.isSelected != !!el.isCanceled}}},
-            (el) => {return true},
-            {editcanceled: true});
+            let FakeQueueEl = this.GetQueueElement(command, items);
+            FakeQueueEl.commandParametr = {... FakeQueueEl.commandParametr , checkOnlySelectedRows: true  }
+
+            const InQueueFakeAction = inQueue({data: FakeQueueEl });  
+
+            this.Permissions.CheckPerpission(InQueueFakeAction)
+            .pipe(take(1))
+            .subscribe(allowed=>{
+              if (allowed) {
+                this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {isCanceled: el.isSelected, isSelected:false, isChanged : !!el.isSelected != !!el.isCanceled}}},
+                (el) => {return true},
+                {editcanceled: true});
+              }
+            });
             return;  
           case orderactions.DISCOUNT:
             this.OpenDiscountDialog();           
@@ -540,16 +594,19 @@ export class OrderPage implements OnInit, OnDestroy {
       return
     }
     
+    this.items$.pipe(take(1)).subscribe(items => {
+      let el: Queue = this.GetQueueElement(orderactions.DISCOUNT,items);
+      el.commandParametr = {...el.commandParametr,
+        discountcode : dialogres.data
+      }  
+  
+      this.inQueue(el,
+        true,
+        (el: Orderitem) => {return {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}
+        )
+  
+    })
 
-    let el: Queue = this.GetQueueElement(orderactions.DISCOUNT,[]);
-    el.commandParametr = {...el.commandParametr,
-      discountcode : dialogres.data
-    }  
-
-    this.inQueue(el,
-      true,
-      (el: Orderitem) => {return {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}
-      )
 
     // оптимистичные изменения сбрасываем предыдущую скидку до ответа от 1С
     //   this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}},
@@ -561,6 +618,9 @@ export class OrderPage implements OnInit, OnDestroy {
     if (data.data.canseled) {
       return;
     }
+
+    
+    
 
     let kaskad = {
       orderid: "",

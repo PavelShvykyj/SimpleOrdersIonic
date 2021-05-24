@@ -23,6 +23,8 @@ import { MenuStoreModule } from './menu-store/menu-store.module';
 import { BaseElementsModule } from './base-elements/base-elements.module';
 import { HTTP } from '@ionic-native/http/ngx';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
+import { PermissionsService } from './permissions.service';
+
 
 
 
@@ -48,7 +50,7 @@ import { Keyboard } from '@ionic-native/keyboard/ngx';
             
             
           ],
-  providers: [HTTP, Keyboard, { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [HTTP, Keyboard, PermissionsService, { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
