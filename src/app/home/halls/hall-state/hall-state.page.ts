@@ -11,6 +11,7 @@ import { selectHallStateData } from '../hall-state-store/hallstate.selectors';
 import { OrdersOnTableData } from '../hall-state-store/hallstate.reducer';
 import { loadHallstates, refreshHallstates } from '../hall-state-store/hallstate.actions';
 import { PingStatus } from 'src/app/net/netcontrol.selectors';
+import { NavController } from '@ionic/angular';
 
 const GRID_COLUMS_QUONTITY: number = 4;
 
@@ -28,7 +29,7 @@ export class HallStatePage implements OnInit {
 
 
 
-  constructor(private router : Router, private rout: ActivatedRoute, private store: Store<State>) {
+  constructor(private router : Router,public navCtrl: NavController, private rout: ActivatedRoute, private store: Store<State>) {
     
     // this.items = [];
     //     for (let i = 1; i < 200; i++) {
@@ -61,8 +62,9 @@ export class HallStatePage implements OnInit {
     const queryParams = {'orderid': select.value.orderid , hallid: orderontable.hallid, tableid : orderontable.tableid}
     
     
+    this.navCtrl.navigateForward("/order",{ animated: false, queryParams:queryParams,  })
 
-    this.router.navigate(["/order"] ,{ queryParams:queryParams });
+    //this.router.navigate(["/order"] ,{ queryParams:queryParams });
     setTimeout(()=> {select.value=undefined; select.selectedText = ''},2);
 
   }
