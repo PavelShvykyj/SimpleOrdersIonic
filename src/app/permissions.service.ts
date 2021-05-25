@@ -7,8 +7,9 @@ import { Orderitem } from './home/halls/hall-state-store/hallstate.reducer';
 import { Queue } from './queue/queue-store.reducer';
 import { State } from './reducers';
 import { selectLoginState } from './authtorisation/auth.selectors';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, withLatestFrom } from 'rxjs/operators';
 import { inQueue } from './queue/queue-store.actions';
+import { selectisDevMode } from './appsettings/app-settings.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +25,14 @@ export class PermissionsService {
 
   CheckPerpission(action:Action) : Observable<boolean> {
     return this.store.pipe(select(selectLoginState),
-    map(data=> {
-      
+    withLatestFrom(this.store.pipe(select(selectisDevMode))),
+    map(datamap=> {
+      const isDevmode = datamap[1];
+      let data = datamap[0];
+      if (isDevmode) {
+        return {isAllowed: true, action}
+      }
+
       let authState : AuthState = data;
       let isAllowed : boolean = true;
       const askActiontype = action.type;
@@ -74,8 +81,8 @@ CheckInQueueAction(action ,authState:AuthState ) : {action:Action ,isAllowed:boo
   let context : 'allowed' | 'afterPrint' | 'afterPrecheck' =  'allowed';
   const checkOnlySelectedRows = !!q.commandParametr.checkOnlySelectedRows;
   items = items.filter(el => {return (!checkOnlySelectedRows || !!el.isSelected)});
-  console.log('checkOnlySelectedRows',checkOnlySelectedRows);
-  console.log('check items', items);
+  
+  
   items.forEach(el=> {
       if (el.isprecheck) {
           context = 'afterPrecheck';

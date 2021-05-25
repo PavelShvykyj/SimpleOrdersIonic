@@ -39,10 +39,11 @@
   </ion-fab> -->
   <ng-container *ngIf="items$ | async as items">
   <ion-list >
-    <ion-virtual-scroll #scroll [items]="items" approxItemHeight="85px" [trackBy]="trackByOrderitemFn" [itemHeight]="itemHeightFn">
+    <!-- <ion-virtual-scroll #itemsvirtualscroll [items]="items" approxItemHeight="85px" [trackBy]="trackByOrderitemFn" [itemHeight]="itemHeightFn"> -->
       <!-- *ngFor="let item of items; trackBy:trackByOrderitemFn" -->
-      <ion-item button *virtualItem="let item"   [disabled]="item.isCanceled || !localAccesAllowed">
-      <ion-label button appDebounceClick (debounceClick)=OpenEditRowDialog(item) class="ion-text-wrap">
+      <!-- *virtualItem="let item" -->
+      <ion-item  *ngFor="let item of items; trackBy:trackByOrderitemFn"  >
+      <ion-label  button appDebounceClick (debounceClick)=OpenEditRowDialog(item) class="ion-text-wrap">
         
         <p>{{item.quantityprint}} {{item.goodname}} </p>
 
@@ -75,11 +76,11 @@
       <!-- <ion-note class="ml" slot="end" color="primary">
         <h5>{{item.summ}} </h5>
       </ion-note> -->
-      <ion-checkbox class="ml-10" disabled=false #el [checked]="item.isSelected == undefined ? false : item.isSelected"
+      <ion-checkbox class="ml-10" [disabled]="false" #el [checked]="item.isSelected == undefined ? false : item.isSelected"
       (ionChange)=OnItemSelected(item,el.checked) slot="end"></ion-checkbox>
 
       </ion-item>
-    </ion-virtual-scroll>
+    <!-- </ion-virtual-scroll> -->
   </ion-list>
   </ng-container> 
 

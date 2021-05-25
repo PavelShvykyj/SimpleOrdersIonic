@@ -10,7 +10,7 @@ import { Observable, Subscription } from 'rxjs';
 import { selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
-import { ActionSheetController,  ModalController, NavController, ToastController } from '@ionic/angular';
+import { ActionSheetController,  IonVirtualScroll,  ModalController, NavController, ToastController } from '@ionic/angular';
 
 import { Menu } from '../menu-store/menu-store.reducer';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
@@ -63,7 +63,7 @@ export class OrderPage implements OnInit, OnDestroy {
   AnketaComp = AnketaComponent;
   MenuProps : {[key:string]:any} = {};
   @ViewChild('navlinkmenu', {static: false}) navlinkmenu ;
-
+ // @ViewChild('itemsvirtualscroll', {static: false}) itemsvirtualscroll : IonVirtualScroll ;
   
 
 
@@ -122,11 +122,12 @@ export class OrderPage implements OnInit, OnDestroy {
   
 
   ionViewWillLeave() {
+    console.log("ionViewWillLeave");
     
-    if (this.currentControlsumm != this.startControlsumm) {
+    // if (this.currentControlsumm != this.startControlsumm) {
       
-      this.OnOrderActionClick(orderactions.SAVE);  
-    }
+    //   this.OnOrderActionClick(orderactions.SAVE);  
+    // }
     
   } 
  
@@ -365,6 +366,10 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   GoBack() {
+    if (this.currentControlsumm != this.startControlsumm) {
+      
+      this.OnOrderActionClick(orderactions.SAVE);  
+    }
     this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
   }
 
@@ -372,7 +377,7 @@ export class OrderPage implements OnInit, OnDestroy {
     /// если передали этот параметр то эти изменения на контрольную сумму влиять не должны
     /// поетому ставим признак пересчета стартовой т.е. приравниаем последние изменения к стартовым
     /// пересчет произойдет в подписке на select(selectOrderItems) 
-
+    
     
     this.items$.pipe(
       take(1),
@@ -381,11 +386,13 @@ export class OrderPage implements OnInit, OnDestroy {
       // отбираем по переданному фильтру
       map(items => items.filter(el => FnFilter(el))))
       .subscribe(items => {
+        
         const itemchanges : Array<Update<Orderitem>> = 
-        items.map((el) => FnChange(el,params))
+        items.map((el) => FnChange(el,params));
              // двойной цикл .... нужно в самой функции прописывать
              //.map((el) => {return el.changes = {...el.changes, isChanged: true, isSelected: false}});
-        this.store.dispatch(UpdateOrderItemsValues({data: itemchanges} ))
+             
+             this.store.dispatch(UpdateOrderItemsValues({data: itemchanges} ))
       });
 
   }
@@ -411,7 +418,7 @@ export class OrderPage implements OnInit, OnDestroy {
   OnOrderidChages() {
     this.MenuProps.orderid = this.orderid;  
     this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
-                                    map(items => {console.log('selectOrderItems',items); return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )}),
+                                    map(items => { return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )}),
                                     );
                          
   
@@ -430,7 +437,9 @@ export class OrderPage implements OnInit, OnDestroy {
 
   /// versions , totals  , acces - lsten changes 
   this.itemssubs = this.items$.subscribe(items=> {
-
+   
+    
+    
     this.version = items.length === 0 ? 0 : items[0].version;
     this.lastGajet = items.length === 0 ? "" : items[0].gajet;
     const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate)!=undefined; 
@@ -461,6 +470,7 @@ export class OrderPage implements OnInit, OnDestroy {
           
           case orderactions.FISKAL:
             /// простоую отметку на 1С не гоняем
+            
             this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isexcise: el.isSelected, isSelected:false, isChanged : !!el.isexcise != !!el.isSelected }}},
                             (el) => {return el.isSelected},
                             { });
@@ -537,6 +547,10 @@ export class OrderPage implements OnInit, OnDestroy {
 
   OpenEditRowDialog(editingRow: Orderitem, menuitem?: Menu) {
     if (editingRow != undefined && editingRow.isCanceled) {
+      return;
+    }
+
+    if (!this.localAccesAllowed) {
       return;
     }
 
