@@ -40,6 +40,7 @@
       <ion-label button appDebounceClick (debounceClick)=OpenEditRowDialog(item) class="ion-text-wrap">
         <p>{{item.quantityprint}} {{item.goodname}} </p>
         <p>
+          <ion-text color="medium"> {{itemsview.indexOf(item)}} \ </ion-text>
           <ion-text color="medium"> {{item.price}} \ </ion-text>
           <ion-text color="dark"> {{item.summ}}</ion-text>
           <span class="text-accent">

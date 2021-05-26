@@ -164,7 +164,7 @@ export class OnecConnectorService  {
         if (auth === undefined || auth === null) {
           return {success : false };
         }
-        if (auth.authData = authData) {
+        if (auth.authData === authData) {
           return {success : true, state : auth.loginState }
         } else {
           return {success : false };

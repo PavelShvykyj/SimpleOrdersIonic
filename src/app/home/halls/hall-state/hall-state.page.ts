@@ -61,8 +61,8 @@ export class HallStatePage implements OnInit {
     }
     const queryParams = {'orderid': select.value.orderid , hallid: orderontable.hallid, tableid : orderontable.tableid}
     
-    
-    this.navCtrl.navigateForward("/order",{ animated: false, queryParams:queryParams,  })
+    //{ animated: false, queryParams:queryParams,  }
+    this.navCtrl.navigateForward("/order",{  queryParams:queryParams  });
 
     //this.router.navigate(["/order"] ,{ queryParams:queryParams });
     setTimeout(()=> {select.value=undefined; select.selectedText = ''},2);

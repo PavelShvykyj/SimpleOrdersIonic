@@ -127,40 +127,56 @@ export class OrderPage implements OnInit, OnDestroy {
 
 
   ionViewWillLeave() {
-    this.itemsview = [];
-    this.last_index = 0;
-
-    // if (this.currentControlsumm != this.startControlsumm) {
-
-    //   this.OnOrderActionClick(orderactions.SAVE);  
-    // }
+    console.log("Will Leave");
+    
 
   }
 
   ionViewDidLeave() {
-    this.itemsview = [];
-    this.last_index = 0;
+    // console.log("DID Leave");
   }
 
 
   ionViewWillEnter() {
-    this.infiniteScroll.disabled = false;
-
+    // console.log("Will Enter");
+    
+    
   }
+
+  ionViewDidEnter() {
+    // console.log("DID Enter");
+  }
+
 
   ngOnInit() {
     this.init();
   }
 
+  ngAfterViewInit() {
+    this.infiniteScroll.disabled = false;
+  }
+
   ngOnDestroy() {
-    this.itemssubs.unsubscribe();
+    // console.log("ngOnDestroy");
+    // console.log(this.currentControlsumm);
+    // console.log(this.startControlsumm);
+    if (this.currentControlsumm != this.startControlsumm) {
+      // console.log("SAVE");
+      this.OnOrderActionClick(orderactions.SAVE);  
+    }
+    
+      this.itemssubs.unsubscribe();
+      this.itemsview = [];
+      this.last_index = 0;
+  
+    
   }
 
   doInfinite(event) {
     this.items$.pipe(take(1)).subscribe(items => {
-      console.log('doInfinite');
-      console.log(items.length);
-      console.log(this.itemsview.length);
+      // console.log('doInfinite');
+      // console.log(items.length);
+      // console.log(this.itemsview.length);
 
       if (items.length === this.itemsview.length) {
         event.target.complete();
@@ -170,20 +186,21 @@ export class OrderPage implements OnInit, OnDestroy {
 
       setTimeout(() => {
 
-        const additems = items.slice(this.last_index, this.last_index + 8);
+        // const additems = items.slice(this.last_index, this.last_index + 8);
+        // this.last_index = this.last_index + 8;
+        // additems.forEach(item => {
+        //   this.itemsview.push(item);
+        // })
+
         this.last_index = this.last_index + 8;
-
-
-        additems.forEach(item => {
-          this.itemsview.push(item);
-        })
+        this.itemsview = items.slice(0, this.last_index);
 
 
         event.target.complete();
         if (items.length === this.itemsview.length) {
           event.target.disabled = true;
         }
-      }, 300);
+      }, 10);
     })
 
 
@@ -193,6 +210,7 @@ export class OrderPage implements OnInit, OnDestroy {
 
 
   init() {
+    
     this.hall$ = this.route.queryParamMap.pipe(
 
       tap(params => {
@@ -425,11 +443,9 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   GoBack() {
-    if (this.currentControlsumm != this.startControlsumm) {
-
-      this.OnOrderActionClick(orderactions.SAVE);
-    }
-    this.router.navigateByUrl('/home/halls/hallstate/' + this.hallid);
+ 
+    this.ctrl.navigateBack('/home/halls/hallstate/' + this.hallid);
+    //this.router.navigateByUrl('/home/halls/hallstate/' + this.hallid);
   }
 
   ChangeRows(FnChange: Function, FnFilter: Function, params) {
@@ -480,14 +496,10 @@ export class OrderPage implements OnInit, OnDestroy {
     this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
       map(items => {
         return items.map(el => {
-          return { ...el, isSelected: !!el.isSelected, isChanged: !!el.isChanged, noControlSummCalculate: false };
+          return { ...el, isSelected: !!el.isSelected, isChanged: !!el.isChanged, noControlSummCalculate: !! el.noControlSummCalculate };
         })
-
-
       }),
     );
-
-
 
     /// navigate to menu in new order make once                                   
     this.items$.pipe(
@@ -518,16 +530,11 @@ export class OrderPage implements OnInit, OnDestroy {
         setTimeout(() => {
           this.itemsview = items.slice(0, 8);
           this.last_index = 8;
-        }, 300);
+        }, 200);
 
       } else {
         this.itemsview = items;
       }
-
-
-
-
-
 
 
       this.version = items.length === 0 ? 0 : items[0].version;
