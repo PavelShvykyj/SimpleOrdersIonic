@@ -10,8 +10,7 @@ import { Observable, Subscription } from 'rxjs';
 import { selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
-import { ActionSheetController,  IonVirtualScroll,  ModalController, NavController, ToastController } from '@ionic/angular';
-
+import { ActionSheetController, IonInfiniteScroll, IonVirtualScroll, ModalController, NavController, ToastController } from '@ionic/angular';
 import { Menu } from '../menu-store/menu-store.reducer';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
 import { orderactions } from '../global.enums';
@@ -24,7 +23,7 @@ import { AppsettingsService } from '../appsettings/appsettings.service';
 import { BarcodeinputComponent } from '../base-elements/barcodeinput/barcodeinput.component';
 import { OrderpayComponent } from './orderpay/orderpay.component';
 
-import * as CRC32 from 'crc-32';   
+import * as CRC32 from 'crc-32';
 import { MenuListComponent } from '../base-elements/menu-list/menu-list.component';
 import { AnketaComponent } from './anketa/anketa.component';
 import { selectLoginState } from '../authtorisation/auth.selectors';
@@ -45,26 +44,32 @@ export class OrderPage implements OnInit, OnDestroy {
   //// order parametrs 
   items$: Observable<Array<Orderitem>>;
   hall$: Observable<Hall>;
-  itemssubs : Subscription;
+  itemssubs: Subscription;
   hallid: string;
   table: string;  /// СТОЛ
   orderid: string;
-  
+
   //// versions , totals , acces
+  itemsview: Array<Orderitem> = [];
+  itemsall: Array<Orderitem> = [];
+  page_size = 8;
+  last_index = 0;
+
   totals;
-  startControlsumm : number;
-  currentControlsumm : number;
-  localAccesAllowed : boolean = false;
+  startControlsumm: number;
+  currentControlsumm: number;
+  localAccesAllowed: boolean = false;
   version: number;
-  lastGajet : string;
-  
+  lastGajet: string;
+
   /// local navigation (router no changes )
   MenuComp = MenuListComponent;
   AnketaComp = AnketaComponent;
-  MenuProps : {[key:string]:any} = {};
-  @ViewChild('navlinkmenu', {static: false}) navlinkmenu ;
- // @ViewChild('itemsvirtualscroll', {static: false}) itemsvirtualscroll : IonVirtualScroll ;
-  
+  MenuProps: { [key: string]: any } = {};
+  @ViewChild('navlinkmenu', { static: false }) navlinkmenu;
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
+
+
 
 
 
@@ -72,39 +77,39 @@ export class OrderPage implements OnInit, OnDestroy {
     header: 'Выбрать действие :',
 
     buttons: [
-    {
-      text: 'ЗАКРЫТЬ ЭТО МЕНЮ',
-      handler:
-        () => { this.OnOrderActionClick("ЗАКРЫТЬ ЭТО МЕНЮ") }
-    }, 
-    
-    {
-      text: 'ПЕЧАТЬ',
+      {
+        text: 'ЗАКРЫТЬ ЭТО МЕНЮ',
+        handler:
+          () => { this.OnOrderActionClick("ЗАКРЫТЬ ЭТО МЕНЮ") }
+      },
 
-      handler: () => { this.OnOrderActionClick(orderactions.PRINT) }
-    }, {
-      text: 'ОТМЕНА ПОЗИЦИЙ',
-      handler: () => { this.OnOrderActionClick(orderactions.CANCEL_ROW) }
+      {
+        text: 'ПЕЧАТЬ',
 
-    },
-    {
-      text: 'ОТМЕТИТЬ ФИСКАЛ',
-      handler: () => { this.OnOrderActionClick(orderactions.FISKAL) }
+        handler: () => { this.OnOrderActionClick(orderactions.PRINT) }
+      }, {
+        text: 'ОТМЕНА ПОЗИЦИЙ',
+        handler: () => { this.OnOrderActionClick(orderactions.CANCEL_ROW) }
 
-    },
-    {
-      text: 'ПРЕЧЕК',
-      handler: () => { this.OnOrderActionClick(orderactions.PRECHECK) }
+      },
+      {
+        text: 'ОТМЕТИТЬ ФИСКАЛ',
+        handler: () => { this.OnOrderActionClick(orderactions.FISKAL) }
 
-    }, {
-      text: 'ДИСКОНТ',
-      handler: () => { this.OnOrderActionClick(orderactions.DISCOUNT) }
-    }, {
-      text: 'ОПЛАТА',
-      handler: () => { this.OnOrderActionClick(orderactions.PAY) }
-    }
-    
-  ]
+      },
+      {
+        text: 'ПРЕЧЕК',
+        handler: () => { this.OnOrderActionClick(orderactions.PRECHECK) }
+
+      }, {
+        text: 'ДИСКОНТ',
+        handler: () => { this.OnOrderActionClick(orderactions.DISCOUNT) }
+      }, {
+        text: 'ОПЛАТА',
+        handler: () => { this.OnOrderActionClick(orderactions.PAY) }
+      }
+
+    ]
   }
 
   constructor(private route: ActivatedRoute,
@@ -114,24 +119,33 @@ export class OrderPage implements OnInit, OnDestroy {
     public actionSheetController: ActionSheetController,
     public modalController: ModalController,
     public toastController: ToastController,
-    public ctrl : NavController,
-    private Permissions : PermissionsService,
-    private detector : ChangeDetectorRef
+    public ctrl: NavController,
+    private Permissions: PermissionsService,
+    private detector: ChangeDetectorRef
   ) { }
 
-  
+
 
   ionViewWillLeave() {
-    console.log("ionViewWillLeave");
-    
+    this.itemsview = [];
+    this.last_index = 0;
+
     // if (this.currentControlsumm != this.startControlsumm) {
-      
+
     //   this.OnOrderActionClick(orderactions.SAVE);  
     // }
-    
-  } 
- 
+
+  }
+
+  ionViewDidLeave() {
+    this.itemsview = [];
+    this.last_index = 0;
+  }
+
+
   ionViewWillEnter() {
+    this.infiniteScroll.disabled = false;
+
   }
 
   ngOnInit() {
@@ -142,22 +156,58 @@ export class OrderPage implements OnInit, OnDestroy {
     this.itemssubs.unsubscribe();
   }
 
+  doInfinite(event) {
+    this.items$.pipe(take(1)).subscribe(items => {
+      console.log('doInfinite');
+      console.log(items.length);
+      console.log(this.itemsview.length);
+
+      if (items.length === this.itemsview.length) {
+        event.target.complete();
+        event.target.disabled = true;
+        return
+      }
+
+      setTimeout(() => {
+
+        const additems = items.slice(this.last_index, this.last_index + 8);
+        this.last_index = this.last_index + 8;
+
+
+        additems.forEach(item => {
+          this.itemsview.push(item);
+        })
+
+
+        event.target.complete();
+        if (items.length === this.itemsview.length) {
+          event.target.disabled = true;
+        }
+      }, 300);
+    })
+
+
+
+  }
+
+
+
   init() {
     this.hall$ = this.route.queryParamMap.pipe(
 
       tap(params => {
-        
+
         this.hallid = params.get('hallid');
         this.table = params.get('tableid');
         this.orderid = params.get('orderid');
-        
+
         this.OnOrderidChages();
 
         this.MenuProps.callBack = this.OnMenuElementSelect.bind(this);
-        this.MenuProps.GetOrderId =  this.GetOrderID.bind(this);
-        this.MenuProps.AddQountityFromMenu =  this.AddQountityFromMenu.bind(this);
+        this.MenuProps.GetOrderId = this.GetOrderID.bind(this);
+        this.MenuProps.AddQountityFromMenu = this.AddQountityFromMenu.bind(this);
         this.MenuProps.hallid = this.hallid;
-        this.MenuProps.orderid = this.orderid;  
+        this.MenuProps.orderid = this.orderid;
         this.MenuProps.table = this.table;
       }),
       concatMap(params => this.store.select(selectHallByid, params.get('hallid')))
@@ -170,23 +220,23 @@ export class OrderPage implements OnInit, OnDestroy {
     })
   }
 
-  trackByOrderitemFn(index, item: Orderitem ) {
+  trackByOrderitemFn(index, item: Orderitem) {
     return item.rowid
   }
-  
-  AccessLocalChanges(items: Array<Orderitem>)  {
-    
-    this.store.pipe(select(selectLoginState),take(1),tap(UserData=> {
-      
+
+  AccessLocalChanges(items: Array<Orderitem>) {
+
+    this.store.pipe(select(selectLoginState), take(1), tap(UserData => {
+
       if (items.length === 0) {
         this.localAccesAllowed = true;
-        return  
+        return
       }
       const FirstItem = items[0];
-  
-      this.localAccesAllowed = 
-      (!FirstItem.isprecheck) &&
-      (UserData.UserName === FirstItem.waitername || UserData.IsAdmin)
+
+      this.localAccesAllowed =
+        (!FirstItem.isprecheck) &&
+        (UserData.UserName === FirstItem.waitername || UserData.IsAdmin)
     })).subscribe()
 
 
@@ -194,17 +244,17 @@ export class OrderPage implements OnInit, OnDestroy {
 
 
   GetOrderID() {
-    
+
     return this.orderid;
   }
-  
+
   GetOrderRowByMenuItem(menuitem: Menu): Observable<Orderitem | undefined> {
     return this.items$.pipe(
       map(items => {
         const itemsinorder = items.filter(item => {
           return item.goodid.trim().toUpperCase() === menuitem.id.trim().toUpperCase() && !item.isCanceled
         });
-        
+
 
         if (itemsinorder.length > 0) {
           return itemsinorder[itemsinorder.length - 1];
@@ -216,30 +266,30 @@ export class OrderPage implements OnInit, OnDestroy {
       take(1));
   }
 
-  GetQueueElement(command , items) : Queue {
+  GetQueueElement(command, items): Queue {
     let commandParametr = {
-      orderid : this.orderid,
+      orderid: this.orderid,
       hallid: this.hallid,
       table: this.table,
-      waiter : "Admin",
+      waiter: "Admin",
       items: items
     }
-    
+
     let elQueue: Queue = {
       id: uuidv4() as string,
       command: command,
       commandParametr: commandParametr,
       commandDate: new Date(),
-      version : this.version,
+      version: this.version,
       gajet: this.setingsService.deviceID
-    };         
+    };
 
     return elQueue
   }
 
-  GetTotals(items:Array<Orderitem>) {
-    
-    
+  GetTotals(items: Array<Orderitem>) {
+
+
     if (items.length === 0) {
       //this.slider.slideTo(1);
       return { summ: 0, discountname: "", discountsumm: 0 }
@@ -249,62 +299,67 @@ export class OrderPage implements OnInit, OnDestroy {
 
     let summ = 0;
     let discountsumm = 0;
-    items.forEach(el => { { if (!el.isCanceled) {
-      summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm;
-    }  } })
+    items.forEach(el => {
+      {
+        if (!el.isCanceled) {
+          summ = summ + el.summ; discountsumm = discountsumm + el.discountsumm;
+        }
+      }
+    })
 
-    
+
 
     return { summ, discountname, discountsumm }
 
   }
 
-  GetControlSumm(items) : number {
-    
-    const clearItems = items.map(el => {return {...el,isSelected:false, isChanged: false, noControlSummCalculate: false}})
-    
+  GetControlSumm(items): number {
+
+    const clearItems = items.map(el => { return { ...el, isSelected: false, isChanged: false, noControlSummCalculate: false } })
+
     return CRC32.str(JSON.stringify(clearItems))
   }
 
-  inQueue(command: Queue, noControlSummCheck = false, changesFn, filterFn=undefined ) {
-    let items = command.commandParametr.items; 
-    if (filterFn===undefined) {
-      filterFn = (el)=> {return true};
+  inQueue(command: Queue, noControlSummCheck = false, changesFn, filterFn = undefined) {
+    let items = command.commandParametr.items;
+    if (filterFn === undefined) {
+      filterFn = (el) => { return true };
     }
-    
+
 
     if (this.startControlsumm != this.GetControlSumm(items) || noControlSummCheck) {
       this.version = this.version + 1;
-      
+
       /// в копии ТЧ подменяем версию на текщую на всякий случай (версия в команде и в данных совпадает тогда) 
-      const itemsnewversion = items.map(el => {return {...el, version : this.version, gajet : this.setingsService.deviceID  }} );
+      const itemsnewversion = items.map(el => { return { ...el, version: this.version, gajet: this.setingsService.deviceID } });
       command.version = this.version;
       command.commandParametr.items = itemsnewversion;
-      const InQueueAction = inQueue({data: command});  
+      const InQueueAction = inQueue({ data: command });
 
       this.Permissions.CheckPerpission(InQueueAction)
-      .pipe(take(1))
-      .subscribe(allowed=>{
-        if (allowed) {
-          this.store.dispatch(InQueueAction);  
-    
-          /// отмечаем оптимистичные данные устанавливаем  версию и устройство 
-          this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {...changesFn(el),version : this.version, gajet : this.setingsService.deviceID }}},
-          filterFn,
-          {editcanceled: true,
-           isLocal : true 
-          });
-        }
-      });
+        .pipe(take(1))
+        .subscribe(allowed => {
+          if (allowed) {
+            this.store.dispatch(InQueueAction);
 
-      
-        
-      
-      
-    } 
+            /// отмечаем оптимистичные данные устанавливаем  версию и устройство 
+            this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { ...changesFn(el), version: this.version, gajet: this.setingsService.deviceID } } },
+              filterFn,
+              {
+                editcanceled: true,
+                isLocal: true
+              });
+          }
+        });
+
+
+
+
+
+    }
 
   }
- 
+
   NextOrder(par: number) {
     if (par === 0) {
       this.router.navigate(this.route.snapshot.url, { queryParams: { orderid: "", hallid: this.hallid, tableid: this.table } });
@@ -322,77 +377,81 @@ export class OrderPage implements OnInit, OnDestroy {
     })
   }
 
-  AddQountityFromMenu(q,menuitem:Menu, event) {
+  AddQountityFromMenu(q, menuitem: Menu, event) {
     this.GetOrderRowByMenuItem(menuitem)
-    .subscribe(editingRow => {
-      
-      if (editingRow) {
-        this.AddQountity(q,editingRow,event);
-        
-      } else {
-        let data = {data: {
-          quantity: q,
-          comment: '',
-          price: menuitem.price,
-          canseled: false,
-          goodid: menuitem.id,
-          goodname: menuitem.name
-        }}
-    
-        this.OnEditRowDialogClosed(data, editingRow);
-      }
-     
-      
-    })
-  }  
+      .subscribe(editingRow => {
 
-  AddQountity(q,item:Orderitem,event) {
+        if (editingRow) {
+          this.AddQountity(q, editingRow, event);
+
+        } else {
+          let data = {
+            data: {
+              quantity: q,
+              comment: '',
+              price: menuitem.price,
+              canseled: false,
+              goodid: menuitem.id,
+              goodname: menuitem.name
+            }
+          }
+
+          this.OnEditRowDialogClosed(data, editingRow);
+        }
+
+
+      })
+  }
+
+  AddQountity(q, item: Orderitem, event) {
     event.stopPropagation();
-    
-    const quantity = item.quantity+q;
-    if (quantity<item.quantityprint) {
+
+    const quantity = item.quantity + q;
+    if (quantity < item.quantityprint) {
       return
     }
-    
-    let data = {data: {
-      quantity: quantity,
-      comment: '',
-      price: item.price,
-      canseled: false,
-    }}
+
+    let data = {
+      data: {
+        quantity: quantity,
+        comment: '',
+        price: item.price,
+        canseled: false,
+      }
+    }
 
     this.OnEditRowDialogClosed(data, item);
-    
+
   }
 
   GoBack() {
     if (this.currentControlsumm != this.startControlsumm) {
-      
-      this.OnOrderActionClick(orderactions.SAVE);  
+
+      this.OnOrderActionClick(orderactions.SAVE);
     }
-    this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
+    this.router.navigateByUrl('/home/halls/hallstate/' + this.hallid);
   }
 
-  ChangeRows(FnChange: Function , FnFilter : Function , params ) {
+  ChangeRows(FnChange: Function, FnFilter: Function, params) {
     /// если передали этот параметр то эти изменения на контрольную сумму влиять не должны
     /// поетому ставим признак пересчета стартовой т.е. приравниаем последние изменения к стартовым
     /// пересчет произойдет в подписке на select(selectOrderItems) 
-    
-    
+
+
     this.items$.pipe(
       take(1),
       // игнорируем отмененные строки если не сказаоно обратного
-      map(items => items.filter(el=> !el.isCanceled || params.editcanceled)),
+      map(items => items.filter(el => !el.isCanceled || params.editcanceled)),
       // отбираем по переданному фильтру
       map(items => items.filter(el => FnFilter(el))))
       .subscribe(items => {
-        
-        const itemchanges : Array<Update<Orderitem>> = 
-        items.map((el) => FnChange(el,params));
-             // двойной цикл .... нужно в самой функции прописывать
-             //.map((el) => {return el.changes = {...el.changes, isChanged: true, isSelected: false}});
-             
-             this.store.dispatch(UpdateOrderItemsValues({data: itemchanges} ))
+
+        const itemchanges: Array<Update<Orderitem>> =
+          items.map((el) => FnChange(el, params));
+        // двойной цикл .... нужно в самой функции прописывать
+        //.map((el) => {return el.changes = {...el.changes, isChanged: true, isSelected: false}});
+
+        this.store.dispatch(UpdateOrderItemsValues({ data: itemchanges }))
       });
 
   }
@@ -405,94 +464,125 @@ export class OrderPage implements OnInit, OnDestroy {
         this.OpenEditRowDialog(editingRow, event)
       })
   }
- 
+
   OnItemSelected(item: Orderitem, checked: boolean) {
-    
+
     if (item.isCanceled) {
       return;
     }
-    
+
     this.store.dispatch(SelectItem({ data: { id: item.rowid, changes: { isSelected: checked } } }))
   }
 
   OnOrderidChages() {
-    this.MenuProps.orderid = this.orderid;  
-    this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
-                                    map(items => { return items.map(el =>{return {...el,isSelected: !!el.isSelected, isChanged: !!el.isChanged,  noControlSummCalculate: false } } )}),
-                                    );
-                         
-  
+    this.MenuProps.orderid = this.orderid;
 
-  /// navigate to menu in new order make once                                   
-  this.items$.pipe(
-    take(1),
-    filter(items=>{return items.length===0})
+    this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
+      map(items => {
+        return items.map(el => {
+          return { ...el, isSelected: !!el.isSelected, isChanged: !!el.isChanged, noControlSummCalculate: false };
+        })
+
+
+      }),
+    );
+
+
+
+    /// navigate to menu in new order make once                                   
+    this.items$.pipe(
+      take(1),
+      filter(items => { return items.length === 0 })
     ).subscribe(() => {
-      
+
       setTimeout(() => {
         this.navlinkmenu.el.click();
-      }, 500);
+      }, 300);
     });
 
 
-  /// versions , totals  , acces - lsten changes 
-  this.itemssubs = this.items$.subscribe(items=> {
-   
-    
-    
-    this.version = items.length === 0 ? 0 : items[0].version;
-    this.lastGajet = items.length === 0 ? "" : items[0].gajet;
-    const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate)!=undefined; 
-    this.currentControlsumm = this.GetControlSumm(items);
-    if (!noControlSummCalculate) {
-      this.startControlsumm = this.currentControlsumm;
-    }
-    this.AccessLocalChanges(items);
-    this.totals = this.GetTotals(items);
+    /// versions , totals  , acces - lsten changes 
+    this.itemssubs = this.items$.subscribe(items => {
+      /// при первом открытии сначала покажем только первые n позиций для ускорения
 
-    
-  });  
+      // if (this.itemsview.length === 0) {
+      //   setTimeout(() => {
+      //     this.itemsview = items;  
+      //   }, 300);
+      // } else {
+      //   this.itemsview = items;  
+      // }
+
+      //console.log('itemsview.length ',this.itemsview.length)
+      if (this.itemsview.length === 0) {
+        setTimeout(() => {
+          this.itemsview = items.slice(0, 8);
+          this.last_index = 8;
+        }, 300);
+
+      } else {
+        this.itemsview = items;
+      }
 
 
-                                        
-  
+
+
+
+
+
+      this.version = items.length === 0 ? 0 : items[0].version;
+      this.lastGajet = items.length === 0 ? "" : items[0].gajet;
+      const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate) != undefined;
+      this.currentControlsumm = this.GetControlSumm(items);
+      if (!noControlSummCalculate) {
+        this.startControlsumm = this.currentControlsumm;
+      }
+      this.AccessLocalChanges(items);
+      this.totals = this.GetTotals(items);
+
+
+    });
+
+
+
+
 
   }
 
-  OnOrderActionClick(command: string ) {
+  OnOrderActionClick(command: string) {
     this.items$.pipe(take(1)).subscribe(
       items => {
-        
+
         switch (command) {
-          
+
           case "ЗАКРЫТЬ ЭТО МЕНЮ":
             return;
-          
+
           case orderactions.FISKAL:
             /// простоую отметку на 1С не гоняем
-            
-            this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {isexcise: el.isSelected, isSelected:false, isChanged : !!el.isexcise != !!el.isSelected }}},
-                            (el) => {return el.isSelected},
-                            { });
+
+            this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { isexcise: el.isSelected, isSelected: false, isChanged: !!el.isexcise != !!el.isSelected } } },
+              (el) => { return el.isSelected },
+              {});
             return;
           case orderactions.PAY:
-            this.OpenPayDialog(items); 
+            this.OpenPayDialog(items);
             return;
           case orderactions.PRECHECK:
             this.inQueue(this.GetQueueElement(command, items),
-            true,
-            (el: Orderitem) => {return  {isprecheck: true, isSelected:false, isChanged : true}}
+              true,
+              (el: Orderitem) => { return { isprecheck: true, isSelected: false, isChanged: true } }
             );
           case orderactions.PRINT:
             /// в очердь версию данных для печати
-            
+
             const noControlSummCheck = true;
 
             this.inQueue(this.GetQueueElement(command, items),
-            noControlSummCheck,
-            (el: Orderitem) => {return  {quantityprint: el.quantity, isSelected:false, isChanged : el.quantity!=el.quantityprint}}
+              noControlSummCheck,
+              (el: Orderitem) => { return { quantityprint: el.quantity, isSelected: false, isChanged: el.quantity != el.quantityprint } }
             );
-            
+
             /// оптимистичные изменения для отображения без передачи на 1С
             // this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {quantityprint: el.quantity, isSelected:false, isChanged : el.quantity!=el.quantityprint}}},
             // (el) => {return true},
@@ -500,33 +590,33 @@ export class OrderPage implements OnInit, OnDestroy {
 
 
 
-            return;  
-            
-            
+            return;
+
+
           case orderactions.CANCEL_ROW:
             let FakeQueueEl = this.GetQueueElement(command, items);
-            FakeQueueEl.commandParametr = {... FakeQueueEl.commandParametr , checkOnlySelectedRows: true  }
+            FakeQueueEl.commandParametr = { ...FakeQueueEl.commandParametr, checkOnlySelectedRows: true }
 
-            const InQueueFakeAction = inQueue({data: FakeQueueEl });  
+            const InQueueFakeAction = inQueue({ data: FakeQueueEl });
 
             this.Permissions.CheckPerpission(InQueueFakeAction)
-            .pipe(take(1))
-            .subscribe(allowed=>{
-              if (allowed) {
-                this.ChangeRows((el: Orderitem) => { return {id: el.rowid ,changes: {isCanceled: el.isSelected, isSelected:false, isChanged : !!el.isSelected != !!el.isCanceled}}},
-                (el) => {return true},
-                {editcanceled: true});
-              }
-            });
-            return;  
+              .pipe(take(1))
+              .subscribe(allowed => {
+                if (allowed) {
+                  this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { isCanceled: el.isSelected, isSelected: false, isChanged: !!el.isSelected != !!el.isCanceled } } },
+                    (el) => { return true },
+                    { editcanceled: true });
+                }
+              });
+            return;
           case orderactions.DISCOUNT:
-            this.OpenDiscountDialog();           
+            this.OpenDiscountDialog();
             return;
           default:
-          
-          this.inQueue(this.GetQueueElement(command, items),false,(el)=> {return {}});
-            
-          }
+
+            this.inQueue(this.GetQueueElement(command, items), false, (el) => { return {} });
+
+        }
       }
     )
 
@@ -574,51 +664,53 @@ export class OrderPage implements OnInit, OnDestroy {
     });
   }
 
-  OnPayDialogClosed(res,items) {
+  OnPayDialogClosed(res, items) {
     const dialogres = res.data;
     if (dialogres.canseled) {
       return
     }
-    
 
-    let el: Queue = this.GetQueueElement(orderactions.PAY,items);
-    el.commandParametr = {...el.commandParametr,
+
+    let el: Queue = this.GetQueueElement(orderactions.PAY, items);
+    el.commandParametr = {
+      ...el.commandParametr,
       paytype: dialogres.paytype,
       cash: dialogres.cash
-    }  
-  
+    }
+
     const noControlSummCheck = true
 
     this.inQueue(el,
-    noControlSummCheck,
-    (el: Orderitem) => {},
-    (el)=> {return false}
+      noControlSummCheck,
+      (el: Orderitem) => { },
+      (el) => { return false }
     );
     //this.store.dispatch(inQueue({ data: el }));
-    
 
 
-    this.router.navigateByUrl('/home/halls/hallstate/'+this.hallid);
+
+    this.router.navigateByUrl('/home/halls/hallstate/' + this.hallid);
   }
 
   OnDiscountDialogClosed(res) {
     const dialogres = res.data;
-    
+
     if (dialogres.canseled) {
       return
     }
-    
+
     this.items$.pipe(take(1)).subscribe(items => {
-      let el: Queue = this.GetQueueElement(orderactions.DISCOUNT,items);
-      el.commandParametr = {...el.commandParametr,
-        discountcode : dialogres.data
-      }  
-  
+      let el: Queue = this.GetQueueElement(orderactions.DISCOUNT, items);
+      el.commandParametr = {
+        ...el.commandParametr,
+        discountcode: dialogres.data
+      }
+
       this.inQueue(el,
         true,
-        (el: Orderitem) => {return {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}
-        )
-  
+        (el: Orderitem) => { return { discountsumm: 0, dicountname: 'Знижка обробляеться 1С' } }
+      )
+
     })
 
 
@@ -626,15 +718,15 @@ export class OrderPage implements OnInit, OnDestroy {
     //   this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}},
     //   (el) => {return true},
     //   {});
-   }
+  }
 
   OnEditRowDialogClosed(data, editingRow: Orderitem) {
     if (data.data.canseled) {
       return;
     }
 
-    
-    
+
+
 
     let kaskad = {
       orderid: "",
@@ -643,14 +735,14 @@ export class OrderPage implements OnInit, OnDestroy {
       tableid: this.table
     }
 
-    
+
     if (this.orderid === undefined || this.orderid === "" || this.orderid === null) {
       this.orderid = uuidv4();
-      
+
       kaskad.orderid = this.orderid
 
     }
-    
+
     if (editingRow === undefined) {
       const rowid = uuidv4() as string;
       kaskad.rowid = rowid;
@@ -675,9 +767,9 @@ export class OrderPage implements OnInit, OnDestroy {
         modified: new Date(),
         isChanged: true,
         isSelected: true,
-        version : this.version,
-        gajet   : this.setingsService.deviceID,
-        noControlSummCalculate:true 
+        version: this.version,
+        gajet: this.setingsService.deviceID,
+        noControlSummCalculate: true
       }
 
       this.store.dispatch(AddRow({ data: new_row, kaskad: kaskad }));
@@ -690,21 +782,21 @@ export class OrderPage implements OnInit, OnDestroy {
           quantity: data.data.quantity,
           comment: data.data.comment,
           summ: data.data.quantity * data.data.price,
-          noControlSummCalculate:true 
+          noControlSummCalculate: true
 
         }
       };
       this.store.dispatch(ModifyOrderItem({ data: changes, kaskad: kaskad }));
-     
+
       /// сумма дисконта должна перерасчитатья на стороне 1С 
-      this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С', noControlSummCalculate:true  }}},
-      (el) => {return true},
-      {});
+      this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { discountsumm: 0, dicountname: 'Знижка обробляеться 1С', noControlSummCalculate: true } } },
+        (el) => { return true },
+        {});
     }
 
-    
+
     if (kaskad.orderid) {
-      
+
       this.OnOrderidChages();
       ///  мы перечитали заказ с первой добавленной строкой 
       ///  фактически создали новый ордер ид - ноцжно на негоподписаться
@@ -717,23 +809,23 @@ export class OrderPage implements OnInit, OnDestroy {
 
   OpenPayDialog(items) {
     //this.totals$.pipe(take(1)).subscribe(total => {
-    
+
     this.modalController.create({
       component: OrderpayComponent,
       // cssClass: 'my-custom-class',
       componentProps: {
-        OrderSumm : this.totals.summ
-       }
+        OrderSumm: this.totals.summ
+      }
     }).then(modalEl => {
-      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data,items));
+      modalEl.onWillDismiss().then(data => this.OnPayDialogClosed(data, items));
       modalEl.present();
-    }); 
+    });
     //});
   }
 
   OpenDiscountDialog() {
-   
-  
+
+
     this.modalController.create({
       component: BarcodeinputComponent,
       // cssClass: 'my-custom-class',
@@ -742,10 +834,10 @@ export class OrderPage implements OnInit, OnDestroy {
     }).then(modalEl => {
       modalEl.onWillDismiss().then(data => this.OnDiscountDialogClosed(data));
       modalEl.present();
-    }); 
+    });
 
   }
-  
+
   itemHeightFn(tem, index) {
     return 85;
   }
