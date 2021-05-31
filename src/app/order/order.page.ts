@@ -2,7 +2,7 @@ import { AuthState } from './../authtorisation/reducers/index';
 
 import { Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
-import { concatMap, map, take, tap, first, filter, debounceTime, share } from 'rxjs/operators';
+import { concatMap, map, take, tap, first, filter } from 'rxjs/operators';
 import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
@@ -11,7 +11,7 @@ import { Observable, Subscription } from 'rxjs';
 import { selectOrderItems, selectOrdersOnTableBuId } from '../home/halls/hall-state-store/hallstate.selectors';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { selectHallByid } from '../home/halls-store/hallsstore.selectors';
-import { ActionSheetController, IonInfiniteScroll, IonVirtualScroll, ModalController, NavController, ToastController } from '@ionic/angular';
+import { ActionSheetController, IonInfiniteScroll,  ModalController, NavController, ToastController } from '@ionic/angular';
 import { Menu } from '../menu-store/menu-store.reducer';
 import { EditOrderItemComponent } from './edit-order-item/edit-order-item.component';
 import { orderactions } from '../global.enums';
@@ -52,10 +52,9 @@ export class OrderPage implements OnInit, OnDestroy {
 
   //// versions , totals , acces
   itemsview: Array<Orderitem> = [];
-  itemsall: Array<Orderitem> = [];
   page_size = 8;
   last_index = 0;
-  userdata : AuthState;
+  userdata: AuthState;
 
   totals;
   startControlsumm: number;
@@ -63,7 +62,7 @@ export class OrderPage implements OnInit, OnDestroy {
   localAccesAllowed: boolean = false;
   version: number;
   lastGajet: string;
-  waiter:string;
+  waiter: string;
 
   /// local navigation (router no changes )
   MenuComp = MenuListComponent;
@@ -131,7 +130,7 @@ export class OrderPage implements OnInit, OnDestroy {
 
   ionViewWillLeave() {
     console.log("Will Leave");
-    
+
 
   }
 
@@ -142,8 +141,8 @@ export class OrderPage implements OnInit, OnDestroy {
 
   ionViewWillEnter() {
     // console.log("Will Enter");
-    
-    
+
+
   }
 
   ionViewDidEnter() {
@@ -164,21 +163,19 @@ export class OrderPage implements OnInit, OnDestroy {
     // console.log(this.currentControlsumm);
     // console.log(this.startControlsumm);
     if (this.currentControlsumm != this.startControlsumm) {
-      
-     
-      this.OnOrderActionClick(orderactions.SAVE);
-      this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { noControlSummCalculate: false } } },
-              (el) => { return true },
-              {});
-      
-      
+      this.items$.pipe(take(1)).subscribe(
+        items => {
+          this.inQueue(this.GetQueueElement(orderactions.SAVE, items),
+            true,
+            (el: Orderitem) => { 
+              return {isSelected: false, isChanged: true}
+            }
+          );
+        });
     }
-    
-      this.itemssubs.unsubscribe();
-      this.itemsview = [];
-      this.last_index = 0;
-  
-    
+    this.itemssubs.unsubscribe();
+    this.itemsview = [];
+    this.last_index = 0;
   }
 
   doInfinite(event) {
@@ -194,40 +191,23 @@ export class OrderPage implements OnInit, OnDestroy {
       }
 
       setTimeout(() => {
-
-        // const additems = items.slice(this.last_index, this.last_index + 8);
-        // this.last_index = this.last_index + 8;
-        // additems.forEach(item => {
-        //   this.itemsview.push(item);
-        // })
-
         this.last_index = this.last_index + 8;
         this.itemsview = items.slice(0, this.last_index);
-
-
         event.target.complete();
         if (items.length === this.itemsview.length) {
           event.target.disabled = true;
         }
       }, 10);
     })
-
-
-
   }
 
-
-
   init() {
-    
-    this.store.pipe(select(selectLoginState),take(1)).subscribe(
+    this.store.pipe(select(selectLoginState), take(1)).subscribe(
       userdata => this.userdata = userdata
     )
 
     this.hall$ = this.route.queryParamMap.pipe(
-
       tap(params => {
-
         this.hallid = params.get('hallid');
         this.table = params.get('tableid');
         this.orderid = params.get('orderid');
@@ -258,17 +238,17 @@ export class OrderPage implements OnInit, OnDestroy {
   AccessLocalChanges(items: Array<Orderitem>) {
 
     this.store.pipe(select(selectLoginState),
-     take(1),
-     tap(UserData => {
-      if (items.length === 0) {
-        this.localAccesAllowed = true;
-        return
-      }
-      const FirstItem = items[0];
-      this.localAccesAllowed =
-        (!FirstItem.isprecheck) &&
-        (UserData.UserName === FirstItem.waitername || UserData.IsAdmin)
-    })).subscribe()
+      take(1),
+      tap(UserData => {
+        if (items.length === 0) {
+          this.localAccesAllowed = true;
+          return
+        }
+        const FirstItem = items[0];
+        this.localAccesAllowed =
+          (!FirstItem.isprecheck) &&
+          (UserData.UserName === FirstItem.waitername || UserData.IsAdmin)
+      })).subscribe()
 
 
   }
@@ -372,15 +352,14 @@ export class OrderPage implements OnInit, OnDestroy {
         .pipe(take(1))
         .subscribe(allowed => {
           if (allowed) {
-            this.store.dispatch(InQueueAction);
-
-            /// отмечаем оптимистичные данные устанавливаем  версию и устройство 
-            this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { ...changesFn(el), version: this.version, gajet: this.setingsService.deviceID } } },
+            /// отмечаем оптимистичные данные устанавливаем  версию и устройство сбрасываем необходимость сохранения при выходе
+            this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { ...changesFn(el), noControlSummCheck: false, version: this.version, gajet: this.setingsService.deviceID } } },
               filterFn,
               {
                 editcanceled: true,
                 isLocal: true
               });
+            this.store.dispatch(InQueueAction);
           }
         });
     }
@@ -451,10 +430,10 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   GoBack() {
-    setTimeout(()=>{
+    setTimeout(() => {
       this.ctrl.navigateBack('/home/halls/hallstate/' + this.hallid);
-    },350)
-    
+    }, 350)
+
     //this.router.navigateByUrl('/home/halls/hallstate/' + this.hallid);
   }
 
@@ -506,7 +485,7 @@ export class OrderPage implements OnInit, OnDestroy {
     this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
       map(items => {
         return items.map(el => {
-          return { ...el, isSelected: !!el.isSelected, isChanged: !!el.isChanged, noControlSummCalculate: !! el.noControlSummCalculate };
+          return { ...el, isSelected: !!el.isSelected, isChanged: !!el.isChanged, noControlSummCalculate: !!el.noControlSummCalculate };
         })
       }),
     );
@@ -546,7 +525,7 @@ export class OrderPage implements OnInit, OnDestroy {
         this.itemsview = items;
       }
 
-      this.waiter  = items.length === 0 ? this.userdata.UserName : items[0].waitername; 
+      this.waiter = items.length === 0 ? this.userdata.UserName : items[0].waitername;
       this.version = items.length === 0 ? 0 : items[0].version;
       this.lastGajet = items.length === 0 ? "" : items[0].gajet;
       const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate) != undefined;
@@ -582,10 +561,10 @@ export class OrderPage implements OnInit, OnDestroy {
           case orderactions.PRINT:
             /// в очердь версию данных для печати
 
-            
+
 
             this.inQueue(this.GetQueueElement(command, items),
-            true,
+              true,
               (el: Orderitem) => { return { quantityprint: el.quantity, isSelected: false, isChanged: el.quantity != el.quantityprint } }
             );
 
@@ -616,7 +595,12 @@ export class OrderPage implements OnInit, OnDestroy {
             this.OpenDiscountDialog();
             return;
           default:
-            this.inQueue(this.GetQueueElement(command, items), false, (el) => { return {} });
+          this.inQueue(this.GetQueueElement(orderactions.SAVE, items),
+            false,
+            (el: Orderitem) => {}
+          ); 
+          
+          
         }
       }
     )
@@ -670,7 +654,7 @@ export class OrderPage implements OnInit, OnDestroy {
 
     this.inQueue(el,
       noControlSummCheck,
-      (el: Orderitem) => { },
+      (el: Orderitem) => {},
       (el) => { return false }
     );
     //this.store.dispatch(inQueue({ data: el }));
