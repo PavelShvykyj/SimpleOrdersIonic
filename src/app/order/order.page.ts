@@ -1,3 +1,4 @@
+import { AuthState } from './../authtorisation/reducers/index';
 
 import { Orderitem } from './../home/halls/hall-state-store/hallstate.reducer';
 import { AddRow, UpdateOrderItemsValues } from './../home/halls/hall-state-store/hallstate.actions';
@@ -54,6 +55,7 @@ export class OrderPage implements OnInit, OnDestroy {
   itemsall: Array<Orderitem> = [];
   page_size = 8;
   last_index = 0;
+  userdata : AuthState;
 
   totals;
   startControlsumm: number;
@@ -61,6 +63,7 @@ export class OrderPage implements OnInit, OnDestroy {
   localAccesAllowed: boolean = false;
   version: number;
   lastGajet: string;
+  waiter:string;
 
   /// local navigation (router no changes )
   MenuComp = MenuListComponent;
@@ -161,8 +164,14 @@ export class OrderPage implements OnInit, OnDestroy {
     // console.log(this.currentControlsumm);
     // console.log(this.startControlsumm);
     if (this.currentControlsumm != this.startControlsumm) {
-      // console.log("SAVE");
-      this.OnOrderActionClick(orderactions.SAVE);  
+      
+     
+      this.OnOrderActionClick(orderactions.SAVE);
+      this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { noControlSummCalculate: false } } },
+              (el) => { return true },
+              {});
+      
+      
     }
     
       this.itemssubs.unsubscribe();
@@ -211,6 +220,10 @@ export class OrderPage implements OnInit, OnDestroy {
 
   init() {
     
+    this.store.pipe(select(selectLoginState),take(1)).subscribe(
+      userdata => this.userdata = userdata
+    )
+
     this.hall$ = this.route.queryParamMap.pipe(
 
       tap(params => {
@@ -244,14 +257,14 @@ export class OrderPage implements OnInit, OnDestroy {
 
   AccessLocalChanges(items: Array<Orderitem>) {
 
-    this.store.pipe(select(selectLoginState), take(1), tap(UserData => {
-
+    this.store.pipe(select(selectLoginState),
+     take(1),
+     tap(UserData => {
       if (items.length === 0) {
         this.localAccesAllowed = true;
         return
       }
       const FirstItem = items[0];
-
       this.localAccesAllowed =
         (!FirstItem.isprecheck) &&
         (UserData.UserName === FirstItem.waitername || UserData.IsAdmin)
@@ -289,7 +302,7 @@ export class OrderPage implements OnInit, OnDestroy {
       orderid: this.orderid,
       hallid: this.hallid,
       table: this.table,
-      waiter: "Admin",
+      waiter: this.waiter,
       items: items
     }
 
@@ -298,6 +311,7 @@ export class OrderPage implements OnInit, OnDestroy {
       command: command,
       commandParametr: commandParametr,
       commandDate: new Date(),
+      status: 'не обрабатывалась',
       version: this.version,
       gajet: this.setingsService.deviceID
     };
@@ -369,13 +383,7 @@ export class OrderPage implements OnInit, OnDestroy {
               });
           }
         });
-
-
-
-
-
     }
-
   }
 
   NextOrder(par: number) {
@@ -443,8 +451,10 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   GoBack() {
- 
-    this.ctrl.navigateBack('/home/halls/hallstate/' + this.hallid);
+    setTimeout(()=>{
+      this.ctrl.navigateBack('/home/halls/hallstate/' + this.hallid);
+    },350)
+    
     //this.router.navigateByUrl('/home/halls/hallstate/' + this.hallid);
   }
 
@@ -536,7 +546,7 @@ export class OrderPage implements OnInit, OnDestroy {
         this.itemsview = items;
       }
 
-
+      this.waiter  = items.length === 0 ? this.userdata.UserName : items[0].waitername; 
       this.version = items.length === 0 ? 0 : items[0].version;
       this.lastGajet = items.length === 0 ? "" : items[0].gajet;
       const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate) != undefined;
@@ -546,28 +556,17 @@ export class OrderPage implements OnInit, OnDestroy {
       }
       this.AccessLocalChanges(items);
       this.totals = this.GetTotals(items);
-
-
     });
-
-
-
-
-
   }
 
   OnOrderActionClick(command: string) {
     this.items$.pipe(take(1)).subscribe(
       items => {
-
         switch (command) {
-
           case "ЗАКРЫТЬ ЭТО МЕНЮ":
             return;
-
           case orderactions.FISKAL:
             /// простоую отметку на 1С не гоняем
-
             this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { isexcise: el.isSelected, isSelected: false, isChanged: !!el.isexcise != !!el.isSelected } } },
               (el) => { return el.isSelected },
               {});
@@ -583,17 +582,14 @@ export class OrderPage implements OnInit, OnDestroy {
           case orderactions.PRINT:
             /// в очердь версию данных для печати
 
-            const noControlSummCheck = true;
+            
 
             this.inQueue(this.GetQueueElement(command, items),
-              noControlSummCheck,
+            true,
               (el: Orderitem) => { return { quantityprint: el.quantity, isSelected: false, isChanged: el.quantity != el.quantityprint } }
             );
 
-            /// оптимистичные изменения для отображения без передачи на 1С
-            // this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {quantityprint: el.quantity, isSelected:false, isChanged : el.quantity!=el.quantityprint}}},
-            // (el) => {return true},
-            // {});
+            /// оптимистичные изменения для отображения без передачи на 1С (перенесено в inQueue)
 
 
 
@@ -620,25 +616,10 @@ export class OrderPage implements OnInit, OnDestroy {
             this.OpenDiscountDialog();
             return;
           default:
-
             this.inQueue(this.GetQueueElement(command, items), false, (el) => { return {} });
-
         }
       }
     )
-
-
-
-    // switch (action) {
-    //   case orderactions.SAVE:
-    //   case orderactions.PRINT:
-    //   case orderactions.PRECHECK:
-    //   case orderactions.PAY:
-    //   case orderactions.DISCOUNT:
-    //   case orderactions.CANCEL_ROW:  
-    //   default:
-    //     break;
-    // }
 
   }
 
@@ -732,9 +713,6 @@ export class OrderPage implements OnInit, OnDestroy {
       return;
     }
 
-
-
-
     let kaskad = {
       orderid: "",
       rowid: "",
@@ -768,7 +746,7 @@ export class OrderPage implements OnInit, OnDestroy {
         isexcise: false,
         isprecheck: false,
         comment: data.data.comment,
-        waitername: "",
+        waitername: this.waiter,
         dicountname: "",
         dicountid: "",
         modified: new Date(),

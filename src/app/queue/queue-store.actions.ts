@@ -20,6 +20,12 @@ export const inQueue = createAction(
   props<{ data : Queue }>()
 );
 
+export const UpdateQueue = createAction(
+  '[QueueStore] update  queue',
+  props<{ data : Array<Queue> }>()
+);
+
+
 export const inQueueSuccess = createAction(
   '[QueueStore] add command in queue',
   props<{ data : Queue }>()

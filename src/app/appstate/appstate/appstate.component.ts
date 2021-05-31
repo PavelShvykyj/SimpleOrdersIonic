@@ -7,6 +7,10 @@ import { SelectUserName } from 'src/app/authtorisation/auth.selectors';
 import { isConnected, isNetworkCorrect, PingStatus, selectnettype } from 'src/app/net/netcontrol.selectors';
 import { selectQueueLenth } from 'src/app/queue/queue-store.selectors';
 import { State } from 'src/app/reducers';
+import { ModalController, NavController } from '@ionic/angular';
+import { QueueListComponent } from '../queue-list/queue-list.component';
+import { Queue } from 'src/app/queue/queue-store.reducer';
+
 
 @Component({
   selector: 'app-state',
@@ -18,7 +22,10 @@ export class AppstateComponent implements OnInit , OnDestroy {
   stateData : {userName:string, netName:string, queueCount:number};
   refreshersubs: Subscription
 
-  constructor(private detector : ChangeDetectorRef, private store: Store<State>) {
+  constructor(private detector : ChangeDetectorRef,
+              private store: Store<State>,
+              public ctrl: NavController,
+              public modalController: ModalController) {
 
 
    }
@@ -46,6 +53,8 @@ export class AppstateComponent implements OnInit , OnDestroy {
       }})
       ).subscribe((res)=>{ 
       this.stateData = res;
+      
+
        } );    
 
   }
@@ -56,8 +65,31 @@ export class AppstateComponent implements OnInit , OnDestroy {
 
 
   OnQueueClicked(stateData) {
-    if (stateData.queueCount>0 &&  stateData.PingStatus) {
-      this.store.dispatch(doQueue());
-    }
+    this.modalController.create({
+      componentProps: {stateData},
+      component: QueueListComponent,
+    }).then(modalEl => {
+      modalEl.onWillDismiss().then(data => this.OnQListDialogClosed(data));
+      modalEl.present();
+    });
   }
+
+  OnQListDialogClosed(data: any) {
+    
+
+    if (data.data.canseled) {
+      return
+    }
+
+    const q : Queue = data.data.q;
+    const queryParams = {
+      orderid: q.commandParametr.orderid ,
+      hallid: q.commandParametr.hallid,
+      tableid : q.commandParametr.table
+    };
+    console.log('queryParams',queryParams);
+    this.ctrl.navigateForward("/order",{  queryParams:queryParams  })
+  }
+
+
 }

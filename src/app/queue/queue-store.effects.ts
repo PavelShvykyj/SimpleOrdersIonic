@@ -8,7 +8,7 @@ import { OnecConnectorService } from '../onec/onec.connector.service';
 import { DatabaseService } from '../database/database.service';
 import { LoadingController } from '@ionic/angular';
 import { Queue } from './queue-store.reducer';
-import { Store, select } from '@ngrx/store';
+import { Store, select, props } from '@ngrx/store';
 import { State } from '../reducers';
 import { selectAllQueue } from './queue-store.selectors';
 import { PingStatus } from '../net/netcontrol.selectors';
@@ -50,20 +50,41 @@ export class QueueStoreEffects {
           return this.webdb.doQueue(data[1]).pipe(
             /////   тут нужено обработать ответ или это конкретный заказ или весь холл стэйт
             /////   после успешной чистки очереди обновляем зал  см delQueueEffect
-            map(()=> {console.log('call delQueue'); return QueueStoreActions.delQueue()}),
-            catchError((err) => {console.log('doQueueEffect error',err); return of(QueueStoreActions.doQueueFailure())} ),
+            map((response)=> {
+              const newQ : Array<Queue> = JSON.parse(response); 
+              if (newQ.length === 0) {
+                return QueueStoreActions.delQueue()  
+              } else {
+                
+                return QueueStoreActions.UpdateQueue({data: newQ})
+              }
+             
+              
+            
+            }),
+            catchError((err) => { return of(QueueStoreActions.doQueueFailure())} ),
             tap(()=> data[0][0].dismiss())
           )
       } )
     )});  
 
-    delQueueEffect$ = createEffect(() => {
-      return this.actions$.pipe( 
-        /// фильтруем событие
-        ofType(QueueStoreActions.delQueue),
-        tap(() => { this.localdb.DellItem('queue')} ),
-        map(()=> {return refreshHallstates()} )
-      )});    
+
+  delQueueEffect$ = createEffect(() => {
+    return this.actions$.pipe( 
+      /// фильтруем событие
+      ofType(QueueStoreActions.delQueue),
+      tap(() => { this.localdb.DellItem('queue')} ),
+      map(()=> {return refreshHallstates()} )
+    )});    
+
+
+  updateQueueEffect$ = createEffect(() => {
+    return this.actions$.pipe( 
+      /// фильтруем событие
+      ofType(QueueStoreActions.UpdateQueue),
+      tap((props) => { this.localdb.SaveData('queue',props.data) } )
+    )},
+    { dispatch: false });    
 
 
   loadQueueStores$ = createEffect(() => {
