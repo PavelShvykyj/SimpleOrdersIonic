@@ -169,7 +169,13 @@ export const selectHallStateData = createSelector(
       Items: Dictionary<fromHallstate.Orderitem>,
       id: string
     ) => { 
+      console.log('selectOrderItems',id);
+      if (id === undefined) {
+        return []
+      }
+      
       const order =  ItemsInOrders[id];
+      console.log('order',order);
       if (order === undefined) {
         return []
       }

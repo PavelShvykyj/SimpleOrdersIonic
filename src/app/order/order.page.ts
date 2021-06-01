@@ -31,10 +31,6 @@ import { selectLoginState } from '../authtorisation/auth.selectors';
 import { PermissionsService } from '../permissions.service';
 
 
-
-
-
-
 @Component({
   selector: 'app-order',
   templateUrl: './order.page.html',
@@ -129,9 +125,7 @@ export class OrderPage implements OnInit, OnDestroy {
 
 
   ionViewWillLeave() {
-    console.log("Will Leave");
-
-
+    // console.log("Will Leave");
   }
 
   ionViewDidLeave() {
@@ -141,8 +135,6 @@ export class OrderPage implements OnInit, OnDestroy {
 
   ionViewWillEnter() {
     // console.log("Will Enter");
-
-
   }
 
   ionViewDidEnter() {
@@ -151,6 +143,7 @@ export class OrderPage implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    
     this.init();
   }
 
@@ -159,9 +152,9 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // console.log("ngOnDestroy");
-    // console.log(this.currentControlsumm);
-    // console.log(this.startControlsumm);
+    console.log("ngOnDestroy");
+    console.log(this.currentControlsumm);
+    console.log(this.startControlsumm);
     if (this.currentControlsumm != this.startControlsumm) {
       this.items$.pipe(take(1)).subscribe(
         items => {
@@ -353,7 +346,7 @@ export class OrderPage implements OnInit, OnDestroy {
         .subscribe(allowed => {
           if (allowed) {
             /// отмечаем оптимистичные данные устанавливаем  версию и устройство сбрасываем необходимость сохранения при выходе
-            this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { ...changesFn(el), noControlSummCheck: false, version: this.version, gajet: this.setingsService.deviceID } } },
+            this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { ...changesFn(el), noControlSummCalculate: false, version: this.version, gajet: this.setingsService.deviceID } } },
               filterFn,
               {
                 editcanceled: true,
@@ -430,7 +423,9 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   GoBack() {
+    console.time('GoBack')
     setTimeout(() => {
+      console.timeEnd('GoBack');
       this.ctrl.navigateBack('/home/halls/hallstate/' + this.hallid);
     }, 350)
 
@@ -446,7 +441,7 @@ export class OrderPage implements OnInit, OnDestroy {
     this.items$.pipe(
       take(1),
       // игнорируем отмененные строки если не сказаоно обратного
-      map(items => items.filter(el => !el.isCanceled || params.editcanceled)),
+      map(items => items.filter(el => !el.isCanceled || params.in)),
       // отбираем по переданному фильтру
       map(items => items.filter(el => FnFilter(el))))
       .subscribe(items => {
@@ -480,7 +475,12 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   OnOrderidChages() {
+    if (this.orderid === undefined) {
+      this.orderid = "";
+    }
+    
     this.MenuProps.orderid = this.orderid;
+
 
     this.items$ = this.store.pipe(select(selectOrderItems, this.orderid),
       map(items => {
@@ -528,11 +528,15 @@ export class OrderPage implements OnInit, OnDestroy {
       this.waiter = items.length === 0 ? this.userdata.UserName : items[0].waitername;
       this.version = items.length === 0 ? 0 : items[0].version;
       this.lastGajet = items.length === 0 ? "" : items[0].gajet;
+      console.log(items);
       const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate) != undefined;
       this.currentControlsumm = this.GetControlSumm(items);
       if (!noControlSummCalculate) {
         this.startControlsumm = this.currentControlsumm;
       }
+      console.log('noControlSummCalculate',noControlSummCalculate);
+      console.log('startControlsumm',this.startControlsumm);
+      console.log('currentControlsumm',this.currentControlsumm);
       this.AccessLocalChanges(items);
       this.totals = this.GetTotals(items);
     });

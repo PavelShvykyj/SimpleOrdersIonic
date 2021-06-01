@@ -99,7 +99,7 @@
       </ion-nav-link>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button (click)="ShowActions()" class="text-accent rotate-180" size='large' expand='block' color='primary'>
+      <ion-button [hidden]="!localAccesAllowed" (click)="ShowActions()" class="text-accent rotate-180" size='large' expand='block' color='primary'>
         <ion-icon name="keypad-outline"></ion-icon>
       </ion-button>
       <ion-button (click)=" GoBack()" class="text-accent" size='large' expand='block' color='danger'>
