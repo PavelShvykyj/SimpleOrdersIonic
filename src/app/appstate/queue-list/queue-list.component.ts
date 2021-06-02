@@ -1,4 +1,4 @@
-import { take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { pipe } from 'rxjs';
 import { doQueue, UpdateQueue } from './../../queue/queue-store.actions';
 import { Component, Input, OnInit } from '@angular/core';
@@ -19,6 +19,7 @@ export class QueueListComponent implements OnInit {
   queue : Array<Queue> = []
   @Input('stateData')
   stateData : any
+  wievitems : Array<any> = []
 
 
   constructor(private store: Store<State>,
@@ -26,12 +27,50 @@ export class QueueListComponent implements OnInit {
               ) { }
 
   ngOnInit() {
-    this.store.pipe(select(selectAllQueue),take(1)).subscribe(
-      items => this.queue = items
-    ) 
+    
   }
 
- 
+  ionViewWillEnter() {
+    this.Refresh(); 
+  }
+
+  GetFormatedItems(items: Array<Queue>) : Array<any>{
+    const qids = items.map(el => {return el.commandParametr.orderid})
+    const idset = new Set(qids);
+    let wievitems = [];
+    for (let orderid of idset.keys()) {
+      
+      let orderq = items.filter(el=> el.commandParametr.orderid === orderid);
+      
+      let header = {
+        id: orderid, 
+        isheader : true,
+        hallid : orderq[0].commandParametr.hallid,
+        table  : orderq[0].commandParametr.table,
+        waiter : orderq[0].commandParametr.waiter
+      }
+
+      wievitems.push(header);
+      wievitems = wievitems.concat(orderq);
+
+      // console.log('wievitems',wievitems);
+      
+      
+    }
+
+    
+    return wievitems
+  }
+
+  Refresh() {
+    this.store.pipe(select(selectAllQueue),
+    take(1)
+    ).subscribe(
+      items => {
+        this.queue = items;
+        this.wievitems = this.GetFormatedItems(items)}
+    ) 
+  }
 
   Cancel(){
     this.modalController.dismiss({
@@ -41,14 +80,13 @@ export class QueueListComponent implements OnInit {
 
   Save() {
     this.store.dispatch(UpdateQueue({data: this.queue}))
-    
-    
     this.modalController.dismiss({
       'canseled': true
     });
   }
 
   Clear(q) {
+    this.wievitems.splice(this.wievitems.indexOf(q),1);
     this.queue.splice(this.queue.indexOf(q),1);
   }
 
@@ -56,6 +94,9 @@ export class QueueListComponent implements OnInit {
     if (this.stateData.queueCount>0 &&  this.stateData.PingStatus) {
       this.store.dispatch(doQueue());
     }
+    this.modalController.dismiss({
+      'canseled': true
+    });
   }
 
   GoToOrder(q){

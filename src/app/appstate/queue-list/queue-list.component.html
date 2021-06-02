@@ -1,13 +1,27 @@
 <ion-header >
   <ion-toolbar color='light'>
     <ion-title>Необработанные команды </ion-title>
+    <ion-buttons slot="end"><ion-button (click)="Refresh()"><ion-icon slot="icon-only" name="refresh-outline"></ion-icon></ion-button> </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ion-list>
-    <ion-item-sliding *ngFor="let q of queue">
-      <ion-item detail button  (click)="GoToOrder(q)">
+    <ng-container *ngFor="let q of wievitems">
+      <ion-list-header  *ngIf="!!q.isheader">
+        <ion-label color='primary' class="ion-text-center">
+          <div>
+            <ion-text class="text-smaller">{{q.id}}</ion-text>
+          </div>
+          <div>
+            <ion-text>{{q.waiter}} <ion-text> Зал {{q.hallid}}</ion-text> <ion-text> Стол {{q.table}}</ion-text></ion-text>
+          </div>
+        </ion-label>
+
+      </ion-list-header>
+
+    <ion-item-sliding *ngIf="!!!q.isheader">
+      <ion-item  button  (click)="GoToOrder(q)">
         <ion-label> 
           <p><ion-text>{{q.command}}</ion-text></p>
           <p><ion-text>{{q.status}}</ion-text> </p>
@@ -21,6 +35,7 @@
         </ion-item-option>
       </ion-item-options>
     </ion-item-sliding>
+    </ng-container>
   </ion-list>
 </ion-content>
 

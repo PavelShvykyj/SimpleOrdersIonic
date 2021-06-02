@@ -26,7 +26,7 @@ export class EditOrderItemComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = new FormGroup({
-      "quantity" : new FormControl(this.item.quantity,Validators.min(this.item.quantityprint)),
+      "quantity" : new FormControl(this.item.quantity === 0 ? 1 : this.item.quantity ,Validators.min(this.item.quantityprint)),
       "comment"  : new FormControl(this.item.comment), 
     })
   
