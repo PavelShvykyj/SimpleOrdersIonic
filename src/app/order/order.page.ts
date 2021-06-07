@@ -51,6 +51,8 @@ export class OrderPage implements OnInit, OnDestroy {
   page_size = 8;
   last_index = 0;
   userdata: AuthState;
+  isprecheck : boolean = false;
+
 
   totals;
   startControlsumm: number;
@@ -66,8 +68,6 @@ export class OrderPage implements OnInit, OnDestroy {
   MenuProps: { [key: string]: any } = {};
   @ViewChild('navlinkmenu', { static: false }) navlinkmenu;
   @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
-
-
 
 
 
@@ -107,6 +107,30 @@ export class OrderPage implements OnInit, OnDestroy {
         handler: () => { this.OnOrderActionClick(orderactions.PAY) }
       }
 
+    ]
+  }
+
+  actionsAfterPrecheck = {
+    header: 'Выбрать действие :',
+
+    buttons: [
+      {
+        text: 'ЗАКРЫТЬ ЭТО МЕНЮ',
+        handler:
+          () => { this.OnOrderActionClick("ЗАКРЫТЬ ЭТО МЕНЮ") }
+      },
+      {
+        text: 'ОТМЕТИТЬ ФИСКАЛ',
+        handler: () => { this.OnOrderActionClick(orderactions.FISKAL) }
+      },
+      {
+        text: 'ПРЕЧЕК',
+        handler: () => { this.OnOrderActionClick(orderactions.PRECHECK) }
+      },
+      {
+        text: 'ОПЛАТА',
+        handler: () => { this.OnOrderActionClick(orderactions.PAY) }
+      }
     ]
   }
 
@@ -152,9 +176,9 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log("ngOnDestroy");
-    console.log(this.currentControlsumm);
-    console.log(this.startControlsumm);
+    // console.log("ngOnDestroy");
+    // console.log(this.currentControlsumm);
+    // console.log(this.startControlsumm);
     if (this.currentControlsumm != this.startControlsumm) {
       this.items$.pipe(take(1)).subscribe(
         items => {
@@ -219,7 +243,8 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   ShowActions() {
-    this.actionSheetController.create(this.actions).then(cntrl => {
+    let actionsToShow = this.isprecheck ? this.actionsAfterPrecheck : this.actions; 
+    this.actionSheetController.create(actionsToShow).then(cntrl => {
       cntrl.present();
     })
   }
@@ -239,7 +264,8 @@ export class OrderPage implements OnInit, OnDestroy {
         }
         const FirstItem = items[0];
         this.localAccesAllowed =
-          (!FirstItem.isprecheck) &&
+          // после пречека еще оплата идет
+          (!FirstItem.isprecheck) && 
           (UserData.UserName === FirstItem.waitername || UserData.IsAdmin)
       })).subscribe()
 
@@ -528,7 +554,7 @@ export class OrderPage implements OnInit, OnDestroy {
       this.waiter = items.length === 0 ? this.userdata.UserName : items[0].waitername;
       this.version = items.length === 0 ? 0 : items[0].version;
       this.lastGajet = items.length === 0 ? "" : items[0].gajet;
-      console.log(items);
+      this.isprecheck = items.length === 0 ? false : items[0].isprecheck;
       const noControlSummCalculate = items.find(el => !!el.noControlSummCalculate) != undefined;
       this.currentControlsumm = this.GetControlSumm(items);
       if (!noControlSummCalculate) {
@@ -551,7 +577,7 @@ export class OrderPage implements OnInit, OnDestroy {
           case orderactions.FISKAL:
             /// простоую отметку на 1С не гоняем
             this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { isexcise: el.isSelected, isSelected: false, isChanged: !!el.isexcise != !!el.isSelected } } },
-              (el) => { return el.isSelected },
+              (el) => { return true },
               {});
             return;
           case orderactions.PAY:
@@ -797,8 +823,6 @@ export class OrderPage implements OnInit, OnDestroy {
   }
 
   OpenDiscountDialog() {
-
-
     this.modalController.create({
       component: BarcodeinputComponent,
       // cssClass: 'my-custom-class',

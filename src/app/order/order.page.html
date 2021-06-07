@@ -99,13 +99,13 @@
       </ion-nav-link>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button [hidden]="!localAccesAllowed" (click)="ShowActions()" class="text-accent rotate-180" size='large' expand='block' color='primary'>
+      <ion-button (click)="ShowActions()" class="text-accent rotate-180" size='large' expand='block' color='primary'>
         <ion-icon name="keypad-outline"></ion-icon>
       </ion-button>
       <ion-button (click)=" GoBack()" class="text-accent" size='large' expand='block' color='danger'>
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
-      <ion-button (click)="OnOrderActionClick('Печать'); GoBack()" class="text-accent" size='large' color='success'>
+      <ion-button [hidden]="!localAccesAllowed" (click)="OnOrderActionClick('Печать'); GoBack()" class="text-accent" size='large' color='success'>
         <ion-icon name="checkmark-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
