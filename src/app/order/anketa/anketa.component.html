@@ -27,15 +27,15 @@
       <ion-row>
         <ion-col></ion-col>
         <ion-col>
-          <ion-nav-link router-direction='back'>
-            <ion-button   class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
-          </ion-nav-link>
+          <!-- <ion-nav-link router-direction='back'> -->
+            <ion-button (click)="Cancel()"  class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
+          <!-- </ion-nav-link> -->
        
         </ion-col>
         <ion-col>
-          <ion-nav-link router-direction='back'>
-            <ion-button   class="text-accent" size='large' expand='block'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
-            </ion-nav-link>
+          <!-- <ion-nav-link router-direction='back'> -->
+            <ion-button (click)="Save()"  class="text-accent" size='large' expand='block'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
+            <!-- </ion-nav-link> -->
       
 
         </ion-col>
@@ -49,13 +49,13 @@
   <ion-toolbar color='light'>
     
     <ion-buttons slot="end">
-      <ion-nav-link router-direction='back'>
-        <ion-button   class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
-      </ion-nav-link>
+      <!-- <ion-nav-link router-direction='back'> -->
+        <ion-button (click)="Cancel()"  class="text-accent" size='large' expand='block' color='danger' > <ion-icon name="close-outline"></ion-icon></ion-button>
+      <!-- </ion-nav-link> -->
       <!-- заменить переход на сохранить и переход -->
-      <ion-nav-link router-direction='back'>
-      <ion-button   class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
-      </ion-nav-link>
+      <!-- <ion-nav-link router-direction='back'> -->
+      <ion-button (click)="Save()" class="text-accent" size='large'  color='success' > <ion-icon  name="checkmark-outline"></ion-icon></ion-button>
+      <!-- </ion-nav-link> -->
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>

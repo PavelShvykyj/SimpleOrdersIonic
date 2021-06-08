@@ -82,6 +82,13 @@ export class OrderPage implements OnInit, OnDestroy {
       },
 
       {
+        text: 'АНКЕТА',
+        handler:
+          () => { this.OnOrderActionClick(orderactions.ANKETA) }
+      },
+
+
+      {
         text: 'ПЕЧАТЬ',
 
         handler: () => { this.OnOrderActionClick(orderactions.PRINT) }
@@ -118,6 +125,11 @@ export class OrderPage implements OnInit, OnDestroy {
         text: 'ЗАКРЫТЬ ЭТО МЕНЮ',
         handler:
           () => { this.OnOrderActionClick("ЗАКРЫТЬ ЭТО МЕНЮ") }
+      },
+      {
+        text: 'АНКЕТА',
+        handler:
+          () => { this.OnOrderActionClick(orderactions.ANKETA) }
       },
       {
         text: 'ОТМЕТИТЬ ФИСКАЛ',
@@ -588,6 +600,7 @@ export class OrderPage implements OnInit, OnDestroy {
               true,
               (el: Orderitem) => { return { isprecheck: true, isSelected: false, isChanged: true } }
             );
+            return;
           case orderactions.PRINT:
             /// в очердь версию данных для печати
 
@@ -618,8 +631,12 @@ export class OrderPage implements OnInit, OnDestroy {
                   this.ChangeRows((el: Orderitem) => { return { id: el.rowid, changes: { isCanceled: el.isSelected, isSelected: false, isChanged: !!el.isSelected != !!el.isCanceled } } },
                     (el) => { return true },
                     { editcanceled: true });
-                }
+                } 
               });
+            return;
+          case orderactions.ANKETA:
+            this.OpenAnketaDialog();    
+
             return;
           case orderactions.DISCOUNT:
             this.OpenDiscountDialog();
@@ -720,6 +737,34 @@ export class OrderPage implements OnInit, OnDestroy {
     //   this.ChangeRows((el: Orderitem) => {return {id: el.rowid ,changes: {discountsumm: 0, dicountname: 'Знижка обробляеться 1С' }}},
     //   (el) => {return true},
     //   {});
+  }
+
+  OnAnketaDialogClosed(res) {
+    const dialogres = res.data;
+    console.log('OnAnketaDialogClosed',dialogres);
+    if (dialogres.canseled) {
+      return
+    }
+
+    this.items$.pipe(take(1)).subscribe(items => {
+      let el: Queue = this.GetQueueElement(orderactions.ANKETA, items);
+      el.commandParametr = {
+        ...el.commandParametr,
+        anketa: dialogres.data
+      }
+
+      this.inQueue(this.GetQueueElement(orderactions.ANKETA, items),
+      true,
+      (el: Orderitem) => {}
+      ); 
+
+    })
+
+
+ 
+
+    
+
   }
 
   OnEditRowDialogClosed(data, editingRow: Orderitem) {
@@ -832,6 +877,31 @@ export class OrderPage implements OnInit, OnDestroy {
       modalEl.onWillDismiss().then(data => this.OnDiscountDialogClosed(data));
       modalEl.present();
     });
+
+  }
+
+  OpenAnketaDialog() {
+    
+    if (!this.orderid) {
+      this.toastController.create({
+        color:'danger',
+        duration:1000,
+        message:"Сначала запишите заказ."
+      }).then(el => el.present());
+      return;
+    }  
+    
+    this.modalController.create({
+      component: AnketaComponent,
+      // cssClass: 'my-custom-class',
+      // componentProps: {
+      // }
+    }).then(modalEl => {
+      modalEl.onWillDismiss().then(data => this.OnAnketaDialogClosed(data));
+      modalEl.present();
+    });
+
+
 
   }
 

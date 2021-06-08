@@ -90,9 +90,10 @@
 <ion-footer>
   <ion-toolbar color='light'>
     <ion-buttons slot="start">
-      <ion-nav-link [component]="AnketaComp" router-direction='forward' componentProps='{}'>
+      <!-- перенесено в действия открываем через диалог
+        <ion-nav-link [component]="AnketaComp" router-direction='forward' componentProps='{}'>
         <ion-button>анкета</ion-button>
-      </ion-nav-link>
+      </ion-nav-link> -->
       <ion-nav-link [hidden]="!localAccesAllowed" #navlinkmenu [component]="MenuComp" router-direction='forward'
         [componentProps]="MenuProps">
         <ion-button>меню</ion-button>

@@ -5,7 +5,8 @@ export enum orderactions {
     "PRECHECK" = "Пречек",
     "DISCOUNT" = "Дисконт",
     "CANCEL_ROW" = "Отмена",
-    "PAY" = "Оплата"
+    "PAY" = "Оплата",
+    "ANKETA" = "Анкета"
 }
 
 
