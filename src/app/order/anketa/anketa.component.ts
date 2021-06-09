@@ -53,7 +53,7 @@ export class AnketaComponent implements OnInit {
     }
     this.modalController.dismiss({
       'canseled'    : false,
-      'data    '    : this.form.value, 
+      'data'    : this.form.value, 
     });
 
   }

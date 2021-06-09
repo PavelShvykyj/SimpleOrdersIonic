@@ -746,14 +746,16 @@ export class OrderPage implements OnInit, OnDestroy {
       return
     }
 
-    this.items$.pipe(take(1)).subscribe(items => {
+    this.items$.pipe(take(1)).subscribe((items) => {
+      
       let el: Queue = this.GetQueueElement(orderactions.ANKETA, items);
       el.commandParametr = {
         ...el.commandParametr,
         anketa: dialogres.data
       }
+      console.log('el.commandParametr',el.commandParametr);
 
-      this.inQueue(this.GetQueueElement(orderactions.ANKETA, items),
+      this.inQueue(el,
       true,
       (el: Orderitem) => {}
       ); 

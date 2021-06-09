@@ -44,7 +44,7 @@ export class AppstateComponent implements OnInit , OnDestroy {
     this.store.pipe(select(PingStatus),tap(()=>this.detector.detectChanges()))
     ]).pipe(
       
-      debounceTime(10),
+      
       map((res)=>{return {
         userName:res[0],
         netName:res[1],
