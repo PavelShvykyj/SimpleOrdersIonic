@@ -24,7 +24,7 @@ import { BaseElementsModule } from './base-elements/base-elements.module';
 import { HTTP } from '@ionic-native/http/ngx';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { PermissionsService } from './permissions.service';
-
+import { ChartsModule } from 'ng2-charts';
 
 
 
@@ -33,6 +33,7 @@ import { PermissionsService } from './permissions.service';
   
   entryComponents: [],
   imports: [BrowserModule,
+            ChartsModule,
             HttpClientModule,
             IonicModule.forRoot(),
             AppRoutingModule,

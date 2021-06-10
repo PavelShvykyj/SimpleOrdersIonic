@@ -6,7 +6,7 @@ import { from, Observable, of } from 'rxjs';
 import { Injectable, OnInit } from '@angular/core';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map, timeout, catchError, tap } from 'rxjs/operators';
+import { map, timeout, catchError, tap, withLatestFrom, concatMap } from 'rxjs/operators';
 import { State } from '../reducers';
 import { setPing } from '../net/netcontrol.actions';
 import { Menu } from '../menu-store/menu-store.reducer';
@@ -14,6 +14,7 @@ import { Queue } from '../queue/queue-store.reducer';
 import { HTTP } from '@ionic-native/http/ngx';
 import { AppsettingsService } from '../appsettings/appsettings.service';
 import { DatabaseService } from '../database/database.service';
+import { SelectUserName } from '../authtorisation/auth.selectors';
 
 
 
@@ -249,6 +250,23 @@ export class OnecConnectorService  {
         );
   }
 
+  GetReportsData() : Observable<any> {
+    
+   return this.store.pipe(
+      select(SelectUserName),
+      concatMap(username =>{
+        const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/report/${username}`;
+        let headers = new HttpHeaders().append('Content-Type','text/json');
+        return this.hclient.get(URL,{headers:headers,
+          observe: 'body',
+          withCredentials:false,
+          reportProgress:false,
+          responseType:'text'}).pipe(
+            timeout(5000),  
+            map(res => JSON.parse(res)));
+      }))
+  } 
+  
   doQueue(queue: Queue[]) {
     const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/domobileactions`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
