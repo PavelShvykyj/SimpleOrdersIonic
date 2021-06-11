@@ -21,8 +21,9 @@
             baseChart
             [data]="sale.ChartData"
             [labels]="sale.ChartLabels"
-            [legend]="sale.AreaLegend" 
-            [chartType]="sale.AreaChartType">
+            [legend]="sale.Legend" 
+            [chartType]="sale.ChartType">
+
           </canvas>
            
             
@@ -52,19 +53,19 @@
     <ion-card-content>
       <ion-item lines="none" >
         <ion-label  > Продано нал.  </ion-label> 
-        <ion-note slot="end"> {{ownSales.cashSumm}} </ion-note>
+        <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.cashSumm}} </ion-badge>
       </ion-item>
       <ion-item lines="none" >
         <ion-label  > Продано без. нал: </ion-label> 
-        <ion-note slot="end"> {{ownSales.terminalSumm}} </ion-note>
+        <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.terminalSumm}} </ion-badge>
       </ion-item>
       <ion-item lines="none" >
         <ion-label  > Закрытых чеков : </ion-label> 
-        <ion-note slot="end"> {{ownSales.cheksQuontity}} </ion-note>
+        <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.cheksQuontity}} </ion-badge>
       </ion-item>
       <ion-item lines="none" >
         <ion-label  > Открытых заказов: </ion-label> 
-        <ion-note slot="end"> {{ownSales.ordersQuontity}} </ion-note>
+        <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.ordersQuontity}} </ion-badge>
       </ion-item>
     
     </ion-card-content>

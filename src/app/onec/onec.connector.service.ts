@@ -255,6 +255,7 @@ export class OnecConnectorService  {
    return this.store.pipe(
       select(SelectUserName),
       concatMap(username =>{
+        console.log("GetReportsData", username);
         const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/report/${username}`;
         let headers = new HttpHeaders().append('Content-Type','text/json');
         return this.hclient.get(URL,{headers:headers,

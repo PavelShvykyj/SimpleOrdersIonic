@@ -1,7 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Chart, ChartType } from 'chart.js';
 import { Label, SingleDataSet } from 'ng2-charts';
-import { map, take } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { map, take, catchError } from 'rxjs/operators';
 import { OnecConnectorService } from 'src/app/onec/onec.connector.service';
 
 export interface ChartParametrs {
@@ -25,20 +26,26 @@ export class ReportsPage implements OnInit {
   WaitersSaleChart: any;
 
   sale: ChartParametrs = {
-    ChartLabels: [],
-    ChartData: [],
+    ChartLabels: ['Download Sales', 'In-Store Sales', 'Mail Sales', 'Telesales', 'Corporate Sales'],
+    ChartData:  [300, 1500, 1000, 400, 1200],
     Legend : false,
     ChartType: 'radar'  
   };
 
   cancel : ChartParametrs = {
-    ChartLabels: [],
-    ChartData: [],
+    ChartLabels: ['Download Sales', 'In-Store Sales', 'Mail Sales', 'Telesales', 'Corporate Sales'],
+    ChartData:  [300, 1500, 1000, 400, 1200],
     Legend : false,
     ChartType: 'radar'  
   };
 
-  ownSales;   
+  ownSales = {
+    cashSumm: 0,
+    terminalSumm:0,
+    cheksQuontity:0,
+    ordersQuontity:0
+
+  };   
 
 
   public polarAreaChartLabels: Label[] = ['Download Sales', 'In-Store Sales', 'Mail Sales', 'Telesales', 'Corporate Sales'];
@@ -53,12 +60,14 @@ export class ReportsPage implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.WaitersSaleMethod();
+
   
   }
 
   ionViewWillEnter() {
-    
+    setTimeout(() => {
+      this.WaitersSaleMethod();
+    }, 300); 
   }
 
   WaitersSaleMethod() {
@@ -66,11 +75,13 @@ export class ReportsPage implements OnInit {
       take(1),
       map(
       data => {
+        
         this.sale = data.sale;
         this.cancel = data.cancel;
         this.ownSales = data.ownSales;
       }
-    )).subscribe();
+    )
+    ).subscribe();
   }
 
 }
