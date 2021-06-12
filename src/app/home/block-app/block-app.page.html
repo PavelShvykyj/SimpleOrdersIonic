@@ -1,19 +1,27 @@
 <ion-header [translucent]="true" >
   
   <ion-toolbar color='light'>
-    <ion-title>
+    <!-- <ion-title>
        Simple orders
-    </ion-title>
+    </ion-title> -->
     <ion-buttons slot="start">
       <ion-menu-button menu='mainSide' autoHide=true></ion-menu-button>
     </ion-buttons>
-    
+    <ion-thumbnail slot="end">
+      <img src="../../../assets/logo.png">
+    </ion-thumbnail>
   </ion-toolbar>
   <app-state></app-state>
 </ion-header>
 
 <ion-content [fullscreen]="true" >
   <ion-grid  >
+    <ion-row >
+      <ion-col size-sm="6" offset-sm="3">
+        <ion-img src="../../../assets/LogoMainScreen.png"></ion-img>
+      </ion-col>
+    </ion-row>
+    
     <ion-row >
       <ion-col size-sm="6" offset-sm="3">
         <ion-item lines="none" ><ion-label class="ion-text-center" > Войдите для начала работы </ion-label> </ion-item>

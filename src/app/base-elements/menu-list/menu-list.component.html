@@ -7,6 +7,9 @@
     <ion-title slot="end">
       <ion-text class="text-accent-smaller">{{parentName}}</ion-text>
     </ion-title>
+    <ion-thumbnail slot="end">
+      <img src="../../../assets/logo.png">
+    </ion-thumbnail>
   </ion-toolbar>
 
   <ion-searchbar (keyup.enter)="OnSearhLeave()" #search show-clear-button='always' debounce="10"
