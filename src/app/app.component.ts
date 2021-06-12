@@ -15,7 +15,9 @@ import { Observable } from 'rxjs';
 import { loadMenuStores } from './menu-store/menu-store.actions';
 import { loadQueueStores } from './queue/queue-store.actions';
 
+
 const { App } = Plugins;
+const { SplashScreen } = Plugins;
 
 
 @Component({
@@ -40,6 +42,12 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit() {
+    this.platform.ready().then(()=>{
+      setTimeout(() => {
+        SplashScreen.hide();
+      }, 1000);
+    });
+   
     this.netservise.isOnline("");
     this.store.dispatch(loadAppSettings());
     this.store.dispatch(loadHallsstores());
