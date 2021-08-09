@@ -774,6 +774,10 @@ export class OrderPage implements OnInit, OnDestroy {
       return;
     }
 
+    if (data.data.quantity === 0) {
+      return;
+    }
+
     let kaskad = {
       orderid: "",
       rowid: "",

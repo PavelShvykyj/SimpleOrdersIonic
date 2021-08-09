@@ -10,7 +10,8 @@ export interface Menu {
   parentid: string, 
   name: string,
   price: string,
-  isBlocked: boolean
+  isBlocked: boolean,
+  unitSaleCount : number,
   unitName: string
   }
 
@@ -20,6 +21,14 @@ export interface Menu {
       return folrerSort
     }
     
+    // /// here a , b - same or both folder or both items
+    // const countSort = !a.isFolder ?  0 : 
+    // a.unitSaleCount === b.unitSaleCount ? 0 : 
+    // a.unitSaleCount> b.unitSaleCount ? -1 : 1;  
+    // if (countSort != 0) {
+    //   return countSort
+    // }
+
     const nameSort = (a.name.toUpperCase()).localeCompare(b.name.toUpperCase());
     return nameSort;
   } 

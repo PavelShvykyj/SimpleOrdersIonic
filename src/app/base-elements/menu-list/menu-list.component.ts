@@ -9,6 +9,24 @@ import { Observable, Subscription } from 'rxjs';
 import { CubToolbarComponent } from '../cub-toolbar/cub-toolbar.component';
 import { selectOrderItems } from 'src/app/home/halls/hall-state-store/hallstate.selectors';
 
+function PopularFirst(a: Menu , b: Menu) : number {
+  const folrerSort = (a.isFolder === b.isFolder)? 0 : a.isFolder? -1 : 1;
+  if (folrerSort != 0) {
+    return folrerSort
+  }
+  
+  /// here a , b - same or both folder or both items
+  const countSort = !a.isFolder ?  0 : 
+  a.unitSaleCount === b.unitSaleCount ? 0 : 
+  a.unitSaleCount> b.unitSaleCount ? -1 : 1;  
+  if (countSort != 0) {
+    return countSort
+  }
+
+  const nameSort = (a.name.toUpperCase()).localeCompare(b.name.toUpperCase());
+  return nameSort;
+} 
+
 
 @Component({
   selector: 'menu-list',
@@ -84,7 +102,12 @@ export class MenuListComponent implements OnInit {
     } else {
       // заменям пробелы \s* на любое количество любых сиволов (".*")
       const reg = ".*"+event.trim().toUpperCase().replace(/\s+/g, ".*")+".*";
-      this.menuitems$ = this.store.pipe(select(selectMemuByName, {  filter: reg, withfolders: true }));
+      this.menuitems$ = this.store.pipe(select(selectMemuByName, {  filter: reg, withfolders: true }),
+      map(items => {
+        items.sort(PopularFirst);
+        return items})
+      
+      );
     }
 
   }
@@ -157,13 +180,17 @@ export class MenuListComponent implements OnInit {
     }
   }
 
-  OnSearhLeave() {
+  LeaveSearh() {
     this.search.value = '';
-    this.OnNameFilterInput('');
     this.search.getInputElement().then(el=> {
-      
       el.blur();
     });
+
+  }
+
+  OnSearhLeave() {
+    this.LeaveSearh();   
+    this.OnNameFilterInput('');
 
   }
 
@@ -206,9 +233,8 @@ export class MenuListComponent implements OnInit {
   }
 
   AddQountity(q:number,menuitem:Menu,event) {
+    this.LeaveSearh();
     event.stopPropagation();
-    
-
     const orderitem = this.items[menuitem.id];
     this.AddQountityFromMenu(q,menuitem,event);
     this.checkOrderidChange();
