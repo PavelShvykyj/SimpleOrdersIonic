@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-toolbar color='light'>
+    
+    <ion-title> Закрытые чеки </ion-title>
+    
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="home"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="Refresh()">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-thumbnail slot="end">
+      <img src="../../../assets/logo.png">
+    </ion-thumbnail>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="invoices$ | async as invoices" >
+    <ion-card button [routerLink]="['invoice-detail',invoice.id]" *ngFor="let invoice of invoices">
+      <ion-card-title> Чек № {{ invoice.id }} </ion-card-title>
+      <ion-card-subtitle> от {{ invoice.closedat | date : 'shortTime' }} </ion-card-subtitle>
+      
+      <ion-item>
+        <ion-label >Сумма :</ion-label>
+        <ion-note slot="end"><small>нал. : </small> {{ invoice.cash }}</ion-note>
+        <ion-note slot="end"><small>банк. :</small> {{ invoice.terminal }}</ion-note>
+      </ion-item>
+      <ion-item>
+        <ion-label color='medium'>Нарастающий итог :</ion-label>
+        <ion-note  color='medium' slot="end"> {{ invoice.sorttotal }}</ion-note>
+      </ion-item>
+    </ion-card>
+  </ng-container>
+
+  
+</ion-content>

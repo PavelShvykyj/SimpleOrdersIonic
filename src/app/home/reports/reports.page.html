@@ -1,7 +1,7 @@
-<ion-header [translucent]="true" >
+<ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Текущие результаты 
+      Текущие результаты
     </ion-title>
     <ion-buttons slot="start">
       <ion-menu-button menu='mainSide' autoHide=true></ion-menu-button>
@@ -14,64 +14,60 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  
-        <ion-card >
-          <ion-card-header>
-              Продажи по официантам
-          </ion-card-header>
-          <ion-card-content>
-            <canvas   #WaitersSaleCanvas 
-            baseChart
-            [data]="sale.ChartData"
-            [labels]="sale.ChartLabels"
-            [legend]="sale.Legend" 
-            [chartType]="sale.ChartType">
-
-          </canvas>
-           
-            
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card >
-          <ion-card-header>
-              отмены по официантам
-          </ion-card-header>
-          <ion-card-content>
-            <canvas   #WaitersSaleCanvas 
-            baseChart
-            [data]="cancel.ChartData"
-            [labels]="cancel.ChartLabels"
-            [legend]="cancel.Legend" 
-            [chartType]="cancel.ChartType">
-          </canvas>
-           
-            
-          </ion-card-content>
-        </ion-card>
-     <ion-card >
+  <ion-card>
     <ion-card-header>
       Ваши продажи:
-   </ion-card-header>
+    </ion-card-header>
     <ion-card-content>
-      <ion-item lines="none" >
-        <ion-label  > Продано нал.  </ion-label> 
+      <ion-item lines="none">
+        <ion-label> Продано нал. </ion-label>
         <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.cashSumm}} </ion-badge>
       </ion-item>
-      <ion-item lines="none" >
-        <ion-label  > Продано без. нал: </ion-label> 
+      <ion-item lines="none">
+        <ion-label> Продано без. нал: </ion-label>
         <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.terminalSumm}} </ion-badge>
       </ion-item>
-      <ion-item lines="none" >
-        <ion-label  > Закрытых чеков : </ion-label> 
+      <ion-item lines="none">
+        <ion-label> Закрытых чеков : </ion-label>
         <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.cheksQuontity}} </ion-badge>
       </ion-item>
-      <ion-item lines="none" >
-        <ion-label  > Открытых заказов: </ion-label> 
+      <ion-item lines="none">
+        <ion-label> Открытых заказов: </ion-label>
         <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.ordersQuontity}} </ion-badge>
       </ion-item>
-    
+      <ion-button [routerLink]="['invoices']" fill='solid' color='danger' expand='block' > ЧЕКИ </ion-button>
     </ion-card-content>
   </ion-card>
 
+  
+  <ion-card>
+    <ion-card-header>
+      Продажи по официантам
+    </ion-card-header>
+    <ion-card-content>
+      <canvas #WaitersSaleCanvas baseChart [data]="sale.ChartData" [labels]="sale.ChartLabels" [legend]="sale.Legend"
+        [chartType]="sale.ChartType">
+
+      </canvas>
+
+
+    </ion-card-content>
+  </ion-card>
+  
+  <ion-card>
+    <ion-card-header>
+      отмены по официантам
+    </ion-card-header>
+    <ion-card-content>
+      <canvas #WaitersSaleCanvas baseChart [data]="cancel.ChartData" [labels]="cancel.ChartLabels"
+        [legend]="cancel.Legend" [chartType]="cancel.ChartType">
+      </canvas>
+
+
+    </ion-card-content>
+  </ion-card>
+  
+
 </ion-content>
+
+

@@ -5,8 +5,8 @@ import { Store, select } from '@ngrx/store';
 import { from, Observable, of } from 'rxjs';
 import { Injectable, OnInit } from '@angular/core';
 import { Hall } from '../home/halls-store/hallsstore.reducer';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map, timeout, catchError, tap, withLatestFrom, concatMap } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { map, timeout, catchError, tap,  concatMap, take } from 'rxjs/operators';
 import { State } from '../reducers';
 import { setPing } from '../net/netcontrol.actions';
 import { Menu } from '../menu-store/menu-store.reducer';
@@ -14,7 +14,7 @@ import { Queue } from '../queue/queue-store.reducer';
 import { HTTP } from '@ionic-native/http/ngx';
 import { AppsettingsService } from '../appsettings/appsettings.service';
 import { DatabaseService } from '../database/database.service';
-import { SelectUserName } from '../authtorisation/auth.selectors';
+import { SelectUserName, SelectUserToken } from '../authtorisation/auth.selectors';
 
 
 
@@ -99,6 +99,7 @@ export class OnecConnectorService  {
     if (this.plt.is('cordova') ) {
       from(this.mhclient.get(URL,{},{})).pipe(
         timeout(5000),
+        
         map(res => {
           //console.log('ping', res);
           if (res.data = "ping good") {
@@ -127,6 +128,7 @@ export class OnecConnectorService  {
       reportProgress:false,
       responseType:'text'}).pipe(
         timeout(5000),
+        
         map(res => {
           //console.log('ping', res);
           if (res = "ping good") {
@@ -255,7 +257,7 @@ export class OnecConnectorService  {
    return this.store.pipe(
       select(SelectUserName),
       concatMap(username =>{
-        console.log("GetReportsData", username);
+        
         const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/report/${username}`;
         let headers = new HttpHeaders().append('Content-Type','text/json');
         return this.hclient.get(URL,{headers:headers,
@@ -268,6 +270,63 @@ export class OnecConnectorService  {
       }))
   } 
   
+  GetUserInvoices() : Observable<string> {
+  
+    // USE mhclient on cordova !!!
+    // if (this.plt.is('cordova') ) {
+    //   from(this.mhclient.get(URL,{},{})).pipe(
+  
+    return this.store.pipe(
+      select(SelectUserName),
+      concatMap(usertoken =>{
+        
+        const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/userinvoices/${usertoken}`;
+        
+        let headers = new HttpHeaders().append('Content-Type','text/json');
+        return this.hclient.get(URL,{headers:headers,
+          observe: 'body',
+          withCredentials:false,
+          reportProgress:false,
+          responseType:'text'})
+          .pipe(
+            timeout(5000), 
+            catchError((err: HttpErrorResponse) => {
+
+              if (err.error instanceof Error) {
+                // A client-side or network error occurred. Handle it accordingly.
+                console.error('An error occurred:', err.error.message);
+              } else {
+                // The backend returned an unsuccessful response code.
+                // The response body may contain clues as to what went wrong,
+                console.error(`Backend returned code ${err.status}, body was: ${err.error}`);
+              }
+              // ...optionally return a default fallback value so app can continue (pick one)
+              // which could be a default value
+              // return Observable.of<any>({my: "default value..."});
+              // or simply an empty observable
+              return of("[]")}),
+              map(res => res));
+      }))
+  }
+
+  GetInvoiceData(id: string) {
+    return this.store.pipe(
+      select(SelectUserName),
+      concatMap(username =>{
+        
+        const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/report/${username}`;
+        let headers = new HttpHeaders().append('Content-Type','text/json');
+        return this.hclient.get(URL,{headers:headers,
+          observe: 'body',
+          withCredentials:false,
+          reportProgress:false,
+          responseType:'text'}).pipe(
+            timeout(5000),  
+            map(res => JSON.parse(res)));
+      }))
+  }
+
+
   doQueue(queue: Queue[]) {
     const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/domobileactions`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
