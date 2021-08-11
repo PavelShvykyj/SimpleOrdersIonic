@@ -20,17 +20,28 @@
 <ion-content>
   <ng-container *ngIf="invoices$ | async as invoices" >
     <ion-card button [routerLink]="['invoice-detail',invoice.id]" *ngFor="let invoice of invoices">
-      <ion-card-title> Чек № {{ invoice.id }} </ion-card-title>
-      <ion-card-subtitle> от {{ invoice.closedat | date : 'shortTime' }} </ion-card-subtitle>
+      <ion-toolbar>
+        <ion-title slot="start"> 
+          Чек № {{ invoice.id }} 
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button color='primary'><ion-icon slot="icon-only" name="eye-outline"></ion-icon></ion-button>
+        </ion-buttons>
+        
+      </ion-toolbar>
+      <ion-card-subtitle class="ion-text-center"> закрыт {{ invoice.closedat | date : 'HH:mm:ss' }}</ion-card-subtitle>
+      <ion-card-subtitle class="ion-text-center"> зал: {{ invoice.hallname }}, стол : {{ invoice.tablename }}</ion-card-subtitle>
+      
       
       <ion-item>
         <ion-label >Сумма :</ion-label>
-        <ion-note slot="end"><small>нал. : </small> {{ invoice.cash }}</ion-note>
-        <ion-note slot="end"><small>банк. :</small> {{ invoice.terminal }}</ion-note>
+        <ion-note slot="end"><strong>нал. : {{ invoice.cash }}</strong></ion-note>
+        <ion-note slot="end"><strong>банк. : {{ invoice.terminal }}</strong></ion-note>
       </ion-item>
       <ion-item>
         <ion-label color='medium'>Нарастающий итог :</ion-label>
-        <ion-note  color='medium' slot="end"> {{ invoice.sorttotal }}</ion-note>
+        <ion-note  color='medium' slot="end"> <ion-text color="primary">{{ invoice.sorttotal.cash }}</ion-text> </ion-note>
+        <ion-note  color='medium' slot="end"> <ion-text color="primary">{{ invoice.sorttotal.terminal }}</ion-text> </ion-note>
       </ion-item>
     </ion-card>
   </ng-container>

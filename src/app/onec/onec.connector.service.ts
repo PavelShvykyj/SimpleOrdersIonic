@@ -162,7 +162,7 @@ export class OnecConnectorService  {
     
 
     /// off line mode -- logg by last login
-    if (!this.currentStatus) {
+    if (!this.currentStatus &&  this.plt.is('cordova'))  {
      return this.localdb.GetData<{authData: string , loginState: any}>("LastLogin").pipe( map(auth => {
         if (auth === undefined || auth === null) {
           return {success : false };
@@ -172,10 +172,8 @@ export class OnecConnectorService  {
         } else {
           return {success : false };
         }
-      
       })); 
     }
-
 
     /// normal login
     const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/login`;
@@ -188,16 +186,35 @@ export class OnecConnectorService  {
       reportProgress:false,
       responseType:'text'}).pipe(
         timeout(5000),  
-        map(res => {
-          let answer = JSON.parse(res);
-          return {
-            success : true,
-            state : JSON.parse(res)
+        catchError((err: HttpErrorResponse) => {
+          let errState;
+          if (err.error instanceof Error) {
+            // A client-side or network error occurred. Handle it accordingly.
+            console.error('An error occurred:', err.error.message);
+            errState = err.error.message;
+          } else {
+            // The backend returned an unsuccessful response code.
+            // The response body may contain clues as to what went wrong,
+            console.error(`Backend returned code ${err.status}, body was: ${err.error}`);
+            errState = err.status;
           }
+          return of({
+            success : false,
+            state : err
+          })
         }),
-        catchError((err)=> {
-          return of({success : false })
-        })); 
+        map(res => {
+           if (typeof res === "string") {
+            return {
+              success : true,
+              state : JSON.parse(res)
+            }
+            
+          } else {
+            return res
+          }
+        })
+        ); 
   }
 
 

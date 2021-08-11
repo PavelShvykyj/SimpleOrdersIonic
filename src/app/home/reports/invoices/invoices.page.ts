@@ -10,7 +10,10 @@ export interface invoiceheader {
   closedat : Date,
   cash : number,
   terminal : number,
-  sorttotal : number
+  sorttotal : {
+    cash : number,
+    terminal : number,
+  }
 }
 
 
