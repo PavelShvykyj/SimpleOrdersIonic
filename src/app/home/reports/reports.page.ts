@@ -21,6 +21,8 @@ export interface ChartParametrs {
 })
 export class ReportsPage implements OnInit {
 
+  showdiagram : boolean = false;
+
   @ViewChild('WaitersSaleCanvas') private WaitersSaleCanvas: ElementRef;
 
   WaitersSaleChart: any;
@@ -82,6 +84,10 @@ export class ReportsPage implements OnInit {
       }
     )
     ).subscribe();
+  }
+
+  ShowDiagramm() {
+    this.showdiagram = !this.showdiagram;
   }
 
 }

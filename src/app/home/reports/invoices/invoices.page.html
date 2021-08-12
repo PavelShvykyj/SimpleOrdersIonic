@@ -19,9 +19,11 @@
 
 <ion-content>
   <ng-container *ngIf="invoices$ | async as invoices" >
-    <ion-card button [routerLink]="['invoice-detail',invoice.id]" *ngFor="let invoice of invoices">
+    <ion-card button [routerLink]="['invoice-detail',invoice.id]" *ngFor="let invoice of invoices; index as indx">
       <ion-toolbar>
+        
         <ion-title slot="start"> 
+          <ion-text color='medium'>{{indx+1}}. </ion-text>
           Чек № {{ invoice.id }} 
         </ion-title>
         <ion-buttons slot="end">

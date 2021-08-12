@@ -321,26 +321,31 @@ export class OnecConnectorService  {
               // which could be a default value
               // return Observable.of<any>({my: "default value..."});
               // or simply an empty observable
-              return of("[]")}),
-              map(res => res));
+              return of("[]")})
+              // ,
+              // map(res => res)
+              );
       }))
   }
 
-  GetInvoiceData(id: string) {
-    return this.store.pipe(
-      select(SelectUserName),
-      concatMap(username =>{
-        
-        const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/report/${username}`;
-        let headers = new HttpHeaders().append('Content-Type','text/json');
-        return this.hclient.get(URL,{headers:headers,
-          observe: 'body',
-          withCredentials:false,
-          reportProgress:false,
-          responseType:'text'}).pipe(
-            timeout(5000),  
-            map(res => JSON.parse(res)));
-      }))
+  GetInvoiceData(id: string)  {
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets//invoice/${id}`;
+    let headers = new HttpHeaders().append('Content-Type','text/json');
+   
+    return this.hclient.get(URL,{headers:headers,
+      observe: 'body',
+      withCredentials:false,
+      reportProgress:false,
+      responseType:'text'})
+      .pipe(
+        timeout(5000), 
+        catchError((err: HttpErrorResponse) => {
+          if (err.error instanceof Error) {
+            console.error('An error occurred:', err.error.message);
+          } else {
+            console.error(`Backend returned code ${err.status}, body was: ${err.error}`);
+          }
+          return of("")}))
   }
 
 

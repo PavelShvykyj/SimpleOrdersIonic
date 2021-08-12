@@ -36,10 +36,11 @@
         <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.ordersQuontity}} </ion-badge>
       </ion-item>
       <ion-button [routerLink]="['invoices']" fill='solid' color='danger' expand='block' > ЧЕКИ </ion-button>
+      <ion-button (click)="ShowDiagramm()" fill='solid' color='danger' expand='block' > ГРАФИК </ion-button>
     </ion-card-content>
   </ion-card>
 
-  
+  <ng-container *ngIf="showdiagram">
   <ion-card>
     <ion-card-header>
       Продажи по официантам
@@ -66,7 +67,7 @@
 
     </ion-card-content>
   </ion-card>
-  
+  </ng-container>
 
 </ion-content>
 

@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar color='light'>
-    
-    <ion-title> Чек </ion-title>
-    
+
+    <ion-title> Чек № {{invoiceid}} </ion-title>
+
     <ion-buttons slot="start">
       <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
@@ -18,5 +18,29 @@
 </ion-header>
 
 <ion-content>
-
+  <ng-container *ngIf="invoiceDitail$ | async as invoiceDitail">
+    <ion-card>
+      <ion-card-title class="ion-text-center">
+        <strong *ngIf="invoiceDitail.header.cash != 0"> Оплачено нал.  {{ invoiceDitail.header.cash }}</strong>
+        <strong *ngIf="invoiceDitail.header.terminal != 0"> Оплачено банк  {{ invoiceDitail.header.terminal }}</strong>
+      </ion-card-title>
+      <ion-card-subtitle class="ion-text-center"> закрыт {{ invoiceDitail.header.closedat | date : 'HH:mm:ss' }}
+      </ion-card-subtitle>
+      <ion-card-subtitle class="ion-text-center"> зал: {{ invoiceDitail.header.hallname }}, стол :
+        {{ invoiceDitail.header.tablename }}</ion-card-subtitle>
+      <ion-card-subtitle *ngIf="invoiceDitail.header.discountname" class="ion-text-center">  {{ invoiceDitail.header.discountname }}</ion-card-subtitle>
+      <ion-list>
+        <ion-list-header>
+          Товары:
+        </ion-list-header>
+        <ion-item *ngFor="let item of invoiceDitail.content">
+          <ion-label>{{item.goodname}} </ion-label>
+          <ion-note slot="end"><strong>  {{ item.quantity }} </strong></ion-note>
+          <ion-note slot="end"><strong>  {{ item.summ }}    </strong></ion-note>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+  </ng-container>
 </ion-content>
+
+
