@@ -66,6 +66,7 @@ export class OnecConnectorService  {
   serverIP : string = "127.0.0.1";
   baseName : string = "nobasename";
   currentStatus : boolean;
+  userToken : string;
 
   constructor(private hclient : HttpClient, 
               private mhclient: HTTP,
@@ -79,6 +80,14 @@ export class OnecConnectorService  {
         this.baseName = data.onecBase;
         
       });
+
+      this.store.pipe(select(SelectUserToken)).subscribe(token=>{
+        this.userToken = token;
+        
+        
+      });
+
+      
       setTimeout(this.Ping.bind(this),1000); 
     }
 
@@ -329,7 +338,7 @@ export class OnecConnectorService  {
   }
 
   GetInvoiceData(id: string)  {
-    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets//invoice/${id}`;
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets//invoice/${this.userToken}/${id}`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
    
     return this.hclient.get(URL,{headers:headers,
