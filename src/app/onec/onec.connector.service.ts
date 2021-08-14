@@ -264,7 +264,7 @@ export class OnecConnectorService  {
   }
 
   GetHallState() : Observable<any> {
-    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/hallstate`;
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/hallstate/${this.userToken}`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
     
    
@@ -283,8 +283,8 @@ export class OnecConnectorService  {
    return this.store.pipe(
       select(SelectUserName),
       concatMap(username =>{
-        
-        const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/report/${username}`;
+        console.log("userToken",this.userToken);
+        const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/report/${this.userToken}/${username}`;
         let headers = new HttpHeaders().append('Content-Type','text/json');
         return this.hclient.get(URL,{headers:headers,
           observe: 'body',
@@ -304,9 +304,9 @@ export class OnecConnectorService  {
   
     return this.store.pipe(
       select(SelectUserName),
-      concatMap(usertoken =>{
+      concatMap(userName =>{
         
-        const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/userinvoices/${usertoken}`;
+        const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/userinvoices/${this.userToken}/${userName}`;
         
         let headers = new HttpHeaders().append('Content-Type','text/json');
         return this.hclient.get(URL,{headers:headers,
@@ -359,7 +359,7 @@ export class OnecConnectorService  {
 
 
   doQueue(queue: Queue[]) {
-    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/domobileactions`;
+    const URL : string = `http://${this.serverIP}/${this.baseName}/hs/Worksheets/domobileactions/${this.userToken}`;
     let headers = new HttpHeaders().append('Content-Type','text/json');
     
    

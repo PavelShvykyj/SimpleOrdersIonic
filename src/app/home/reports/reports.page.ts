@@ -45,8 +45,8 @@ export class ReportsPage implements OnInit {
     cashSumm: 0,
     terminalSumm:0,
     cheksQuontity:0,
-    ordersQuontity:0
-
+    ordersQuontity:0,
+    cheksQuontityterminal:0
   };   
 
 
@@ -88,6 +88,10 @@ export class ReportsPage implements OnInit {
 
   ShowDiagramm() {
     this.showdiagram = !this.showdiagram;
+  }
+
+  Refresh() {
+    this.WaitersSaleMethod();
   }
 
 }

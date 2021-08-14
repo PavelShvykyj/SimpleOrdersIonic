@@ -6,6 +6,7 @@
     <ion-buttons slot="start">
       <ion-menu-button menu='mainSide' autoHide=true></ion-menu-button>
     </ion-buttons>
+    <ion-buttons slot="end"><ion-button (click)="Refresh()"><ion-icon slot="icon-only" name="refresh-outline"></ion-icon></ion-button> </ion-buttons>
     <ion-thumbnail slot="end">
       <img src="../../../assets/logo.png">
     </ion-thumbnail>
@@ -30,6 +31,7 @@
       <ion-item lines="none">
         <ion-label> Закрытых чеков : </ion-label>
         <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.cheksQuontity}} </ion-badge>
+        <ion-badge slot="end" color='medium' mode='ios'> {{ownSales.cheksQuontityterminal}} </ion-badge>
       </ion-item>
       <ion-item lines="none">
         <ion-label> Открытых заказов: </ion-label>

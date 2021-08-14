@@ -12,7 +12,7 @@ export interface SettingsState {
 
 //0.101
 export const initialState: SettingsState = {
-  onecIP: '192.168.1.41',
+  onecIP: '192.168.0.101',
   onecBase: 'SimplePUB',
   isDevMode: false
 
