@@ -34,17 +34,14 @@ export class BarcodeinputComponent implements OnInit {
     this.barcodeScanner.scan(scanoptions)
     .then(res => {
       if (!res.cancelled) {
-        this.barcode.patchValue(res.text); 
-        
+        this.form.get('barcode').patchValue(res.text)
       } else {
         alert('cancelled');
-        
-        
       }
     })
     .catch(err=> {
-      alert('somthing throng'+JSON.stringify(err));
-      this.barcode.patchValue(null);
+      alert('somthing vrong '+JSON.stringify(err));
+      this.form.get('barcode').patchValue(null)
     })
     
   }

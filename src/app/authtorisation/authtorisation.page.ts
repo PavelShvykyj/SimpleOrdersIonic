@@ -143,15 +143,14 @@ export class AuthtorisationPage implements OnInit {
     .then(res => {
       if (!res.cancelled) {
         this.password.patchValue(res.text); 
-        this.Loggin(); 
       } else {
         alert('cancelled');
-        this.store.dispatch(loggOut());
         this.password.patchValue(null);
+        this.store.dispatch(loggOut());
       }
     })
     .catch(err=> {
-      alert('somthing throng'+JSON.stringify(err));
+      alert('somthing vrong '+JSON.stringify(err));
       this.password.patchValue(null);
     })
       
